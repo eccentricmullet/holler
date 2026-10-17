@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Holler design tokens — see docs/DESIGN.md */
+@theme {
+  --color-green: #2bb24c;
+  --color-lime: #7ed957;
+  --color-lime-soft: #b8f27c;
+  --color-green-deep: #178a35;
+  --color-green-tint: #e6f8dc;
+  --color-green-wash: #f1fbea;
+  --color-love: #e5486a;
+  --color-love-tint: #fff0f2;
+  --color-ink: #1a1d24;
+  --color-muted: #6b7079;
+  --color-dark-card: #23262f;
+  --color-surface: #ffffff;
+  --color-field: #f1f2f0;
+  --color-line: #eeefed;
+
+  --font-sans: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-control: 16px;
+  --radius-card: 24px;
+  --radius-sheet: 32px;
+
+  --shadow-control: 0 4px 14px rgba(26, 29, 36, 0.1);
+  --shadow-float: 0 10px 30px rgba(26, 29, 36, 0.14);
+}
+
+html,
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

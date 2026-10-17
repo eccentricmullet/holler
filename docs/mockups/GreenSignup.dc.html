@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign up: home and privacy</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#178A35}a:hover{color:#11702A}
+.ic{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FFFFFF; font-family: 'Rubik', sans-serif; color: #1A1D24; display: flex; flex-direction: column; padding: 24px; box-sizing: border-box">
+
+<div style="display: flex; gap: 6px; padding-top: 8px">
+<span style="height: 6px; width: 28px; border-radius: 3px; background: #2BB24C"></span>
+<span style="height: 6px; width: 28px; border-radius: 3px; background: #2BB24C"></span>
+<span style="height: 6px; width: 56px; border-radius: 3px; background: #2BB24C"></span>
+</div>
+
+<h1 style="margin: 32px 0 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1">Where's home?</h1>
+<p style="margin: 10px 0 0; font-size: 16px; color: #6B7079; line-height: 1.4">So you see the pros your actual neighbors use. Your address is never shown.</p>
+
+<label for="home-addr" style="margin-top: 24px; font-size: 15px; font-weight: 600">Home address</label>
+<div style="margin-top: 8px; height: 56px; border-radius: 18px; background: #F1F2F0; display: flex; align-items: center; gap: 10px; padding: 0 16px">
+<span style="font-size: 18px" aria-hidden="true">🏡</span>
+<input id="home-addr" type="text" value="[YOUR STREET], Spring Hill, TN" style="border: 0; outline: none; background: transparent; flex-grow: 1; font-family: inherit; font-size: 16px; color: #1A1D24; min-width: 0">
+</div>
+
+<h2 style="margin: 28px 0 12px; font-size: 20px; font-weight: 700">How should you show on the map?</h2>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{ isBlock }}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-pressed="true" onClick="{{ pickBlock }}" style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 22px; border: 2.5px solid #2BB24C; background: #F1FBEA; font-family: inherit; color: #1A1D24; text-align: left">
+<span style="width: 48px; height: 48px; border-radius: 16px; background: #FFFFFF; font-size: 24px; line-height: 48px; text-align: center; flex-shrink: 0">📍</span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 17px; font-weight: 700">Near my block</span><span style="font-size: 14px; color: #6B7079; line-height: 1.35">Neighbors see “Zak H.” and your pros on your block, never your house.</span></span>
+</button>
+<button type="button" aria-pressed="false" onClick="{{ pickHidden }}" style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 22px; border: 2.5px solid #EEEFED; background: #FFFFFF; font-family: inherit; color: #1A1D24; text-align: left">
+<span style="width: 48px; height: 48px; border-radius: 16px; background: #F1F2F0; font-size: 24px; line-height: 48px; text-align: center; flex-shrink: 0">🕶️</span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 17px; font-weight: 700">Keep me hidden</span><span style="font-size: 14px; color: #6B7079; line-height: 1.35">Your 👍 and ❤️ still count. No pin, and you show as “a neighbor.”</span></span>
+</button>
+</sc-if>
+<sc-if value="{{ isHidden }}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-pressed="false" onClick="{{ pickBlock }}" style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 22px; border: 2.5px solid #EEEFED; background: #FFFFFF; font-family: inherit; color: #1A1D24; text-align: left">
+<span style="width: 48px; height: 48px; border-radius: 16px; background: #F1F2F0; font-size: 24px; line-height: 48px; text-align: center; flex-shrink: 0">📍</span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 17px; font-weight: 700">Near my block</span><span style="font-size: 14px; color: #6B7079; line-height: 1.35">Neighbors see “Zak H.” and your pros on your block, never your house.</span></span>
+</button>
+<button type="button" aria-pressed="true" onClick="{{ pickHidden }}" style="display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 22px; border: 2.5px solid #2BB24C; background: #F1FBEA; font-family: inherit; color: #1A1D24; text-align: left">
+<span style="width: 48px; height: 48px; border-radius: 16px; background: #FFFFFF; font-size: 24px; line-height: 48px; text-align: center; flex-shrink: 0">🕶️</span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 17px; font-weight: 700">Keep me hidden</span><span style="font-size: 14px; color: #6B7079; line-height: 1.35">Your 👍 and ❤️ still count. No pin, and you show as “a neighbor.”</span></span>
+</button>
+</sc-if>
+</div>
+
+<a href="GreenMap.dc.html" style="margin-top: auto; height: 58px; border-radius: 20px; background: #178A35; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px; text-decoration: none">See who my neighbors use</a>
+<span style="margin-top: 10px; font-size: 13px; color: #6B7079; text-align: center">Change this anytime in your profile.</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { mode: 'block' };
+}
+renderVals() {
+const b = this.state.mode === 'block';
+return {
+isBlock: b,
+isHidden: !b,
+pickBlock: () => this.setState({ mode: 'block' }),
+pickHidden: () => this.setState({ mode: 'hidden' })
+};
+}
+}
+</script>
+</body>
+</html>

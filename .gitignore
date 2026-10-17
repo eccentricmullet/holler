@@ -1,0 +1,19 @@
+# keys
+.env
+.env.local
+.env*.local
+
+# dependencies and builds
+node_modules/
+.next/
+out/
+build/
+
+# misc
+.DS_Store
+Thumbs.db
+*.log
+.vercel
+
+# next
+next-env.d.ts
