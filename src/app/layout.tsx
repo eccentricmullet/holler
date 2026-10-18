@@ -9,7 +9,13 @@ const rubik = Rubik({
   variable: "--font-rubik",
 });
 
+// Full links in previews need the site's address. Vercel provides it; locally it's localhost.
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: `${SITE.name} · ${SITE.tagline}`,
   description: SITE.tagline,
 };
