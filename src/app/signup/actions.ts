@@ -3,8 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAddressDetails } from "@/lib/places";
-
-const MAX_ACCOUNTS_PER_HOME = 3;
+import { joinHousehold } from "@/lib/households";
 
 type Input = {
   firstName: string;
@@ -36,60 +35,10 @@ export async function completeSignup(input: Input): Promise<{ error?: string }> 
     return { error: "We couldn't look up that address. Try again." };
   }
 
-  const admin = createAdminClient();
-
-  const { data: existingProfile } = await admin.from("profiles").select("id").eq("id", user.id).maybeSingle();
-  if (existingProfile) return {};
-
-  let { data: household } = await admin
-    .from("households")
-    .select("id")
-    .eq("address_place_id", place.placeId)
-    .maybeSingle();
-
-  if (household) {
-    const { count } = await admin
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("household_id", household.id);
-    if ((count ?? 0) >= MAX_ACCOUNTS_PER_HOME) {
-      return { error: "This home already has the most accounts allowed. Reach out if that's a mistake." };
-    }
-  } else {
-    const { data: created, error } = await admin
-      .from("households")
-      .insert({
-        address: place.address,
-        address_place_id: place.placeId,
-        location: `SRID=4326;POINT(${place.lng} ${place.lat})`,
-        neighborhood: place.neighborhood,
-      })
-      .select("id")
-      .single();
-    if (error?.code === "23505") {
-      // Someone else in the home signed up at the same moment; join theirs.
-      ({ data: household } = await admin
-        .from("households")
-        .select("id")
-        .eq("address_place_id", place.placeId)
-        .single());
-    } else if (error || !created) {
-      return { error: "Something went wrong saving your home. Try again." };
-    } else {
-      household = created;
-    }
-    if (!household) return { error: "Something went wrong saving your home. Try again." };
-  }
-
-  const { error: profileError } = await admin.from("profiles").insert({
-    id: user.id,
-    household_id: household.id,
-    first_name: firstName,
-    last_initial: lastInitial,
-    phone_verified: true,
+  const result = await joinHousehold(createAdminClient(), user.id, place, {
+    firstName,
+    lastInitial,
     privacy: input.privacy,
   });
-  if (profileError) return { error: "Something went wrong creating your account. Try again." };
-
-  return {};
+  return result.ok ? {} : { error: result.error };
 }
