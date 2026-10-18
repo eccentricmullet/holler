@@ -17,3 +17,6 @@ Thumbs.db
 
 # next
 next-env.d.ts
+
+# typescript
+*.tsbuildinfo

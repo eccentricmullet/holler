@@ -1,6 +1,16 @@
+import Link from "next/link";
 import { SITE } from "@/config/site";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle()
+    : { data: null };
+
   return (
     <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden px-6 pb-8 pt-10">
       {/* soft green shapes, like the mockups */}
@@ -30,12 +40,18 @@ export default function Home() {
 
       <p className="relative mt-8 text-sm text-muted">Coming soon to {SITE.launchTown}.</p>
 
-      <button
-        type="button"
-        className="relative mt-auto h-14 rounded-[18px] bg-green-deep text-lg font-semibold text-white shadow-float"
-      >
-        See who my neighbors use
-      </button>
+      {profile ? (
+        <p className="relative mt-auto rounded-[18px] bg-green-tint px-4 py-4 text-center text-lg font-semibold text-green-deep">
+          You&apos;re in, {profile.first_name}! 🎉
+        </p>
+      ) : (
+        <Link
+          href="/signup"
+          className="relative mt-auto flex h-14 items-center justify-center rounded-[18px] bg-green-deep text-lg font-semibold text-white shadow-float"
+        >
+          See who my neighbors use
+        </Link>
+      )}
     </main>
   );
 }
