@@ -7,6 +7,7 @@ import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type ProNote = {
+  vouchId: string;
   reaction: "thumbs_up" | "love";
   note: string;
   byline: string; // "Sarah K. · Wades Grove" or "A neighbor"
@@ -29,6 +30,7 @@ export type ProPage = {
 export type ProLookup = { kind: "found"; pro: ProPage } | { kind: "merged"; into: string } | { kind: "missing" };
 
 type VouchRow = {
+  id: string;
   reaction: "thumbs_up" | "love";
   note: string | null;
   household_id: string;
@@ -55,7 +57,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
   const { data } = await db
     .from("vouches")
     .select(
-      "reaction, note, household_id, created_at, categories(slug, name), profiles(first_name, last_initial, privacy, banned), households(neighborhood, display_location)"
+      "id, reaction, note, household_id, created_at, categories(slug, name), profiles(first_name, last_initial, privacy, banned), households(neighborhood, display_location)"
     )
     .eq("pro_id", id)
     .eq("status", "visible")
@@ -87,7 +89,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       const hidden = p.privacy === "hidden";
       const who = hidden ? "A neighbor" : `${p.first_name} ${p.last_initial}.`;
       const hood = r.households?.neighborhood;
-      return { reaction: r.reaction, note: r.note!, byline: hood && !hidden ? `${who} · ${hood}` : who };
+      return { vouchId: r.id, reaction: r.reaction, note: r.note!, byline: hood && !hidden ? `${who} · ${hood}` : who };
     });
 
   return {

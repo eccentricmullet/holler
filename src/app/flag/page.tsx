@@ -1,17 +1,41 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
+import { SITE } from "@/config/site";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import FlagForm from "./FlagForm";
 
-// Placeholder until private flags are built (build order step 9).
-export default function FlagPage() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-6 pt-16">
-      <h1 className="text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Sorry to hear that</h1>
-      <p className="mt-2.5 text-base text-muted">Private reports are coming soon. Only the admin will ever see them.</p>
-      <Link
-        href="/"
-        className="mt-auto flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white"
-      >
-        Back to the map
-      </Link>
-    </main>
-  );
+export const metadata: Metadata = { title: `Private report · ${SITE.name}` };
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Private report about a pro (bad experience) or a note (report it). Only the admin sees these.
+export default async function FlagPage({ searchParams }: { searchParams: Promise<{ pro?: string; note?: string }> }) {
+  const { pro, note } = await searchParams;
+  const target = pro && UUID.test(pro) ? { kind: "pro" as const, id: pro } : note && UUID.test(note) ? { kind: "note" as const, id: note } : null;
+  if (!target) notFound();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const here = `/flag?${target.kind}=${target.id}`;
+  if (!user) redirect(`/signup?next=${encodeURIComponent(here)}`);
+
+  const db = createAdminClient();
+  let label: string;
+  let backHref: string;
+  if (target.kind === "pro") {
+    const { data } = await db.from("pros").select("id, name").eq("id", target.id).maybeSingle();
+    if (!data) notFound();
+    label = data.name;
+    backHref = `/pro/${data.id}`;
+  } else {
+    const { data } = await db.from("vouches").select("note, pro_id, pros(name)").eq("id", target.id).maybeSingle();
+    if (!data?.note) notFound();
+    label = `“${data.note}”`;
+    backHref = `/pro/${data.pro_id}`;
+  }
+
+  return <FlagForm target={target} label={label} backHref={backHref} />;
 }

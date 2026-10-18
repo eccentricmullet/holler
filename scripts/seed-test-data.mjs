@@ -59,7 +59,6 @@ async function add() {
   const { data: owner, error: ownerErr } = await db
     .from("profiles")
     .select("household_id")
-    .eq("role", "user")
     .order("created_at")
     .limit(1)
     .single();

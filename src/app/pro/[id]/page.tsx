@@ -81,14 +81,19 @@ export default async function ProPageRoute({ params }: Params) {
           <p className="py-3 text-[15px] text-muted">No notes yet. Be the first to say something nice.</p>
         ) : (
           <ul className="flex flex-col">
-            {pro.notes.map((n, i) => (
-              <li key={i} className="flex gap-3 border-b border-line py-3 last:border-b-0">
+            {pro.notes.map((n) => (
+              <li key={n.vouchId} className="flex gap-3 border-b border-line py-3 last:border-b-0">
                 <span className="text-[22px] leading-[1.2]" role="img" aria-label={n.reaction === "love" ? "Loves them" : "Thumbs up"}>
                   {n.reaction === "love" ? "❤️" : "👍"}
                 </span>
                 <span className="flex flex-col gap-1">
                   <span className="text-[15px] leading-snug">&ldquo;{n.note}&rdquo;</span>
-                  <span className="text-[13px] font-medium text-muted">{n.byline}</span>
+                  <span className="flex gap-2 text-[13px] font-medium text-muted">
+                    {n.byline}
+                    <Link href={`/flag?note=${n.vouchId}`} className="font-normal underline-offset-2 hover:underline">
+                      · Report
+                    </Link>
+                  </span>
                 </span>
               </li>
             ))}
