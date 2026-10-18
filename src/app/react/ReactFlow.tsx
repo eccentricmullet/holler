@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProLogo from "@/components/map/ProLogo";
 import { shareInvite } from "@/components/InviteButton";
+import { PRICES, TAGS } from "@/lib/tags";
 import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
@@ -48,6 +49,8 @@ export default function ReactFlow({
   const [category, setCategory] = useState<string | null>(start?.category ?? null);
   const [reaction, setReaction] = useState<"thumbs_up" | "love">("thumbs_up");
   const [note, setNote] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [price, setPrice] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Extract<ReactResult, { ok: true }> | null>(null);
@@ -93,6 +96,8 @@ export default function ReactFlow({
     setError(null);
     setReaction("thumbs_up");
     setNote("");
+    setTags([]);
+    setPrice(null);
     setCategory(null);
     setStep("react");
     setCategory(await suggestCategory(p.choice, p.name));
@@ -103,7 +108,7 @@ export default function ReactFlow({
     if (!category) return setError("Pick what they do for you.");
     setBusy(true);
     setError(null);
-    const r = await submitReaction({ pro: picked.choice, category, reaction, note });
+    const r = await submitReaction({ pro: picked.choice, category, reaction, note, tags, price });
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setResult(r);
@@ -248,6 +253,53 @@ export default function ReactFlow({
             selectedClass="border-love bg-love-tint"
             tileClass="bg-love"
           />
+        </div>
+
+        <span className="mt-6 text-[15px] font-semibold">
+          What stood out? <span className="font-normal text-muted">optional</span>
+        </span>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {TAGS.map((t) => {
+            const on = tags.includes(t.id);
+            return (
+              <button
+                key={t.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setTags((cur) => (on ? cur.filter((x) => x !== t.id) : [...cur, t.id]))}
+                className={`flex h-10 items-center gap-1.5 rounded-full border-2 px-3.5 text-sm font-semibold transition-colors ${
+                  on ? "border-green-deep bg-green text-white" : "border-line bg-surface text-ink"
+                }`}
+              >
+                <span aria-hidden>{t.emoji}</span>
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <span className="mt-5 text-[15px] font-semibold">
+          Price <span className="font-normal text-muted">optional</span>
+        </span>
+        <div className="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Price">
+          {PRICES.map((p) => {
+            const on = price === p.value;
+            return (
+              <button
+                key={p.value}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setPrice(on ? null : p.value)}
+                className={`flex h-14 flex-col items-center justify-center rounded-2xl border-2 transition-colors ${
+                  on ? "border-green-deep bg-green text-white" : "border-line bg-surface text-ink"
+                }`}
+              >
+                <span className="text-base font-bold leading-none">{p.label}</span>
+                <span className={`mt-1 text-xs ${on ? "text-white" : "text-muted"}`}>{p.hint}</span>
+              </button>
+            );
+          })}
         </div>
 
         <label htmlFor="react-note" className="mt-6 text-[15px] font-semibold">

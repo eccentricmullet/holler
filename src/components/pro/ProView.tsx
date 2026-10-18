@@ -38,6 +38,25 @@ export default function ProView({ pro, backButton, inPanel = false }: { pro: Pro
           <Tile emoji="🏡" tint="bg-green-tint" value={pro.nearCustomers} label="Within 1 mi" />
         </div>
 
+        {(pro.tagCounts.length > 0 || pro.price) && (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {pro.price && (
+              <span className="flex h-9 items-center gap-1.5 rounded-full bg-field px-3.5 text-sm font-semibold">
+                <span className="text-green-deep">{"$".repeat(pro.price.level)}</span>
+                <span className="font-medium text-muted">
+                  {["budget-friendly", "average price", "pricey"][pro.price.level - 1]}
+                </span>
+              </span>
+            )}
+            {pro.tagCounts.slice(0, 4).map((t) => (
+              <span key={t.id} className="flex h-9 items-center gap-1.5 rounded-full bg-green-tint px-3.5 text-sm font-semibold">
+                <span aria-hidden>{t.emoji}</span>
+                {t.count} say {t.label.toLowerCase()}
+              </span>
+            ))}
+          </div>
+        )}
+
         <h2 className="mb-2 mt-[26px] text-[19px] font-bold">What neighbors say</h2>
         {pro.notes.length === 0 ? (
           <p className="py-3 text-[15px] text-muted">No notes yet. Be the first to say something nice.</p>

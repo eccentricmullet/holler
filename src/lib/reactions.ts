@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkNote } from "@/lib/note-filter";
+import { cleanPrice, cleanTags } from "@/lib/tags";
 import { getBusinessDetails } from "@/lib/places";
 
 // Trust rules for reacting. The server action passes in the signed-in user; tests pass in test users.
@@ -15,6 +16,8 @@ export type ReactInput = {
   category: string;
   reaction: "thumbs_up" | "love";
   note: string;
+  tags?: string[]; // optional quick tags (11b)
+  price?: number | null; // optional $ / $$ / $$$ (11c)
 };
 
 export type ReactResult =
@@ -165,6 +168,8 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
       category_id: category.id,
       reaction: input.reaction,
       note: note || null,
+      tags: cleanTags(input.tags),
+      price: cleanPrice(input.price),
       status: "visible",
       // Reactions that came through the pro's own invite link are labeled internally
       ...(actor.inviteProId && actor.inviteProId === pro.id ? { via_invite: true } : {}),

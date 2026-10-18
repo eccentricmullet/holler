@@ -3,6 +3,7 @@ import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { createClient } from "@/lib/supabase/server";
 import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
+import { TAGS } from "@/lib/tags";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -25,6 +26,8 @@ export type ProPage = {
   love: number;
   nearCustomers: number;
   notes: ProNote[];
+  tagCounts: { id: string; label: string; emoji: string; count: number }[]; // most-said first
+  price: { level: 1 | 2 | 3; from: number } | null; // typical price, from N neighbors
 };
 
 export type ProLookup = { kind: "found"; pro: ProPage } | { kind: "merged"; into: string } | { kind: "missing" };
@@ -33,6 +36,9 @@ type VouchRow = {
   id: string;
   reaction: "thumbs_up" | "love";
   note: string | null;
+  tags?: string[] | null;
+  price?: number | null;
+  created_at: string;
   household_id: string;
   categories: { slug: string; name: string } | null;
   profiles: { first_name: string; last_initial: string; privacy: string; banned: boolean } | null;
@@ -57,7 +63,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
   const { data } = await db
     .from("vouches")
     .select(
-      "id, reaction, note, household_id, created_at, categories(slug, name), profiles(first_name, last_initial, privacy, banned), households(neighborhood, display_location)"
+      "*, categories(slug, name), profiles(first_name, last_initial, privacy, banned), households(neighborhood, display_location)"
     )
     .eq("pro_id", id)
     .eq("status", "visible")
@@ -92,6 +98,15 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       return { vouchId: r.id, reaction: r.reaction, note: r.note!, byline: hood && !hidden ? `${who} · ${hood}` : who };
     });
 
+  // 11b: how many neighbors picked each quick tag, most-said first
+  const tagCounts = TAGS.map((t) => ({ ...t, count: rows.filter((r) => r.tags?.includes(t.id)).length }))
+    .filter((t) => t.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  // 11c: typical price = the middle answer among neighbors who gave one
+  const prices = rows.map((r) => r.price).filter((p): p is number => p === 1 || p === 2 || p === 3).sort();
+  const price = prices.length ? { level: prices[Math.floor((prices.length - 1) / 2)] as 1 | 2 | 3, from: prices.length } : null;
+
   return {
     kind: "found",
     pro: {
@@ -106,6 +121,8 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       love: rows.filter((r) => r.reaction === "love").length,
       nearCustomers: nearHomes.size,
       notes,
+      tagCounts,
+      price,
     },
   };
 });
