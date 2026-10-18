@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { createClient } from "@/lib/supabase/server";
 import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
 import { TAGS } from "@/lib/tags";
+import { whenLabel } from "@/lib/recency";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -12,6 +13,7 @@ export type ProNote = {
   reaction: "thumbs_up" | "love";
   note: string;
   byline: string; // "Sarah K. · Wades Grove" or "A neighbor"
+  when: string; // "this fall", "last summer" (11d)
 };
 
 export type ProPage = {
@@ -95,7 +97,13 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       const hidden = p.privacy === "hidden";
       const who = hidden ? "A neighbor" : `${p.first_name} ${p.last_initial}.`;
       const hood = r.households?.neighborhood;
-      return { vouchId: r.id, reaction: r.reaction, note: r.note!, byline: hood && !hidden ? `${who} · ${hood}` : who };
+      return {
+        vouchId: r.id,
+        reaction: r.reaction,
+        note: r.note!,
+        byline: hood && !hidden ? `${who} · ${hood}` : who,
+        when: whenLabel(r.created_at),
+      };
     });
 
   // 11b: how many neighbors picked each quick tag, most-said first

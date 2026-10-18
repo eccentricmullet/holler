@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import ProLogo from "./ProLogo";
+import { whenLabel } from "@/lib/recency";
 import ContactButton from "@/components/pro/ContactButton";
 import type { NearbyPro } from "./types";
 
@@ -16,6 +17,7 @@ const ChevronIcon = () => (
 export default function ProCards(props: {
   pros: NearbyPro[];
   pinCounts: Record<string, number>;
+  latest: Record<string, string>; // pro id -> most recent reaction date
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
@@ -32,6 +34,7 @@ export default function ProCards(props: {
         const thumbs = p.thumbs_total;
         const love = p.love_total;
         const onMap = props.pinCounts[p.id] ?? 0;
+        const when = props.latest[p.id] ? whenLabel(props.latest[p.id]) : null;
         return (
           <div
             key={p.id}
@@ -40,7 +43,7 @@ export default function ProCards(props: {
             }}
             onClick={() => props.onSelect(p.id)}
             className={`relative flex shrink-0 snap-start cursor-pointer flex-col overflow-hidden bg-surface shadow-float transition-all ${
-              on ? "h-[252px] w-[236px] rounded-[28px] p-5" : "h-[214px] w-[176px] rounded-[26px] p-[18px]"
+              on ? "min-h-[252px] w-[236px] rounded-[28px] p-5" : "h-[214px] w-[176px] rounded-[26px] p-[18px]"
             }`}
           >
             {on && (
@@ -51,13 +54,14 @@ export default function ProCards(props: {
             )}
             <ProLogo name={p.name} logoUrl={p.logo_url} size={on ? 56 : 48} />
             <span className={`relative font-bold leading-[1.15] ${on ? "mt-[18px] text-xl" : "mt-3.5 text-lg"}`}>{p.name}</span>
+            {on && when && <span className="relative mt-0.5 text-[13px] font-medium text-muted">Latest: {when}</span>}
             <span className="relative mt-2 flex items-center gap-3 text-base font-semibold">
               <span>👍 {thumbs}</span>
               <span>❤️ {love}</span>
               {on && <span className="text-sm font-medium text-muted">{onMap} on map</span>}
             </span>
             {on ? (
-              <span className="mt-auto flex gap-2">
+              <span className="mt-auto flex gap-2 pt-3">
                 {p.phone && (
                   <ContactButton proId={p.id} proName={p.name} phone={p.phone} from="map_card" label="Call or text" size="md" className="flex-1" />
                 )}
@@ -71,7 +75,9 @@ export default function ProCards(props: {
                 </Link>
               </span>
             ) : (
-              <span className="mt-auto text-[13px] text-muted">{onMap} on map</span>
+              <span className="mt-auto text-[13px] text-muted">
+                {onMap} on map{when && ` · ${when}`}
+              </span>
             )}
           </div>
         );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ProLogo from "./ProLogo";
+import { whenLabel } from "@/lib/recency";
 import ContactButton from "@/components/pro/ContactButton";
 import type { NearbyPro } from "./types";
 
@@ -9,6 +10,7 @@ import type { NearbyPro } from "./types";
 export default function ProList(props: {
   pros: NearbyPro[];
   pinCounts: Record<string, number>;
+  latest: Record<string, string>; // pro id -> most recent reaction date
   selectedId: string | null;
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
@@ -32,7 +34,9 @@ export default function ProList(props: {
               <span className="flex items-center gap-2.5 text-sm font-semibold">
                 <span>👍 {p.thumbs_total}</span>
                 <span>❤️ {p.love_total}</span>
-                <span className="font-normal text-muted">{props.pinCounts[p.id] ?? 0} on map</span>
+                <span className="truncate font-normal text-muted">
+                  {props.pinCounts[p.id] ?? 0} on map{props.latest[p.id] ? ` · ${whenLabel(props.latest[p.id])}` : ""}
+                </span>
               </span>
             </span>
             {p.phone && <ContactButton proId={p.id} proName={p.name} phone={p.phone} from="map_list" size="icon" className="shrink-0" />}

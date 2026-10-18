@@ -70,7 +70,7 @@ export default function ProView({ pro, backButton, inPanel = false }: { pro: Pro
                 <span className="flex flex-col gap-1">
                   <span className="text-[15px] leading-snug">&ldquo;{n.note}&rdquo;</span>
                   <span className="flex gap-2 text-[13px] font-medium text-muted">
-                    {n.byline}
+                    {n.byline} · {n.when}
                     <Link href={`/flag?note=${n.vouchId}`} className="font-normal underline-offset-2 hover:underline">
                       · Report
                     </Link>

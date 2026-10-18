@@ -78,6 +78,18 @@ export default function MapScreen(props: Props) {
     };
   }, [category, center.lat, center.lng, supabase]);
 
+  // When each pro was most recently used (11d), for "this fall" on cards
+  const [latest, setLatest] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!pros?.length) return;
+    const ctrl = new AbortController();
+    fetch(`/api/pros/latest?ids=${pros.map((p) => p.id).join(",")}`, { signal: ctrl.signal })
+      .then((r) => r.json())
+      .then((d) => setLatest((cur) => ({ ...cur, ...d.latest })))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [pros]);
+
   const pinCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const p of pins) counts[p.pro_id] = (counts[p.pro_id] ?? 0) + 1;
@@ -154,7 +166,7 @@ export default function MapScreen(props: Props) {
           ) : pros.length === 0 ? (
             <div className="px-1">{emptyState}</div>
           ) : (
-            <ProList pros={pros} pinCounts={pinCounts} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
+            <ProList pros={pros} pinCounts={pinCounts} latest={latest} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
           )}
         </div>
         {unlockCard && <div className="p-3">{unlockCard}</div>}
@@ -228,7 +240,7 @@ export default function MapScreen(props: Props) {
         ) : pros.length === 0 ? (
           <div className="mx-5 mb-7">{emptyState}</div>
         ) : (
-          <ProCards pros={pros} pinCounts={pinCounts} selectedId={selectedId} onSelect={setSelectedId} />
+          <ProCards pros={pros} pinCounts={pinCounts} latest={latest} selectedId={selectedId} onSelect={setSelectedId} />
         )}
       </div>
 
