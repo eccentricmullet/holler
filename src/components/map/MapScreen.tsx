@@ -109,13 +109,13 @@ export default function MapScreen({ categories, center, home, placeName, signedI
       {/* Right-side controls */}
       <div className="absolute right-5 top-7 flex flex-col gap-3">
         {signedIn && home ? (
-          <span
+          <Link
+            href="/profile"
             aria-label="My profile"
-            role="img"
             className="flex size-12 items-center justify-center rounded-2xl bg-ink text-[17px] font-bold text-white shadow-control"
           >
             {home.initial}
-          </span>
+          </Link>
         ) : (
           <Link href="/signup" aria-label="Sign up or log in" className={controlClass}>
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProLogo from "@/components/map/ProLogo";
+import { shareInvite } from "@/components/InviteButton";
 import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
 import { submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
@@ -120,19 +121,6 @@ export default function ReactFlow({
     setStep("find");
   }
 
-  async function invite() {
-    const url = `${window.location.origin}/`;
-    const text = "I've been sharing the local pros I trust on this map. Add yours!";
-    if (navigator.share) {
-      try {
-        await navigator.share({ text, url });
-      } catch {
-        // closed the share sheet
-      }
-    } else {
-      window.location.href = `sms:?&body=${encodeURIComponent(`${text} ${url}`)}`;
-    }
-  }
 
   const shortName = picked?.name.split(" ")[0] ?? "them";
   const currentCategory = categories.find((c) => c.slug === category);
@@ -177,7 +165,7 @@ export default function ReactFlow({
           </button>
           <button
             type="button"
-            onClick={invite}
+            onClick={shareInvite}
             className="flex h-[58px] items-center justify-center rounded-[20px] border-2 border-white/50 text-[17px] font-semibold"
           >
             📣 Invite a neighbor
