@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
-import { getProPage, viewerCenter } from "@/lib/pros";
+import { getProPage, isSaved, viewerCenter } from "@/lib/pros";
 import ProView from "@/components/pro/ProView";
 import PanelShell, { PanelCloseButton } from "@/components/pro/PanelShell";
 
@@ -18,13 +18,13 @@ export default async function ProPanel({ params }: { params: Promise<{ id: strin
     if (merged.kind !== "found") notFound();
     return (
       <PanelShell>
-        <ProView pro={merged.pro} backButton={<PanelCloseButton />} inPanel />
+        <ProView pro={merged.pro} backButton={<PanelCloseButton />} inPanel saved={await isSaved(supabase, merged.pro.id)} />
       </PanelShell>
     );
   }
   return (
     <PanelShell>
-      <ProView pro={result.pro} backButton={<PanelCloseButton />} inPanel />
+      <ProView pro={result.pro} backButton={<PanelCloseButton />} inPanel saved={await isSaved(supabase, result.pro.id)} />
     </PanelShell>
   );
 }

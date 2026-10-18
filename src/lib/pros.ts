@@ -147,3 +147,9 @@ export async function viewerCenter(
     .maybeSingle<{ home_lat: number | null; home_lng: number | null }>();
   return data?.home_lat != null && data.home_lng != null ? { lat: data.home_lat, lng: data.home_lng } : fallback;
 }
+
+// Has the signed-in user saved this pro to "My pros"? (Runs as the user; false when signed out.)
+export async function isSaved(supabase: Awaited<ReturnType<typeof createClient>>, proId: string) {
+  const { data } = await supabase.from("saved_pros").select("pro_id").eq("pro_id", proId).maybeSingle();
+  return !!data;
+}

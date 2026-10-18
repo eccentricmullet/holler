@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
-import { getProPage, viewerCenter } from "@/lib/pros";
+import { getProPage, isSaved, viewerCenter } from "@/lib/pros";
 import ProView from "@/components/pro/ProView";
 
 type Params = { params: Promise<{ id: string }> };
@@ -38,6 +38,7 @@ export default async function ProPageRoute({ params }: Params) {
       <div className="lg:mx-auto lg:max-w-md lg:overflow-hidden lg:rounded-[32px] lg:shadow-float">
         <ProView
           pro={result.pro}
+          saved={await isSaved(supabase, result.pro.id)}
           backButton={
             <Link href="/" aria-label="Back to map" className="flex size-[46px] items-center justify-center rounded-2xl bg-surface text-ink">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

@@ -4,9 +4,20 @@ import type { ProPage } from "@/lib/pros";
 import ProLogo from "@/components/map/ProLogo";
 import ContactButton from "./ContactButton";
 import ShareButton from "./ShareButton";
+import SaveButton from "./SaveButton";
 
 // The pro page content. Shown as a full page (direct link) or as a panel over the map.
-export default function ProView({ pro, backButton, inPanel = false }: { pro: ProPage; backButton: React.ReactNode; inPanel?: boolean }) {
+export default function ProView({
+  pro,
+  backButton,
+  inPanel = false,
+  saved = false,
+}: {
+  pro: ProPage;
+  backButton: React.ReactNode;
+  inPanel?: boolean;
+  saved?: boolean;
+}) {
   const shortName = pro.name.split(" ")[0];
 
   return (
@@ -20,7 +31,10 @@ export default function ProView({ pro, backButton, inPanel = false }: { pro: Pro
 
       <div className="absolute inset-x-5 top-6 z-10 flex justify-between">
         {backButton}
-        <ShareButton name={pro.name} proId={pro.id} />
+        <div className="flex gap-2">
+          <SaveButton proId={pro.id} initiallySaved={saved} />
+          <ShareButton name={pro.name} proId={pro.id} />
+        </div>
       </div>
 
       <div className={`relative mt-[196px] flex flex-col rounded-t-[32px] bg-surface px-6 ${inPanel ? "min-h-[calc(100%-196px)]" : "min-h-[calc(100dvh-196px)]"}`}>
