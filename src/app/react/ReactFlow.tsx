@@ -229,8 +229,8 @@ export default function ReactFlow({
             emoji="👍"
             title="Thumbs up"
             body="Good work. I'd hire them again."
-            selectedClass="border-green bg-green-wash"
-            tileClass="bg-green-wash"
+            selectedClass="border-green-deep bg-green-tint"
+            tileClass="bg-green"
           />
           <ReactionChoice
             selected={reaction === "love"}
@@ -239,7 +239,7 @@ export default function ReactFlow({
             title="Love them"
             body="Awesome. I tell everyone about them."
             selectedClass="border-love bg-love-tint"
-            tileClass="bg-love-tint"
+            tileClass="bg-love"
           />
         </div>
 
@@ -433,6 +433,8 @@ export default function ReactFlow({
   );
 }
 
+// Selected: tinted card, strong border, solid colored tile and a check.
+// Not selected: plain card, gray tile, faded emoji.
 function ReactionChoice(props: {
   selected: boolean;
   onClick: () => void;
@@ -447,12 +449,14 @@ function ReactionChoice(props: {
       type="button"
       aria-pressed={props.selected}
       onClick={props.onClick}
-      className={`flex items-center gap-4 rounded-3xl border-[2.5px] p-[18px] text-left ${
+      className={`relative flex items-center gap-4 rounded-3xl border-[2.5px] p-[18px] text-left transition-colors ${
         props.selected ? props.selectedClass : "border-line bg-surface"
       }`}
     >
       <span
-        className={`size-16 shrink-0 rounded-[20px] text-center text-[34px] leading-[64px] ${props.selected ? "bg-white" : props.tileClass}`}
+        className={`size-16 shrink-0 rounded-[20px] text-center text-[34px] leading-[64px] transition-all ${
+          props.selected ? props.tileClass : "bg-field opacity-60 grayscale"
+        }`}
         aria-hidden
       >
         {props.emoji}
@@ -461,6 +465,11 @@ function ReactionChoice(props: {
         <span className="text-[19px] font-bold">{props.title}</span>
         <span className="text-sm text-muted">{props.body}</span>
       </span>
+      {props.selected && (
+        <span className="absolute right-4 top-4 flex size-6 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-white" aria-hidden>
+          ✓
+        </span>
+      )}
     </button>
   );
 }

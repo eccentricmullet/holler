@@ -2,14 +2,8 @@ import Link from "next/link";
 import { SITE } from "@/config/site";
 import type { ProPage } from "@/lib/pros";
 import ProLogo from "@/components/map/ProLogo";
-import { TrackedLink } from "@/components/Track";
+import ContactButton from "./ContactButton";
 import ShareButton from "./ShareButton";
-
-const PhoneIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
-  </svg>
-);
 
 // The pro page content. Shown as a full page (direct link) or as a panel over the map.
 export default function ProView({ pro, backButton, inPanel = false }: { pro: ProPage; backButton: React.ReactNode; inPanel?: boolean }) {
@@ -71,30 +65,16 @@ export default function ProView({ pro, backButton, inPanel = false }: { pro: Pro
         <div className="sticky bottom-0 mt-auto bg-surface pb-4 pt-3">
           <div className="flex gap-2.5">
             {pro.phone ? (
-              <TrackedLink
-                href={`tel:${pro.phone}`}
-                event="tapped_call"
-                props={{ pro_id: pro.id, from: "pro_page" }}
-                className="flex h-14 flex-1 items-center justify-center gap-2 rounded-[18px] bg-green-deep text-[17px] font-semibold text-white"
-              >
-                <PhoneIcon />
-                Call {shortName}
-              </TrackedLink>
+              <ContactButton
+                proId={pro.id}
+                proName={pro.name}
+                phone={pro.phone}
+                from="pro_page"
+                label={`Call or text ${shortName}`}
+                className="flex-1"
+              />
             ) : (
               <span className="flex h-14 flex-1 items-center justify-center rounded-[18px] bg-field text-[15px] text-muted">No phone number yet</span>
-            )}
-            {pro.phone && (
-              <TrackedLink
-                href={`sms:${pro.phone}`}
-                event="tapped_text"
-                props={{ pro_id: pro.id }}
-                aria-label={`Text ${shortName}`}
-                className="flex size-14 items-center justify-center rounded-[18px] bg-field text-ink"
-              >
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
-                </svg>
-              </TrackedLink>
             )}
             <Link href={`/react?pro=${pro.id}`} aria-label={`React to ${shortName}`} className="flex size-14 items-center justify-center rounded-[18px] bg-green-tint text-2xl">
               👍

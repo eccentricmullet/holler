@@ -88,7 +88,7 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
                       aria-pressed={r.reaction === "thumbs_up"}
                       onClick={() => run(() => setReaction(r.id, "thumbs_up"))}
                       className={`h-11 flex-1 rounded-2xl border-2 text-[15px] font-semibold ${
-                        r.reaction === "thumbs_up" ? "border-green bg-green-wash" : "border-line"
+                        r.reaction === "thumbs_up" ? "border-green-deep bg-green text-white" : "border-line text-muted"
                       }`}
                     >
                       👍 Thumbs up
@@ -99,7 +99,7 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
                       aria-pressed={r.reaction === "love"}
                       onClick={() => run(() => setReaction(r.id, "love"))}
                       className={`h-11 flex-1 rounded-2xl border-2 text-[15px] font-semibold ${
-                        r.reaction === "love" ? "border-love bg-love-tint" : "border-line"
+                        r.reaction === "love" ? "border-love bg-love text-white" : "border-line text-muted"
                       }`}
                     >
                       ❤️ Love them

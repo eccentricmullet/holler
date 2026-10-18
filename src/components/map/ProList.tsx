@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import ProLogo from "./ProLogo";
-import { TrackedLink } from "@/components/Track";
+import ContactButton from "@/components/pro/ContactButton";
 import type { NearbyPro } from "./types";
 
 // Laptop sidebar list. Hovering a pro highlights their logos on the map.
@@ -35,20 +35,7 @@ export default function ProList(props: {
                 <span className="font-normal text-muted">{props.pinCounts[p.id] ?? 0} on map</span>
               </span>
             </span>
-            {p.phone && (
-              <TrackedLink
-                href={`tel:${p.phone}`}
-                event="tapped_call"
-                props={{ pro_id: p.id, from: "map_list" }}
-                onClick={(e) => e.stopPropagation()}
-                aria-label={`Call ${p.name}`}
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-green-deep text-white"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
-                </svg>
-              </TrackedLink>
-            )}
+            {p.phone && <ContactButton proId={p.id} proName={p.name} phone={p.phone} from="map_list" size="icon" className="shrink-0" />}
             <Link
               href={`/pro/${p.id}`}
               onClick={(e) => e.stopPropagation()}
