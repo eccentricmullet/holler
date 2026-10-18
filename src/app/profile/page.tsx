@@ -87,6 +87,10 @@ export default async function ProfilePage() {
         <MenuLink href="/profile/reactions" label="My reactions">
           <path d="M7 10v11M15 5.9L14 10h5.8a2 2 0 0 1 2 2.3l-1.4 7A2 2 0 0 1 18.4 21H7V10l4-8a3 3 0 0 1 3 3.9z" />
         </MenuLink>
+        <MenuLink href="/asks" label="Asks">
+          <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
+          <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 16h.01" />
+        </MenuLink>
         <MenuLink href="/profile/pros" label="My pros">
           <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
         </MenuLink>

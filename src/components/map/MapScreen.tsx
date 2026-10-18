@@ -119,12 +119,38 @@ export default function MapScreen(props: Props) {
           : `No one's reacted to ${article(current?.name ?? "")} ${proWord(current?.name ?? "")} pro near you yet.`}
       </p>
       {!error && (
-        <Link href={reactHref} className="mt-4 flex h-12 items-center justify-center rounded-2xl bg-green-deep text-[15px] font-semibold text-white">
-          Know a good one?
-        </Link>
+        <div className="mt-4 flex gap-2">
+          <Link href={reactHref} className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-green-deep text-[15px] font-semibold text-white">
+            Know a good one?
+          </Link>
+          <Link
+            href={signedIn ? `/asks/new?category=${category}` : `/signup?next=${encodeURIComponent(`/asks/new?category=${category}`)}`}
+            className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-green-tint text-[15px] font-semibold text-green-deep"
+          >
+            Ask your neighbors
+          </Link>
+        </div>
       )}
     </div>
   );
+
+  // Neighbors asking near you, or answers on your own asks (11h)
+  const [askSummary, setAskSummary] = useState<{ near: number; answers: number }>({ near: 0, answers: 0 });
+  useEffect(() => {
+    if (!signedIn) return;
+    fetch("/api/asks/summary")
+      .then((r) => r.json())
+      .then(setAskSummary)
+      .catch(() => {});
+  }, [signedIn]);
+  const askChip =
+    askSummary.answers > 0 || askSummary.near > 0 ? (
+      <Link href="/asks" className="flex items-center gap-2 rounded-full bg-ink px-3.5 py-2 text-[13px] font-semibold text-white shadow-control">
+        {askSummary.answers > 0
+          ? `📬 Your ask got ${askSummary.answers} ${askSummary.answers === 1 ? "answer" : "answers"}`
+          : `🙋 ${askSummary.near} ${askSummary.near === 1 ? "neighbor needs" : "neighbors need"} a pro`}
+      </Link>
+    ) : null;
 
   const unlockCard = farFromLaunch && (
     <Link href="/unlock" className="flex items-center gap-3 rounded-[22px] bg-dark-card px-4 py-3.5 text-white shadow-float">
@@ -154,12 +180,16 @@ export default function MapScreen(props: Props) {
       {/* Phone: title floats on the map */}
       <div className="absolute left-6 top-7 flex flex-col gap-0.5 lg:hidden">{title(satellite)}</div>
       {/* Seasonal prompt under the title (leaves room for the buttons on the right) */}
-      <SeasonalBanner signedIn={signedIn} className="absolute left-5 right-[84px] top-[118px] lg:hidden" />
+      <div className="absolute left-5 right-[84px] top-[118px] flex flex-col items-start gap-2 lg:hidden">
+        <SeasonalBanner signedIn={signedIn} className="w-full" />
+        {askChip}
+      </div>
 
       {/* Laptop: sidebar with the title and the pro list */}
       <aside className="absolute bottom-5 left-5 top-5 hidden w-[380px] flex-col overflow-hidden rounded-[28px] bg-surface shadow-float lg:flex">
         <div className="flex flex-col gap-0.5 px-6 pb-4 pt-6">{title(false)}</div>
         <SeasonalBanner signedIn={signedIn} className="mx-3 mb-3 bg-field shadow-none" />
+        {askChip && <div className="mx-3 mb-3">{askChip}</div>}
         <div className="flex-1 overflow-y-auto px-3 pb-4">
           {pros === null ? (
             <div className="flex flex-col gap-2 px-1" aria-label="Loading pros">

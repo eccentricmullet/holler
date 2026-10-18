@@ -11,6 +11,7 @@ import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
 import { submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
+import { answerAskAction } from "@/app/asks/actions";
 
 type Picked = { choice: ProChoice; name: string; logoUrl: string | null };
 type Step = "find" | "manual" | "react" | "done";
@@ -41,11 +42,13 @@ export default function ReactFlow({
   start,
   onboarding = false,
   presetCategory = null,
+  answerTo = null,
 }: {
   categories: Category[];
   start: { proId: string; name: string; logoUrl: string | null; category: string | null } | null;
   onboarding?: boolean; // just signed up: "Add 3 pros you use" (11e)
   presetCategory?: string | null; // from the seasonal banner (11g)
+  answerTo?: { id: string; who: string } | null; // answering a neighbor's ask (11h)
 }) {
   const [doneCount, setDoneCount] = useState(0);
   const router = useRouter();
@@ -115,7 +118,8 @@ export default function ReactFlow({
     if (!category) return setError("Pick what they do for you.");
     setBusy(true);
     setError(null);
-    const r = await submitReaction({ pro: picked.choice, category, reaction, note, tags, price });
+    const input = { pro: picked.choice, category, reaction, note, tags, price };
+    const r = answerTo ? await answerAskAction(answerTo.id, input) : await submitReaction(input);
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setResult(r);
@@ -177,6 +181,7 @@ export default function ReactFlow({
           {love ? `You love ${result.proName.split(" ")[0]}.` : `You gave ${result.proName.split(" ")[0]} a thumbs up.`}
         </h1>
         <p className="relative mt-3.5 text-[17px] leading-[1.45] text-green-tint">
+          {answerTo ? `Sent to ${answerTo.who} Thanks for helping a neighbor. ` : ""}
           {result.neighbors > 1 ? `That makes ${result.neighbors} neighbors. ` : "You're the first neighbor to say so. "}
           The next person on your street looking for {result.categoryName.toLowerCase()} help will see it on the map.
         </p>
@@ -189,7 +194,14 @@ export default function ReactFlow({
         )}
 
         <div className="relative mt-auto flex flex-col gap-2.5">
-          {onboarding && doneCount >= ONBOARD_GOAL ? (
+          {answerTo ? (
+            <Link
+              href="/asks"
+              className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
+            >
+              See more neighbors asking
+            </Link>
+          ) : onboarding && doneCount >= ONBOARD_GOAL ? (
             <Link
               href="/"
               className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
@@ -241,6 +253,11 @@ export default function ReactFlow({
         <h1 className="mt-9 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">How was {shortName}?</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">One tap. Your neighbors see it on the map.</p>
 
+        {answerTo && currentCategory ? (
+          <p className="mt-5 text-[15px]">
+            <span className="font-semibold">For {answerTo.who}&apos;s ask:</span> {currentCategory.icon} {currentCategory.name}
+          </p>
+        ) : (
         <div className="mt-5">
           <span className="text-[15px] font-semibold">They do my</span>
           <div className="no-scrollbar -mx-6 mt-2 flex gap-2 overflow-x-auto px-6">
@@ -261,6 +278,7 @@ export default function ReactFlow({
             ))}
           </div>
         </div>
+        )}
 
         <div className="mt-6 flex flex-col gap-3.5">
           <ReactionChoice
@@ -462,7 +480,9 @@ export default function ReactFlow({
       ) : (
         <>
           <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
-            {presetName ? (
+            {answerTo ? (
+              <>Who would you recommend to {answerTo.who}?</>
+            ) : presetName ? (
               <>Who do you use for {presetName}?</>
             ) : (
               <>
