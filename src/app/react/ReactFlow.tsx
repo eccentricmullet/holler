@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProLogo from "@/components/map/ProLogo";
 import { shareInvite } from "@/components/InviteButton";
+import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
 import { submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
@@ -393,8 +394,8 @@ export default function ReactFlow({
               <span className="truncate text-[17px] font-bold">{r.name}</span>
               <span className="truncate text-sm text-muted">
                 {r.kind === "holler"
-                  ? [r.thumbs && `👍 ${r.thumbs}`, r.love && `❤️ ${r.love}`].filter(Boolean).join(" · ") || "On Holler"
-                  : ["New to Holler", r.area].filter(Boolean).join(" · ")}
+                  ? [r.thumbs && `👍 ${r.thumbs}`, r.love && `❤️ ${r.love}`].filter(Boolean).join(" · ") || `On ${SITE.name}`
+                  : [`New to ${SITE.name}`, r.area].filter(Boolean).join(" · ")}
               </span>
             </span>
             <svg {...iconProps} width="20" height="20" className="shrink-0 text-muted">

@@ -1,6 +1,7 @@
 import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
 import MapScreen from "@/components/map/MapScreen";
+import { metersBetween } from "@/lib/geo";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -25,8 +26,11 @@ export default async function Home() {
     }
   }
 
+  const farFromLaunch = !!home && metersBetween(home.point, SITE.launchCenter) > SITE.launchRadiusM;
+
   return (
     <MapScreen
+      farFromLaunch={farFromLaunch}
       categories={categories ?? []}
       center={home?.point ?? SITE.launchCenter}
       home={home}

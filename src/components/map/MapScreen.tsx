@@ -16,6 +16,7 @@ type Props = {
   home: { point: LatLng; initial: string } | null;
   placeName: string;
   signedIn: boolean;
+  farFromLaunch: boolean;
 };
 
 const controlClass =
@@ -31,7 +32,7 @@ function proWord(name: string) {
   return name === name.toUpperCase() ? name : name.toLowerCase();
 }
 
-export default function MapScreen({ categories, center, home, placeName, signedIn }: Props) {
+export default function MapScreen({ categories, center, home, placeName, signedIn, farFromLaunch }: Props) {
   const supabase = useRef(createClient()).current;
   const [category, setCategory] = useState(DEFAULT_CATEGORY);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -168,6 +169,20 @@ export default function MapScreen({ categories, center, home, placeName, signedI
 
       {/* Bottom: pro cards, empty state, or loading */}
       <div className="absolute inset-x-0 bottom-0">
+        {farFromLaunch && (
+          <Link
+            href="/unlock"
+            className="mx-5 mb-1 flex items-center gap-3 rounded-[22px] bg-dark-card px-4 py-3.5 text-white shadow-float"
+          >
+            <span className="text-2xl" aria-hidden>
+              📣
+            </span>
+            <span className="flex flex-col">
+              <span className="text-[15px] font-bold">We&apos;re just getting started here</span>
+              <span className="text-[13px] text-white/70">Get neighbors on the list to unlock your town →</span>
+            </span>
+          </Link>
+        )}
         {pros === null ? (
           <ProCardsSkeleton />
         ) : pros.length === 0 ? (

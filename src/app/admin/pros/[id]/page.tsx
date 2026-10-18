@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SITE } from "@/config/site";
 import { adminPageGuard } from "../../guard";
-import { mergeProsAction, setProStatus, updatePro } from "../../actions";
+import { createInviteAction, mergeProsAction, setProStatus, updatePro } from "../../actions";
+import InviteLink from "./InviteLink";
 import ConfirmButton from "../../ConfirmButton";
 
 export const metadata: Metadata = { title: `Edit pro · ${SITE.name}`, robots: { index: false } };
@@ -26,11 +27,13 @@ export default async function AdminProPage({
 
   const { data: pro } = await db
     .from("pros")
-    .select("id, name, phone, website, status, merged_into_id, google_place_id, vouches(reaction, status), flags(status)")
+    .select("id, name, phone, website, status, merged_into_id, google_place_id, vouches(reaction, status, via_invite), flags(status)")
     .eq("id", id)
     .maybeSingle();
   if (!pro) notFound();
-  const vouches = (pro.vouches ?? []) as { reaction: string; status: string }[];
+  const vouches = (pro.vouches ?? []) as { reaction: string; status: string; via_invite: boolean }[];
+  const viaInvite = vouches.filter((v) => v.via_invite).length;
+  const { data: invite } = await db.from("invites").select("code, uses").eq("pro_id", id).limit(1).maybeSingle();
   const openFlags = ((pro.flags ?? []) as { status: string }[]).filter((f) => f.status === "open").length;
 
   const { data: candidates } = mq
@@ -99,6 +102,30 @@ export default async function AdminProPage({
           Save
         </button>
       </form>
+
+      {!pro.merged_into_id && pro.status === "active" && (
+        <section className={card}>
+          <p className="text-[15px] font-semibold">Invite link for this pro</p>
+          <p className="mt-1 text-[13px] text-muted">
+            Give it to the pro to share with customers. It opens straight to &ldquo;How was {pro.name.split(" ")[0]}?&rdquo;
+          </p>
+          {invite ? (
+            <>
+              <InviteLink code={invite.code} proName={pro.name} />
+              <p className="mt-2 text-xs text-muted">
+                Opened {invite.uses} {invite.uses === 1 ? "time" : "times"} · {viaInvite} reactions came through it
+              </p>
+            </>
+          ) : (
+            <form action={createInviteAction}>
+              <input type="hidden" name="proId" value={pro.id} />
+              <button type="submit" className="mt-3 h-11 rounded-xl bg-green-deep px-4 text-sm font-semibold text-white">
+                Make invite link
+              </button>
+            </form>
+          )}
+        </section>
+      )}
 
       {!pro.merged_into_id && (
         <form action={setProStatus} className={card}>

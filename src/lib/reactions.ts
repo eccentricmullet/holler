@@ -21,7 +21,8 @@ export type ReactResult =
   | { ok: true; proId: string; proName: string; categoryName: string; reaction: "thumbs_up" | "love"; neighbors: number }
   | { ok: false; error: string };
 
-export type Actor = { userId: string; phone: string | null | undefined };
+// inviteProId: the pro whose invite link brought this user here, if any (labels the reaction).
+export type Actor = { userId: string; phone: string | null | undefined; inviteProId?: string | null };
 
 export function toE164(input: string | null | undefined) {
   let d = (input ?? "").replace(/\D/g, "");
@@ -165,6 +166,8 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
       reaction: input.reaction,
       note: note || null,
       status: "visible",
+      // Reactions that came through the pro's own invite link are labeled internally
+      ...(actor.inviteProId && actor.inviteProId === pro.id ? { via_invite: true } : {}),
     },
     { onConflict: "household_id,pro_id,category_id" }
   );

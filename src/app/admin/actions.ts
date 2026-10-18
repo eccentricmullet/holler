@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hideUserReactions, mergePros, setBanned } from "@/lib/admin";
 import { toE164 } from "@/lib/reactions";
+import { getOrCreateInvite } from "@/lib/invites";
 
 // Every admin action checks, on the server, that the signed-in user is an admin.
 async function requireAdmin() {
@@ -79,4 +80,11 @@ export async function setUserBanned(form: FormData) {
   const db = await requireAdmin();
   await setBanned(db, str(form, "profileId"), str(form, "banned") === "1");
   revalidatePath("/admin");
+}
+
+export async function createInviteAction(form: FormData) {
+  const db = await requireAdmin();
+  const proId = str(form, "proId");
+  await getOrCreateInvite(db, proId);
+  revalidatePath(`/admin/pros/${proId}`);
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { SITE } from "@/config/site";
 import type { Category } from "./types";
 
 // Bottom sheet with the 12 categories.
@@ -40,6 +42,9 @@ export default function CategorySheet(props: {
             );
           })}
         </div>
+        <Link href="/unlock" className="mt-5 block text-center text-sm font-semibold text-green-deep">
+          Not in {SITE.launchTownShort}? Unlock your town →
+        </Link>
       </div>
     </div>
   );

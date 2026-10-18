@@ -1,6 +1,8 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { INVITE_COOKIE, inviteProId } from "@/lib/invites";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { guessCategory } from "@/lib/guess-category";
 import { saveReaction, type ProChoice, type ReactInput, type ReactResult } from "@/lib/reactions";
@@ -13,7 +15,9 @@ export async function submitReaction(input: ReactInput): Promise<ReactResult> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Please sign in first." };
-  return saveReaction(createAdminClient(), { userId: user.id, phone: user.phone }, input);
+  const db = createAdminClient();
+  const invitedBy = await inviteProId(db, (await cookies()).get(INVITE_COOKIE)?.value);
+  return saveReaction(db, { userId: user.id, phone: user.phone, inviteProId: invitedBy }, input);
 }
 
 // Category to preselect for a pro: their most common one, else a guess from the name.
