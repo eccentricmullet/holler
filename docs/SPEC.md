@@ -1,6 +1,6 @@
 # Holler v1 Build Spec
 
-Owner: Zak · Last updated Oct 17, 2026
+Owner: Zak · Last updated Oct 18, 2026
 
 ## Overview
 
@@ -48,7 +48,7 @@ Anyone can browse the map and pro pages without an account. Signing up is requir
 
 - Full-screen light map. Big bold category title top-left ("Lawn ⌄") with "Who Wades Grove uses" under it.
 - Square white floating buttons on the right: profile, all categories, map/satellite toggle, center on my home.
-- 12 fixed categories: Pool, Lawn, HVAC, Plumbing, Electrical, Roofing, Pest, Cleaning, Handyman, Painting, Pressure washing, Tree service.
+- Categories started as 12 (Pool, Lawn, HVAC, Plumbing, Electrical, Roofing, Pest, Cleaning, Handyman, Painting, Pressure washing, Tree service) and grow to about 24 in groups in step 11a.
 - Each reaction shows as the pro's logo at the neighbor's block. A small ❤️ badge marks neighbors who love that pro. Selecting a pro highlights their logos and fades the rest. Logos group when zoomed out; hide individual logos at the closest zoom levels.
 - Swipeable pro cards along the bottom: logo, name, 👍 and ❤️ counts, "N on map", green Call button, open-pro button. Sorted by reactions within 1 mile, then total.
 - Green "+" button to react to a pro.
@@ -99,7 +99,7 @@ Locations are PostGIS points so "within 1 mile" is a single fast query.
 | --- | --- | --- |
 | `households` | id, address (private), location (exact, private), display_location (fuzzed), neighborhood, created_at | One per home. Exact address never sent to the browser. |
 | `profiles` | id (= auth user), household_id, first_name, last_initial, phone_verified, privacy (block / hidden), role (user / admin), banned | Several people can share a household. |
-| `categories` | id, slug, name, icon, sort_order | The 12 fixed categories, seeded. |
+| `categories` | id, slug, name, icon, sort_order | Seeded list (12 at launch of v1, about 24 in groups after step 11a). Has a `group` for the category sheet. |
 | `pros` | id, google_place_id (unique, nullable), name, phone, website, logo_url (site or Google Places; colored initials fallback), photo_url, location, service_area_text, status (active / hidden), merged_into_id, created_by | One row per real business. |
 | `vouches` | id, household_id, profile_id, pro_id, category_id, reaction (thumbs_up / love), note (≤140), status (visible / hidden), created_at | **Unique on (household_id, pro_id, category_id).** |
 | `flags` | id, pro_id or vouch_id, profile_id, reason, details, status (open / resolved), created_at | Private. Admins only. |
@@ -143,7 +143,17 @@ Finish each step's "done when" before starting the next, and commit after every 
 | 9 | Private flags, admin queue, merge duplicates | You can clear a flag and merge two pros from your phone |
 | 10 | Pro invite links + waitlist "unlock your town" page | A pro's link lands a new user in their react flow |
 | 11 | Desktop layout, PostHog events, empty states, errors, speed pass, privacy policy | Works well on a laptop; funnel shows in PostHog |
+| 11a | More categories: ~24 in groups (Outside, Inside, Moving & hauling, Pets, Cars) with search in the category sheet. No childcare for now. | All categories show on the map and in the react flow; search finds them |
+| 11b | Quick tags on a reaction (optional, one tap each): On time, Fair price, Quick to reply, Clean work, Would rehire | Tags save with a reaction; pro page shows "N neighbors say fair price" |
+| 11c | Price hint on a reaction (optional): $ / $$ / $$$ | Pro page shows the typical price level from neighbors |
+| 11d | Recency: show when neighbors used a pro ("Used this spring") on notes and cards | Older reactions read as older; recent use is visible at a glance |
+| 11e | "React to 3 pros" right after sign-up (skippable) | A new neighbor can add 3 pros in about a minute |
+| 11f | Saved pros ("My pros") plus a shareable "My Spring Hill pros" link | Save from a pro page; list in profile; share link opens a clean page |
+| 11g | Seasonal nudges as an in-app map banner ("Gutter season: who cleaned yours?"). Texts come later (needs Twilio A2P 10DLC registration). | The right banner shows for the season and opens the react flow for that category |
+| 11h | Ask the neighborhood: one-tap "Need a plumber? Ask neighbors." Neighbors within a mile answer by tapping a pro, not typing. In-app "Asks near you" list plus optional browser push. Not a message board. | An ask gets answered with a pro, and the answer adds a reaction |
 | 12 | Seed Spring Hill with real reactions; test with 10 neighbors | 100+ real reactions; testers find a pro in under 60 seconds |
+
+**v1.1 principles (steps 11a–11h):** every addition is one tap and optional; reactions stay positive-only with just 👍 and ❤️ (tags add detail instead of more emoji); no open message board or chat; never sell leads or share a neighbor's number with pros; ranking stays purely neighbor reactions.
 
 ## Out of scope for v1
 
