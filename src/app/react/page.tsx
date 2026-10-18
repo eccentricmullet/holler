@@ -1,17 +1,43 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { SITE } from "@/config/site";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { suggestCategory } from "./actions";
+import ReactFlow from "./ReactFlow";
 
-// Placeholder until the react flow is built (build order step 6).
-export default function ReactPage() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-6 pt-16">
-      <h1 className="text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Reacting is almost here</h1>
-      <p className="mt-2.5 text-base text-muted">Soon you&apos;ll be able to 👍 or ❤️ the pros you use, in under 30 seconds.</p>
-      <Link
-        href="/"
-        className="mt-auto flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white"
-      >
-        Back to the map
-      </Link>
-    </main>
-  );
+export const metadata: Metadata = { title: `React to a pro · ${SITE.name}` };
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export default async function ReactPage({ searchParams }: { searchParams: Promise<{ pro?: string }> }) {
+  const { pro: proParam } = await searchParams;
+  const here = proParam ? `/react?pro=${encodeURIComponent(proParam)}` : "/react";
+
+  // Reacting needs a finished, phone-verified account
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect(`/signup?next=${encodeURIComponent(here)}`);
+  const { data: profile } = await supabase.from("profiles").select("id, household_id").eq("id", user.id).maybeSingle();
+  if (!profile?.household_id) redirect(`/signup?next=${encodeURIComponent(here)}`);
+
+  const { data: categories } = await supabase.from("categories").select("slug, name, icon").order("sort_order");
+
+  // Came from a pro page: skip the search
+  let start: { proId: string; name: string; logoUrl: string | null; category: string | null } | null = null;
+  if (proParam && UUID.test(proParam)) {
+    const { data: pro } = await createAdminClient()
+      .from("pros")
+      .select("id, name, logo_url, status")
+      .eq("id", proParam)
+      .maybeSingle();
+    if (pro && pro.status === "active") {
+      const category = await suggestCategory({ kind: "holler", proId: pro.id }, pro.name);
+      start = { proId: pro.id, name: pro.name, logoUrl: pro.logo_url, category };
+    }
+  }
+
+  return <ReactFlow categories={categories ?? []} start={start} />;
 }

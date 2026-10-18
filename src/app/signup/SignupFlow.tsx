@@ -24,7 +24,7 @@ function toE164(input: string) {
   return d.length === 10 ? `+1${d}` : null;
 }
 
-export default function SignupFlow({ startAt }: { startAt: Step }) {
+export default function SignupFlow({ startAt, next }: { startAt: Step; next: string }) {
   const router = useRouter();
   const supabase = useRef(createClient()).current;
 
@@ -73,7 +73,7 @@ export default function SignupFlow({ startAt }: { startAt: Step }) {
     const { data: profile } = await supabase.from("profiles").select("id").eq("id", data.user.id).maybeSingle();
     setBusy(false);
     if (profile) {
-      router.replace("/");
+      router.replace(next);
       router.refresh();
       return;
     }
@@ -94,7 +94,7 @@ export default function SignupFlow({ startAt }: { startAt: Step }) {
     const result = await completeSignup({ firstName, lastInitial, placeId, sessionToken, privacy });
     setBusy(false);
     if (result.error) return setError(result.error);
-    router.replace("/");
+    router.replace(next);
     router.refresh();
   }
 
