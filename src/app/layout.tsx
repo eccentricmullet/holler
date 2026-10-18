@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik } from "next/font/google";
 import { SITE } from "@/config/site";
+import { preconnect } from "react-dom";
+import Analytics from "@/components/Analytics";
 import "./globals.css";
 
 const rubik = Rubik({
@@ -26,10 +28,18 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+// `panel` shows a pro page beside the map when opened from inside the app.
+export default function RootLayout({ children, panel }: Readonly<{ children: React.ReactNode; panel: React.ReactNode }>) {
+  // Start talking to the map servers while the page is still loading
+  preconnect("https://api.mapbox.com");
+  preconnect("https://events.mapbox.com");
   return (
     <html lang="en" className={rubik.variable}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        {panel}
+        <Analytics />
+      </body>
     </html>
   );
 }

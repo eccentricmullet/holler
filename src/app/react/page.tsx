@@ -10,9 +10,10 @@ export const metadata: Metadata = { title: `React to a pro · ${SITE.name}` };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default async function ReactPage({ searchParams }: { searchParams: Promise<{ pro?: string }> }) {
-  const { pro: proParam } = await searchParams;
-  const here = proParam ? `/react?pro=${encodeURIComponent(proParam)}` : "/react";
+export default async function ReactPage({ searchParams }: { searchParams: Promise<{ pro?: string; from?: string }> }) {
+  const { pro: proParam, from } = await searchParams;
+  // Keep "from=invite" through sign-up so the visit still counts as an invite
+  const here = (proParam ? `/react?pro=${encodeURIComponent(proParam)}` : "/react") + (from === "invite" ? `${proParam ? "&" : "?"}from=invite` : "");
 
   // Reacting needs a finished, phone-verified account
   const supabase = await createClient();

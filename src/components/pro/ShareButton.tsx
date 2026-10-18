@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/components/Track";
 
 // Opens the phone's share sheet; on computers, copies the link instead.
-export default function ShareButton({ name }: { name: string }) {
+export default function ShareButton({ name, proId }: { name: string; proId: string }) {
   const [copied, setCopied] = useState(false);
 
   async function share() {
-    const url = window.location.href;
+    // Always share the pro's own page address, even from the side panel
+    const url = `${window.location.origin}/pro/${proId}`;
+    track("shared_pro", { pro_id: proId });
     if (navigator.share) {
       try {
         await navigator.share({ title: name, text: `Neighbors trust ${name}`, url });

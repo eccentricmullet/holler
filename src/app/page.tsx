@@ -1,6 +1,7 @@
 import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
 import MapScreen from "@/components/map/MapScreen";
+import { DEFAULT_CATEGORY, type NearbyPro, type Pin } from "@/components/map/types";
 import { metersBetween } from "@/lib/geo";
 
 export default async function Home() {
@@ -26,16 +27,24 @@ export default async function Home() {
     }
   }
 
+  const center = home?.point ?? SITE.launchCenter;
   const farFromLaunch = !!home && metersBetween(home.point, SITE.launchCenter) > SITE.launchRadiusM;
+
+  // Load the first category here so pro cards appear with the page instead of after it
+  const args = { lat: center.lat, lng: center.lng, category: DEFAULT_CATEGORY };
+  const [prosRes, pinsRes] = await Promise.all([supabase.rpc("pros_near", args), supabase.rpc("map_pins", args)]);
+  const ok = !prosRes.error && !pinsRes.error;
 
   return (
     <MapScreen
       farFromLaunch={farFromLaunch}
       categories={categories ?? []}
-      center={home?.point ?? SITE.launchCenter}
+      center={center}
       home={home}
       placeName={placeName}
       signedIn={!!userData.user}
+      initialPros={ok ? (prosRes.data as NearbyPro[]) : null}
+      initialPins={ok ? (pinsRes.data as Pin[]) : []}
     />
   );
 }

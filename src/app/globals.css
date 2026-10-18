@@ -41,3 +41,10 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Screens inside the laptop modal window: a sensible height instead of the full screen */
+@media (min-width: 1024px) {
+  .modal-frame > main {
+    min-height: 720px;
+  }
+}

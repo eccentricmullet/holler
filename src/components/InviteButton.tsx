@@ -1,7 +1,10 @@
 "use client";
 
+import { track } from "./Track";
+
 // Opens the phone's share sheet with a link to the map; falls back to a text message.
 export function shareInvite() {
+  track("invited_neighbor");
   const url = `${window.location.origin}/`;
   const text = "I've been sharing the local pros I trust on this map. Add yours!";
   if (navigator.share) {

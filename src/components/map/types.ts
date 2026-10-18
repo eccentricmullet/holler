@@ -17,3 +17,6 @@ export type NearbyPro = {
 export type Pin = { pro_id: string; reaction: "thumbs_up" | "love"; pin_lat: number; pin_lng: number };
 
 export type LatLng = { lat: number; lng: number };
+
+// The category the map opens on
+export const DEFAULT_CATEGORY = "lawn";

@@ -6,9 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import CategorySheet from "./CategorySheet";
 import MapView from "./MapView";
 import ProCards, { ProCardsSkeleton } from "./ProCards";
-import type { Category, LatLng, NearbyPro, Pin } from "./types";
-
-const DEFAULT_CATEGORY = "lawn";
+import ProList from "./ProList";
+import { DEFAULT_CATEGORY, type Category, type LatLng, type NearbyPro, type Pin } from "./types";
 
 type Props = {
   categories: Category[];
@@ -17,10 +16,12 @@ type Props = {
   placeName: string;
   signedIn: boolean;
   farFromLaunch: boolean;
+  // Loaded on the server for the default category so cards show right away
+  initialPros: NearbyPro[] | null;
+  initialPins: Pin[];
 };
 
-const controlClass =
-  "flex size-12 items-center justify-center rounded-2xl bg-surface text-ink shadow-control";
+const controlClass = "flex size-12 items-center justify-center rounded-2xl bg-surface text-ink shadow-control";
 
 // "an HVAC pro", "a lawn pro"
 function article(word: string) {
@@ -32,30 +33,36 @@ function proWord(name: string) {
   return name === name.toUpperCase() ? name : name.toLowerCase();
 }
 
-export default function MapScreen({ categories, center, home, placeName, signedIn, farFromLaunch }: Props) {
+export default function MapScreen(props: Props) {
+  const { categories, center, home, placeName, signedIn, farFromLaunch } = props;
   const supabase = useRef(createClient()).current;
   const [category, setCategory] = useState(DEFAULT_CATEGORY);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [satellite, setSatellite] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const [recenterKey, setRecenterKey] = useState(0);
-  const [pros, setPros] = useState<NearbyPro[] | null>(null);
-  const [pins, setPins] = useState<Pin[]>([]);
+  const [pros, setPros] = useState<NearbyPro[] | null>(props.initialPros);
+  const [pins, setPins] = useState<Pin[]>(props.initialPins);
   const [error, setError] = useState(false);
+  const usedInitial = useRef(props.initialPros !== null);
 
   const current = categories.find((c) => c.slug === category);
 
   useEffect(() => {
+    // The server already loaded the first category
+    if (usedInitial.current && category === DEFAULT_CATEGORY) {
+      usedInitial.current = false;
+      return;
+    }
+    usedInitial.current = false;
     let stale = false;
     setPros(null);
     setSelectedId(null);
     setError(false);
     (async () => {
       const args = { lat: center.lat, lng: center.lng, category };
-      const [prosRes, pinsRes] = await Promise.all([
-        supabase.rpc("pros_near", args),
-        supabase.rpc("map_pins", args),
-      ]);
+      const [prosRes, pinsRes] = await Promise.all([supabase.rpc("pros_near", args), supabase.rpc("map_pins", args)]);
       if (stale) return;
       if (prosRes.error || pinsRes.error) {
         setError(true);
@@ -79,6 +86,45 @@ export default function MapScreen({ categories, center, home, placeName, signedI
 
   const reactHref = signedIn ? "/react" : "/signup";
 
+  const title = (onDark: boolean) => (
+    <>
+      <button type="button" onClick={() => setSheetOpen(true)} className={`flex items-center gap-2 ${onDark ? "text-white drop-shadow" : "text-ink"}`}>
+        <span className="text-4xl font-extrabold leading-none tracking-[-0.02em]">{current?.name ?? "Pros"}</span>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-1" aria-hidden>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      <span className={`text-[15px] ${onDark ? "text-white drop-shadow" : "text-muted"}`}>Who {placeName} uses</span>
+    </>
+  );
+
+  const emptyState = (
+    <div className="rounded-[28px] bg-surface p-5 shadow-float lg:shadow-none">
+      <p className="text-lg font-bold leading-snug">
+        {error
+          ? "We couldn't load pros right now. Try again in a minute."
+          : `No one's reacted to ${article(current?.name ?? "")} ${proWord(current?.name ?? "")} pro near you yet.`}
+      </p>
+      {!error && (
+        <Link href={reactHref} className="mt-4 flex h-12 items-center justify-center rounded-2xl bg-green-deep text-[15px] font-semibold text-white">
+          Know a good one?
+        </Link>
+      )}
+    </div>
+  );
+
+  const unlockCard = farFromLaunch && (
+    <Link href="/unlock" className="flex items-center gap-3 rounded-[22px] bg-dark-card px-4 py-3.5 text-white shadow-float">
+      <span className="text-2xl" aria-hidden>
+        📣
+      </span>
+      <span className="flex flex-col">
+        <span className="text-[15px] font-bold">We&apos;re just getting started here</span>
+        <span className="text-[13px] text-white/70">Get neighbors on the list to unlock your town →</span>
+      </span>
+    </Link>
+  );
+
   return (
     <main className="fixed inset-0 overflow-hidden bg-field">
       <MapView
@@ -87,25 +133,32 @@ export default function MapScreen({ categories, center, home, placeName, signedI
         satellite={satellite}
         pins={pins}
         pros={pros ?? []}
-        selectedId={selectedId}
+        selectedId={hoverId ?? selectedId}
         onSelect={setSelectedId}
         recenterKey={recenterKey}
       />
 
-      {/* Title */}
-      <div className="pointer-events-none absolute left-6 top-7 flex flex-col gap-0.5">
-        <button
-          type="button"
-          onClick={() => setSheetOpen(true)}
-          className={`pointer-events-auto flex items-center gap-2 ${satellite ? "text-white drop-shadow" : "text-ink"}`}
-        >
-          <span className="text-4xl font-extrabold leading-none tracking-[-0.02em]">{current?.name ?? "Pros"}</span>
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-1" aria-hidden>
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </button>
-        <span className={`text-[15px] ${satellite ? "text-white drop-shadow" : "text-muted"}`}>Who {placeName} uses</span>
-      </div>
+      {/* Phone: title floats on the map */}
+      <div className="absolute left-6 top-7 flex flex-col gap-0.5 lg:hidden">{title(satellite)}</div>
+
+      {/* Laptop: sidebar with the title and the pro list */}
+      <aside className="absolute bottom-5 left-5 top-5 hidden w-[380px] flex-col overflow-hidden rounded-[28px] bg-surface shadow-float lg:flex">
+        <div className="flex flex-col gap-0.5 px-6 pb-4 pt-6">{title(false)}</div>
+        <div className="flex-1 overflow-y-auto px-3 pb-4">
+          {pros === null ? (
+            <div className="flex flex-col gap-2 px-1" aria-label="Loading pros">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="h-[68px] animate-pulse rounded-[20px] bg-field" />
+              ))}
+            </div>
+          ) : pros.length === 0 ? (
+            <div className="px-1">{emptyState}</div>
+          ) : (
+            <ProList pros={pros} pinCounts={pinCounts} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
+          )}
+        </div>
+        {unlockCard && <div className="p-3">{unlockCard}</div>}
+      </aside>
 
       {/* Right-side controls */}
       <div className="absolute right-5 top-7 flex flex-col gap-3">
@@ -167,40 +220,13 @@ export default function MapScreen({ categories, center, home, placeName, signedI
         </Link>
       </div>
 
-      {/* Bottom: pro cards, empty state, or loading */}
-      <div className="absolute inset-x-0 bottom-0">
-        {farFromLaunch && (
-          <Link
-            href="/unlock"
-            className="mx-5 mb-1 flex items-center gap-3 rounded-[22px] bg-dark-card px-4 py-3.5 text-white shadow-float"
-          >
-            <span className="text-2xl" aria-hidden>
-              📣
-            </span>
-            <span className="flex flex-col">
-              <span className="text-[15px] font-bold">We&apos;re just getting started here</span>
-              <span className="text-[13px] text-white/70">Get neighbors on the list to unlock your town →</span>
-            </span>
-          </Link>
-        )}
+      {/* Phone: pro cards, empty state, or loading along the bottom */}
+      <div className="absolute inset-x-0 bottom-0 lg:hidden">
+        {unlockCard && <div className="mx-5 mb-1">{unlockCard}</div>}
         {pros === null ? (
           <ProCardsSkeleton />
         ) : pros.length === 0 ? (
-          <div className="mx-5 mb-7 rounded-[28px] bg-surface p-5 shadow-float">
-            <p className="text-lg font-bold leading-snug">
-              {error
-                ? "We couldn't load pros right now. Try again in a minute."
-                : `No one's reacted to ${article(current?.name ?? "")} ${proWord(current?.name ?? "")} pro near you yet.`}
-            </p>
-            {!error && (
-              <Link
-                href={reactHref}
-                className="mt-4 flex h-12 items-center justify-center rounded-2xl bg-green-deep text-[15px] font-semibold text-white"
-              >
-                Know a good one?
-              </Link>
-            )}
-          </div>
+          <div className="mx-5 mb-7">{emptyState}</div>
         ) : (
           <ProCards pros={pros} pinCounts={pinCounts} selectedId={selectedId} onSelect={setSelectedId} />
         )}

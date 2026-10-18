@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProLogo from "@/components/map/ProLogo";
 import { shareInvite } from "@/components/InviteButton";
+import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
@@ -106,6 +107,7 @@ export default function ReactFlow({
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setResult(r);
+    track("reacted", { pro_id: r.proId, category, reaction, source: picked.choice.kind, with_note: note.trim().length > 0 });
     setStep("done");
     router.refresh();
   }

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import ProLogo from "./ProLogo";
+import { TrackedLink } from "@/components/Track";
 import type { NearbyPro } from "./types";
 
 const PhoneIcon = () => (
@@ -63,14 +64,16 @@ export default function ProCards(props: {
             {on ? (
               <span className="mt-auto flex gap-2">
                 {p.phone && (
-                  <a
+                  <TrackedLink
                     href={`tel:${p.phone}`}
+                    event="tapped_call"
+                    props={{ pro_id: p.id, from: "map_card" }}
                     onClick={(e) => e.stopPropagation()}
                     className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-2xl bg-green-deep text-[15px] font-semibold text-white"
                   >
                     <PhoneIcon />
                     Call
-                  </a>
+                  </TrackedLink>
                 )}
                 <Link
                   href={`/pro/${p.id}`}

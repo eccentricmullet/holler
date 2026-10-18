@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const invite = await followInvite(createAdminClient(), code);
   if (!invite) return NextResponse.redirect(new URL("/", request.url));
 
-  const res = NextResponse.redirect(new URL(`/react?pro=${invite.proId}`, request.url));
+  const res = NextResponse.redirect(new URL(`/react?pro=${invite.proId}&from=invite`, request.url));
   res.cookies.set(INVITE_COOKIE, invite.code, {
     httpOnly: true,
     sameSite: "lax",

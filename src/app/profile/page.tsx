@@ -105,6 +105,16 @@ export default async function ProfilePage() {
           </button>
         </form>
       </nav>
+
+      <p className="mt-auto pt-6 text-center text-[13px] text-muted">
+        <Link href="/privacy" className="hover:underline">
+          Privacy
+        </Link>
+        {" · "}
+        <Link href="/terms" className="hover:underline">
+          Terms
+        </Link>
+      </p>
     </main>
   );
 }

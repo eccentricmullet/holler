@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { completeSignup } from "./actions";
+import { track } from "@/components/Track";
 
 type Step = "phone" | "code" | "name" | "home";
 type Suggestion = { placeId: string; main: string; secondary: string };
@@ -73,6 +75,7 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
     const { data: profile } = await supabase.from("profiles").select("id").eq("id", data.user.id).maybeSingle();
     setBusy(false);
     if (profile) {
+      track("logged_in");
       router.replace(next);
       router.refresh();
       return;
@@ -94,6 +97,7 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
     const result = await completeSignup({ firstName, lastInitial, placeId, sessionToken, privacy });
     setBusy(false);
     if (result.error) return setError(result.error);
+    track("signed_up", { privacy, from_invite: next.includes("from=invite") });
     router.replace(next);
     router.refresh();
   }
@@ -172,6 +176,17 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
                 className={inputClass}
               />
             </Field>
+            <p className="mt-4 text-[13px] leading-snug text-muted">
+              By continuing, you agree to our{" "}
+              <Link href="/terms" className="font-semibold text-green-deep">
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="font-semibold text-green-deep">
+                Privacy Policy
+              </Link>
+              . We only text you login codes.
+            </p>
           </>
         )}
 

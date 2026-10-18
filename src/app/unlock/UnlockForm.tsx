@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { shareInvite } from "@/components/InviteButton";
 import { joinWaitlistAction } from "./actions";
+import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
 
 export default function UnlockForm({ threshold, launchTown }: { threshold: number; launchTown: string }) {
@@ -64,7 +65,10 @@ export default function UnlockForm({ threshold, launchTown }: { threshold: numbe
               startTransition(async () => {
                 const r = await joinWaitlistAction({ contact, zip, town });
                 if (!r.ok) setError(r.error);
-                else setResult({ count: r.count, already: r.already });
+                else {
+                  setResult({ count: r.count, already: r.already });
+                  track("joined_waitlist", { zip, already: r.already });
+                }
               });
             }}
           >
