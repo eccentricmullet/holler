@@ -98,7 +98,8 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
     setBusy(false);
     if (result.error) return setError(result.error);
     track("signed_up", { privacy, from_invite: next.includes("from=invite") });
-    router.replace(next);
+    // New neighbors with nowhere particular to go start by adding 3 pros they use (11e)
+    router.replace(next === "/" ? "/react?onboard=1" : next);
     router.refresh();
   }
 

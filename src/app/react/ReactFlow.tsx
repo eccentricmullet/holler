@@ -34,13 +34,18 @@ function formatPhone(digits: string) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
 }
 
+const ONBOARD_GOAL = 3;
+
 export default function ReactFlow({
   categories,
   start,
+  onboarding = false,
 }: {
   categories: Category[];
   start: { proId: string; name: string; logoUrl: string | null; category: string | null } | null;
+  onboarding?: boolean; // just signed up: "Add 3 pros you use" (11e)
 }) {
+  const [doneCount, setDoneCount] = useState(0);
   const router = useRouter();
   const [step, setStep] = useState<Step>(start ? "react" : "find");
   const [picked, setPicked] = useState<Picked | null>(
@@ -112,6 +117,7 @@ export default function ReactFlow({
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setResult(r);
+    setDoneCount((n) => n + 1);
     track("reacted", { pro_id: r.proId, category, reaction, source: picked.choice.kind, with_note: note.trim().length > 0 });
     setStep("done");
     router.refresh();
@@ -168,15 +174,31 @@ export default function ReactFlow({
           {result.neighbors > 1 ? `That makes ${result.neighbors} neighbors. ` : "You're the first neighbor to say so. "}
           The next person on your street looking for {result.categoryName.toLowerCase()} help will see it on the map.
         </p>
+        {onboarding && (
+          <p className="relative mt-5 text-[15px] font-semibold">
+            {doneCount >= ONBOARD_GOAL
+              ? "🎉 That's 3! Your neighbors' map just got better."
+              : `${doneCount} of ${ONBOARD_GOAL} added`}
+          </p>
+        )}
 
         <div className="relative mt-auto flex flex-col gap-2.5">
-          <button
-            type="button"
-            onClick={startOver}
-            className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
-          >
-            React to another pro
-          </button>
+          {onboarding && doneCount >= ONBOARD_GOAL ? (
+            <Link
+              href="/"
+              className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
+            >
+              See your map
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={startOver}
+              className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
+            >
+              {onboarding ? `Add pro ${doneCount + 1} of ${ONBOARD_GOAL}` : "React to another pro"}
+            </button>
+          )}
           <button
             type="button"
             onClick={shareInvite}
@@ -404,18 +426,43 @@ export default function ReactFlow({
   // ---------- Find ----------
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/" aria-label="Close" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
-        <svg {...iconProps} width="22" height="22">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link href="/" aria-label="Close" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+          <svg {...iconProps} width="22" height="22">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </Link>
+        {onboarding && (
+          <Link href="/" className="text-[15px] font-semibold text-muted">
+            Skip for now
+          </Link>
+        )}
+      </div>
 
-      <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
-        Who do you
-        <br />
-        use and trust?
-      </h1>
-      <p className="mt-2.5 text-base leading-snug text-muted">Only good word goes on the map.</p>
+      {onboarding ? (
+        <>
+          <div className="mt-6 flex gap-1.5" aria-label={`${doneCount} of ${ONBOARD_GOAL} added`}>
+            {Array.from({ length: ONBOARD_GOAL }, (_, i) => (
+              <span key={i} className={`h-1.5 flex-1 rounded-full ${i < doneCount ? "bg-green" : "bg-line"}`} />
+            ))}
+          </div>
+          <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+            Add {ONBOARD_GOAL - doneCount === ONBOARD_GOAL ? "3 pros" : `${ONBOARD_GOAL - doneCount} more`} you use
+          </h1>
+          <p className="mt-2.5 text-base leading-snug text-muted">
+            Your lawn guy, your plumber, whoever you&apos;d tell a neighbor about. It takes about a minute.
+          </p>
+        </>
+      ) : (
+        <>
+          <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+            Who do you
+            <br />
+            use and trust?
+          </h1>
+          <p className="mt-2.5 text-base leading-snug text-muted">Only good word goes on the map.</p>
+        </>
+      )}
 
       <label htmlFor="find-pro" className="sr-only">
         Business name
