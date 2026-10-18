@@ -24,7 +24,7 @@ export default async function ReactPage({ searchParams }: { searchParams: Promis
   const { data: profile } = await supabase.from("profiles").select("id, household_id").eq("id", user.id).maybeSingle();
   if (!profile?.household_id) redirect(`/signup?next=${encodeURIComponent(here)}`);
 
-  const { data: categories } = await supabase.from("categories").select("slug, name, icon").order("sort_order");
+  const { data: categories } = await supabase.from("categories").select("*").order("sort_order");
 
   // Came from a pro page: skip the search
   let start: { proId: string; name: string; logoUrl: string | null; category: string | null } | null = null;

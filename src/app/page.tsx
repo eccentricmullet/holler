@@ -7,7 +7,7 @@ import { metersBetween } from "@/lib/geo";
 export default async function Home() {
   const supabase = await createClient();
   const [{ data: categories }, { data: userData }] = await Promise.all([
-    supabase.from("categories").select("slug, name, icon").order("sort_order"),
+    supabase.from("categories").select("*").order("sort_order"),
     supabase.auth.getUser(),
   ]);
 

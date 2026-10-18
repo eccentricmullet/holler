@@ -128,6 +128,12 @@ export default function ReactFlow({
   const shortName = picked?.name.split(" ")[0] ?? "them";
   const currentCategory = categories.find((c) => c.slug === category);
 
+  // Keep the picked category visible in the long chip row
+  useEffect(() => {
+    if (step !== "react" || !category) return;
+    document.querySelector(`[data-cat="${category}"]`)?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [step, category]);
+
   // ---------- Done ----------
   if (step === "done" && result) {
     const love = result.reaction === "love";
@@ -208,6 +214,7 @@ export default function ReactFlow({
             {categories.map((c) => (
               <button
                 key={c.slug}
+                data-cat={c.slug}
                 type="button"
                 aria-pressed={c.slug === category}
                 onClick={() => setCategory(c.slug)}

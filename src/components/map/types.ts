@@ -1,4 +1,4 @@
-export type Category = { slug: string; name: string; icon: string };
+export type Category = { slug: string; name: string; icon: string; section?: string | null };
 
 export type NearbyPro = {
   id: string;
