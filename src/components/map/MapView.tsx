@@ -70,7 +70,7 @@ export default function MapView(props: Props) {
       map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-right");
       // Keep the middle of the map clear of the laptop sidebar / phone cards
       const pad = () =>
-        map.setPadding(window.innerWidth >= 1024 ? { left: 400, right: 0, top: 0, bottom: 0 } : { left: 0, right: 0, top: 80, bottom: 220 });
+        map.setPadding(window.innerWidth >= 1024 ? { left: 400, right: 0, top: 0, bottom: 0 } : { left: 0, right: 0, top: 180, bottom: 220 });
       pad();
       window.addEventListener("resize", pad);
       map.on("remove", () => window.removeEventListener("resize", pad));

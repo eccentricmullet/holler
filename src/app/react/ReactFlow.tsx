@@ -40,10 +40,12 @@ export default function ReactFlow({
   categories,
   start,
   onboarding = false,
+  presetCategory = null,
 }: {
   categories: Category[];
   start: { proId: string; name: string; logoUrl: string | null; category: string | null } | null;
   onboarding?: boolean; // just signed up: "Add 3 pros you use" (11e)
+  presetCategory?: string | null; // from the seasonal banner (11g)
 }) {
   const [doneCount, setDoneCount] = useState(0);
   const router = useRouter();
@@ -51,7 +53,7 @@ export default function ReactFlow({
   const [picked, setPicked] = useState<Picked | null>(
     start ? { choice: { kind: "holler", proId: start.proId }, name: start.name, logoUrl: start.logoUrl } : null
   );
-  const [category, setCategory] = useState<string | null>(start?.category ?? null);
+  const [category, setCategory] = useState<string | null>(start?.category ?? presetCategory);
   const [reaction, setReaction] = useState<"thumbs_up" | "love">("thumbs_up");
   const [note, setNote] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -105,7 +107,7 @@ export default function ReactFlow({
     setPrice(null);
     setCategory(null);
     setStep("react");
-    setCategory(await suggestCategory(p.choice, p.name));
+    setCategory(presetCategory ?? (await suggestCategory(p.choice, p.name)));
   }
 
   async function submit() {
@@ -138,6 +140,10 @@ export default function ReactFlow({
 
   const shortName = picked?.name.split(" ")[0] ?? "them";
   const currentCategory = categories.find((c) => c.slug === category);
+  const presetName = (() => {
+    const n = categories.find((c) => c.slug === presetCategory)?.name;
+    return n ? (n === n.toUpperCase() ? n : n.toLowerCase()) : null;
+  })();
 
   // Keep the picked category visible in the long chip row
   useEffect(() => {
@@ -456,9 +462,15 @@ export default function ReactFlow({
       ) : (
         <>
           <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
-            Who do you
-            <br />
-            use and trust?
+            {presetName ? (
+              <>Who do you use for {presetName}?</>
+            ) : (
+              <>
+                Who do you
+                <br />
+                use and trust?
+              </>
+            )}
           </h1>
           <p className="mt-2.5 text-base leading-snug text-muted">Only good word goes on the map.</p>
         </>

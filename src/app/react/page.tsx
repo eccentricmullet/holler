@@ -10,10 +10,15 @@ export const metadata: Metadata = { title: `React to a pro · ${SITE.name}` };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default async function ReactPage({ searchParams }: { searchParams: Promise<{ pro?: string; from?: string; onboard?: string }> }) {
-  const { pro: proParam, from, onboard } = await searchParams;
+export default async function ReactPage({ searchParams }: { searchParams: Promise<{ pro?: string; from?: string; onboard?: string; category?: string }> }) {
+  const { pro: proParam, from, onboard, category: categoryParam } = await searchParams;
   // Keep "from=invite" through sign-up so the visit still counts as an invite
-  const here = (proParam ? `/react?pro=${encodeURIComponent(proParam)}` : "/react") + (from === "invite" ? `${proParam ? "&" : "?"}from=invite` : "");
+  const keep = new URLSearchParams();
+  if (proParam) keep.set("pro", proParam);
+  if (from === "invite") keep.set("from", "invite");
+  if (categoryParam) keep.set("category", categoryParam);
+  if (onboard === "1") keep.set("onboard", "1");
+  const here = keep.size ? `/react?${keep}` : "/react";
 
   // Reacting needs a finished, phone-verified account
   const supabase = await createClient();
@@ -40,5 +45,8 @@ export default async function ReactPage({ searchParams }: { searchParams: Promis
     }
   }
 
-  return <ReactFlow categories={categories ?? []} start={start} onboarding={onboard === "1" && !start} />;
+  // From the seasonal banner: that category comes pre-picked
+  const presetCategory = categories?.some((c) => c.slug === categoryParam) ? categoryParam! : null;
+
+  return <ReactFlow categories={categories ?? []} start={start} onboarding={onboard === "1" && !start} presetCategory={presetCategory} />;
 }

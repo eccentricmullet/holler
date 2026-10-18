@@ -7,6 +7,7 @@ import CategorySheet from "./CategorySheet";
 import MapView from "./MapView";
 import ProCards, { ProCardsSkeleton } from "./ProCards";
 import ProList from "./ProList";
+import SeasonalBanner from "./SeasonalBanner";
 import { DEFAULT_CATEGORY, type Category, type LatLng, type NearbyPro, type Pin } from "./types";
 
 type Props = {
@@ -152,10 +153,13 @@ export default function MapScreen(props: Props) {
 
       {/* Phone: title floats on the map */}
       <div className="absolute left-6 top-7 flex flex-col gap-0.5 lg:hidden">{title(satellite)}</div>
+      {/* Seasonal prompt under the title (leaves room for the buttons on the right) */}
+      <SeasonalBanner signedIn={signedIn} className="absolute left-5 right-[84px] top-[118px] lg:hidden" />
 
       {/* Laptop: sidebar with the title and the pro list */}
       <aside className="absolute bottom-5 left-5 top-5 hidden w-[380px] flex-col overflow-hidden rounded-[28px] bg-surface shadow-float lg:flex">
         <div className="flex flex-col gap-0.5 px-6 pb-4 pt-6">{title(false)}</div>
+        <SeasonalBanner signedIn={signedIn} className="mx-3 mb-3 bg-field shadow-none" />
         <div className="flex-1 overflow-y-auto px-3 pb-4">
           {pros === null ? (
             <div className="flex flex-col gap-2 px-1" aria-label="Loading pros">
