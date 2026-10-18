@@ -27,6 +27,13 @@
   --shadow-float: 0 10px 30px rgba(26, 29, 36, 0.14);
 }
 
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 html,
 body {
   background: var(--color-surface);
