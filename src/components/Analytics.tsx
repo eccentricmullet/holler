@@ -19,6 +19,9 @@ if (typeof window !== "undefined" && ENABLED && !posthog.__loaded) {
     person_profiles: "identified_only",
     autocapture: false,
     disable_session_recording: true,
+    // Don't download extras we don't use (keeps the page light on phones)
+    disable_surveys: true,
+    capture_dead_clicks: false,
     respect_dnt: true,
   });
 }
