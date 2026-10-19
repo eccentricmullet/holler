@@ -21,10 +21,10 @@ function normalize(text: string) {
 
 export type NoteCheck = { ok: true } | { ok: false; reason: string };
 
-export function checkNote(note: string): NoteCheck {
+export function checkNote(note: string, max = 140): NoteCheck {
   const text = note.trim();
   if (!text) return { ok: true };
-  if (text.length > 140) return { ok: false, reason: "Keep the note to 140 characters." };
+  if (text.length > max) return { ok: false, reason: `Keep it to ${max} characters.` };
   if (PHONE.test(text) || /\d{7,}/.test(text.replace(/[\s().-]/g, ""))) {
     return { ok: false, reason: "Notes can't include phone numbers. Neighbors can call from the pro's page." };
   }

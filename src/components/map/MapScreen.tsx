@@ -8,6 +8,7 @@ import MapView from "./MapView";
 import ProCards, { ProCardsSkeleton } from "./ProCards";
 import ProList from "./ProList";
 import SeasonalBanner from "./SeasonalBanner";
+import PorchButton from "@/components/PorchButton";
 import { DEFAULT_CATEGORY, type Category, type LatLng, type NearbyPro, type Pin } from "./types";
 
 type Props = {
@@ -230,6 +231,7 @@ export default function MapScreen(props: Props) {
             </svg>
           </Link>
         )}
+        <PorchButton signedIn={signedIn} />
         <button type="button" aria-label="All categories" onClick={() => setSheetOpen(true)} className={controlClass}>
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
             <circle cx="7" cy="7" r="2.2" fill="currentColor" />
