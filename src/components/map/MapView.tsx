@@ -7,8 +7,11 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { initials, logoColor } from "./logo";
 import type { LatLng, NearbyPro, Pin } from "./types";
 
-const STREET_STYLE = "mapbox://styles/mapbox/light-v11";
-const SATELLITE_STYLE = "mapbox://styles/mapbox/satellite-streets-v12";
+// Mapbox Standard: green parks, blue water, readable streets. Store/restaurant labels are hidden so
+// neighbors' pro logos stand out. The canvas is darkened a touch in globals.css (.holler-map).
+const STREET_STYLE = "mapbox://styles/mapbox/standard";
+const SATELLITE_STYLE = "mapbox://styles/mapbox/standard-satellite";
+const BASEMAP = { showPointOfInterestLabels: false, showTransitLabels: false };
 // Pins are block-level; stop zooming before they look like they point at a house.
 const MAX_ZOOM = 16;
 
@@ -60,6 +63,7 @@ export default function MapView(props: Props) {
       const map = new mapboxgl.Map({
         container: containerRef.current,
         style: satellite ? SATELLITE_STYLE : STREET_STYLE,
+        config: { basemap: BASEMAP },
         center: [center.lng, center.lat],
         zoom: 14,
         maxZoom: MAX_ZOOM,
@@ -93,7 +97,10 @@ export default function MapView(props: Props) {
 
   // Street / satellite
   useEffect(() => {
-    mapRef.current?.setStyle(props.satellite ? SATELLITE_STYLE : STREET_STYLE);
+    const map = mapRef.current;
+    if (!map) return;
+    map.setStyle(props.satellite ? SATELLITE_STYLE : STREET_STYLE);
+    map.once("style.load", () => map.setConfig("basemap", BASEMAP));
   }, [props.satellite]);
 
   // Center on home button
@@ -208,7 +215,7 @@ export default function MapView(props: Props) {
   // Mapbox makes its container position: relative, so it needs a sized wrapper.
   return (
     <div className="absolute inset-0 z-0">
-      <div ref={containerRef} className="size-full" />
+      <div ref={containerRef} className="holler-map size-full" />
     </div>
   );
 }

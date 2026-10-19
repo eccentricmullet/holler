@@ -48,3 +48,8 @@ body {
     min-height: 720px;
   }
 }
+
+/* Map style C, darkened a hair so streets and parks read clearly (pins aren't affected) */
+.holler-map .mapboxgl-canvas {
+  filter: brightness(0.92) contrast(1.06) saturate(1.12);
+}
