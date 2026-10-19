@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { completeSignup } from "./actions";
 import { track } from "@/components/Track";
+import GoogleAttribution from "@/components/GoogleAttribution";
 
 type Step = "phone" | "code" | "name" | "home";
 type Suggestion = { placeId: string; main: string; secondary: string };
@@ -295,6 +296,9 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
                       </button>
                     </li>
                   ))}
+                  <li className="flex justify-end border-t border-line px-4 py-2.5" aria-hidden>
+                    <GoogleAttribution />
+                  </li>
                 </ul>
               )}
             </div>

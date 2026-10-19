@@ -78,8 +78,6 @@ async function resolvePro(db: SupabaseClient, choice: ProChoice, actor: Actor): 
         name: biz.name,
         phone: biz.phone,
         website: biz.website,
-        location: biz.lat != null && biz.lng != null ? `SRID=4326;POINT(${biz.lng} ${biz.lat})` : null,
-        service_area_text: biz.town,
         created_by: actor.userId,
       })
       .select("id, name, phone")

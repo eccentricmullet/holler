@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProLogo from "@/components/map/ProLogo";
 import { shareInvite } from "@/components/InviteButton";
+import GoogleAttribution from "@/components/GoogleAttribution";
 import { PRICES, TAGS } from "@/lib/tags";
 import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
@@ -546,6 +547,7 @@ export default function ReactFlow({
         {query.trim().length >= 2 && !searching && results.length === 0 && (
           <p className="px-1 text-[15px] text-muted">No matches yet. Add them below.</p>
         )}
+        {results.some((r) => r.kind === "google") && <GoogleAttribution className="mt-1 self-end px-1" />}
       </div>
 
       <button

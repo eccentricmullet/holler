@@ -139,18 +139,16 @@ export type BusinessDetails = {
   name: string;
   phone: string | null; // E.164, e.g. +16155550101
   website: string | null;
-  lat: number | null;
-  lng: number | null;
-  town: string | null;
   types: string[];
 };
 
+// Only what the pro page needs. We don't keep Google's location for businesses (see docs/DATA-NOTES.md).
 export async function getBusinessDetails(placeId: string, sessionToken?: string): Promise<BusinessDetails> {
   const qs = sessionToken ? `?sessionToken=${encodeURIComponent(sessionToken)}` : "";
   const res = await fetch(`${BASE}/places/${encodeURIComponent(placeId)}${qs}`, {
     headers: {
       "X-Goog-Api-Key": key(),
-      "X-Goog-FieldMask": "id,displayName,internationalPhoneNumber,websiteUri,location,addressComponents,types",
+      "X-Goog-FieldMask": "id,displayName,internationalPhoneNumber,websiteUri,types",
     },
     cache: "no-store",
   });
@@ -160,8 +158,6 @@ export async function getBusinessDetails(placeId: string, sessionToken?: string)
     displayName?: { text: string };
     internationalPhoneNumber?: string;
     websiteUri?: string;
-    location?: { latitude: number; longitude: number };
-    addressComponents?: { longText: string; types: string[] }[];
     types?: string[];
   };
   const digits = p.internationalPhoneNumber?.replace(/[^\d+]/g, "") ?? "";
@@ -170,9 +166,6 @@ export async function getBusinessDetails(placeId: string, sessionToken?: string)
     name: p.displayName?.text ?? "Unnamed business",
     phone: /^\+\d{8,15}$/.test(digits) ? digits : null,
     website: p.websiteUri ?? null,
-    lat: p.location?.latitude ?? null,
-    lng: p.location?.longitude ?? null,
-    town: p.addressComponents?.find((c) => c.types.includes("locality"))?.longText ?? null,
     types: p.types ?? [],
   };
 }
