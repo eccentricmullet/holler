@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // Trust rule: at most this many accounts can share one address.
 export const MAX_ACCOUNTS_PER_HOME = 3;
 
-export type HomePlace = { placeId: string; address: string; lat: number; lng: number; neighborhood: string | null };
+export type HomePlace = { placeId: string; address: string; lat: number; lng: number; neighborhood: string | null; city?: string | null };
 
 // Finds the household for this address (or creates it) and adds the profile to it.
 export async function joinHousehold(
@@ -33,6 +33,7 @@ export async function joinHousehold(
         address_place_id: place.placeId,
         location: `SRID=4326;POINT(${place.lng} ${place.lat})`,
         neighborhood: place.neighborhood,
+        city: place.city ?? null,
       })
       .select("id")
       .single();

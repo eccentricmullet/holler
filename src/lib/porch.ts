@@ -3,19 +3,19 @@ import { checkNote } from "@/lib/note-filter";
 import { metersBetween, parsePoint } from "@/lib/geo";
 import { whenLabel } from "@/lib/recency";
 import { asksNear } from "@/lib/asks";
+import { reachMeters } from "@/lib/reach";
 import { HEADS_UP_TOPICS, KINDS, isKind, type PorchKind, type PorchTab } from "@/lib/porch-kinds";
 
 // The Porch (11k): a neighborhood board that runs itself. Everything goes through the server.
-export const PORCH_RADIUS_M = 3219; // 2 miles: a bit wider than pros so events and sales reach the neighborhood
 export const MAX_POSTS_PER_DAY = 5;
 export const REPORTS_TO_HIDE = 3; // from different homes
 export const POST_MAX = 280;
 export const PORCH_BUCKET = "porch";
 
-type Me = { id: string; household_id: string | null; banned: boolean; first_name: string; last_initial: string; privacy: string };
+type Me = { id: string; household_id: string | null; banned: boolean; first_name: string; last_initial: string; privacy: string; reach_miles: number | null };
 
 async function me(db: SupabaseClient, userId: string) {
-  const { data } = await db.from("profiles").select("id, household_id, banned, first_name, last_initial, privacy").eq("id", userId).maybeSingle();
+  const { data } = await db.from("profiles").select("id, household_id, banned, first_name, last_initial, privacy, reach_miles").eq("id", userId).maybeSingle();
   return data as Me | null;
 }
 
@@ -158,6 +158,7 @@ export async function porchFeed(db: SupabaseClient, userId: string, tab: PorchTa
   if (!person?.household_id) return [];
   const here = await homePoint(db, person.household_id);
   if (!here) return [];
+  const reach = reachMeters(person.reach_miles); // each person picks 1, 3 or 5 miles
 
   const kinds = tab === "all" ? null : (Object.keys(KINDS) as PorchKind[]).filter((k) => KINDS[k].tab === tab);
   let q = db
@@ -176,7 +177,7 @@ export async function porchFeed(db: SupabaseClient, userId: string, tab: PorchTa
     .filter((p) => {
       if (!p.profiles || p.profiles.banned) return false;
       const at = parsePoint(p.households?.display_location);
-      return at && metersBetween(at, here) <= PORCH_RADIUS_M;
+      return at && metersBetween(at, here) <= reach;
     })
     .map((p) => {
       const hidden = p.profiles!.privacy === "hidden";

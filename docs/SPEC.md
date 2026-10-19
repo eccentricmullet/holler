@@ -46,7 +46,7 @@ Anyone can browse the map and pro pages without an account. Signing up is requir
 
 **1. Map (home)** — `mockups/GreenMap.dc.html`
 
-- Full-screen light map. Big bold category title top-left ("Lawn ⌄") with "Who Wades Grove uses" under it.
+- Full-screen light map. Big bold category title top-left ("Lawn ⌄") with "Who Spring Hill uses" (the city from their address) under it.
 - Square white floating buttons on the right: profile, all categories, map/satellite toggle, center on my home.
 - Categories started as 12 (Pool, Lawn, HVAC, Plumbing, Electrical, Roofing, Pest, Cleaning, Handyman, Painting, Pressure washing, Tree service) and grow to about 24 in groups in step 11a.
 - Each reaction shows as the pro's logo at the neighbor's block. A small ❤️ badge marks neighbors who love that pro. Selecting a pro highlights their logos and fades the rest. Logos group when zoomed out; hide individual logos at the closest zoom levels.
@@ -155,6 +155,7 @@ Finish each step's "done when" before starting the next, and commit after every 
 | 11j | Every pro gets its own color (no two pros in the same category nearby share one); a real logo replaces it | Three lawn pros in Spring Hill show three different colors everywhere |
 | 11k | **The Porch**: a self-running neighborhood board. Tabs: All · Pros (Need a pro, Just hired) · Sales & free (garage sales, curb alerts) · Pets (lost & found) · Events · Heads-up (roads, weather, power, water only). Also "New neighbor" posts. Short post + optional photo; 👍/❤️ and one-tap action buttons instead of comment threads; posts expire automatically; 3 reports from different homes auto-hides a post | A neighbor can post a curb alert with a photo in under 30 seconds; others see it in their area; it disappears on schedule |
 | 11l | Opt-in alerts (browser push): someone near you needs a pro; someone answered your ask; optional daily "Today on The Porch" | Opted-in phone gets the alert and tapping it opens the right screen |
+| 11m | Reach and city: each person picks how far The Porch and ask alerts look (1, 3 or 5 miles; 3 to start; 5 is the cap so it stays neighbors). Places show the city from the address, not neighborhood names | Changing reach changes what shows; titles and bylines show the city |
 | 12 | Seed Spring Hill with real reactions; test with 10 neighbors | 100+ real reactions; testers find a pro in under 60 seconds |
 
 **v1.1 principles (steps 11a–11h):** every addition is one tap and optional; reactions stay positive-only with just 👍 and ❤️ (tags add detail instead of more emoji); no open comment threads or chat (The Porch, step 11k, uses reactions and one-tap actions instead and moderates itself); never sell leads or share a neighbor's number with pros; ranking stays purely neighbor reactions.

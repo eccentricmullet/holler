@@ -20,10 +20,11 @@ export default async function Home() {
       home_lat: number | null;
       home_lng: number | null;
       neighborhood: string | null;
+      city: string | null;
     }>();
     if (data?.home_lat != null && data.home_lng != null) {
       home = { point: { lat: data.home_lat, lng: data.home_lng }, initial: data.first_name.charAt(0).toUpperCase() };
-      if (data.neighborhood) placeName = data.neighborhood;
+      if (data.city) placeName = data.city;
     }
   }
 

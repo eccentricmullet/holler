@@ -169,7 +169,7 @@ async function ProsTab({ db, q }: { db: Db; q: string }) {
 async function UsersTab({ db, q }: { db: Db; q: string }) {
   let query = db
     .from("profiles")
-    .select("id, first_name, last_initial, privacy, banned, role, households(neighborhood), vouches(status)")
+    .select("id, first_name, last_initial, privacy, banned, role, households(city), vouches(status)")
     .order("created_at", { ascending: false })
     .limit(50);
   if (q) query = query.ilike("first_name", `%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
@@ -182,7 +182,7 @@ async function UsersTab({ db, q }: { db: Db; q: string }) {
         const vouches = (p.vouches ?? []) as { status: string }[];
         const hiddenCount = vouches.filter((v) => v.status === "hidden").length;
         const allHidden = vouches.length > 0 && hiddenCount === vouches.length;
-        const hood = (p.households as unknown as { neighborhood: string | null } | null)?.neighborhood;
+        const hood = (p.households as unknown as { city: string | null } | null)?.city;
         return (
           <div key={p.id} className={card}>
             <p className="text-base font-bold">
@@ -228,22 +228,22 @@ async function UsersTab({ db, q }: { db: Db; q: string }) {
 
 async function StatsTab({ db }: { db: Db }) {
   const [{ data: homes }, { data: vouches }, { count: users }, { count: openFlagCount }] = await Promise.all([
-    db.from("households").select("id, neighborhood"),
+    db.from("households").select("id, city"),
     db.from("vouches").select("household_id, status"),
     db.from("profiles").select("id", { count: "exact", head: true }),
     db.from("flags").select("id", { count: "exact", head: true }).eq("status", "open"),
   ]);
-  const hoodOf = new Map((homes ?? []).map((h) => [h.id, h.neighborhood ?? "No neighborhood"]));
+  const hoodOf = new Map((homes ?? []).map((h) => [h.id, h.city ?? "Unknown city"]));
   const rows = new Map<string, { homes: number; reactions: number }>();
   for (const h of homes ?? []) {
-    const k = h.neighborhood ?? "No neighborhood";
+    const k = h.city ?? "Unknown city";
     const r = rows.get(k) ?? { homes: 0, reactions: 0 };
     r.homes++;
     rows.set(k, r);
   }
   for (const v of vouches ?? []) {
     if (v.status !== "visible") continue;
-    const k = hoodOf.get(v.household_id) ?? "No neighborhood";
+    const k = hoodOf.get(v.household_id) ?? "Unknown city";
     const r = rows.get(k) ?? { homes: 0, reactions: 0 };
     r.reactions++;
     rows.set(k, r);
@@ -268,7 +268,7 @@ async function StatsTab({ db }: { db: Db }) {
         <table className="w-full text-left text-[15px]">
           <thead className="text-[13px] text-muted">
             <tr>
-              <th className="pb-2 font-medium">Neighborhood</th>
+              <th className="pb-2 font-medium">City</th>
               <th className="pb-2 text-right font-medium">Homes</th>
               <th className="pb-2 text-right font-medium">Reactions</th>
             </tr>

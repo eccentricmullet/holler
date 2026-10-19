@@ -5,7 +5,7 @@ import Link from "next/link";
 import { aCategoryPro } from "@/lib/words";
 import { createAskAction } from "../actions";
 
-// One tap: "Need a plumber? Ask neighbors." Neighbors within a mile answer with a pro.
+// One tap: "Need a plumber? Ask neighbors." Nearby neighbors answer with a pro.
 export default function NewAsk({ category }: { category: { slug: string; name: string; icon: string } }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export default function NewAsk({ category }: { category: { slug: string; name: s
         </span>
         <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Asked!</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">
-          Neighbors within a mile will see that you need {phrase}. Their picks show up on your Asks page.
+          Nearby neighbors will see that you need {phrase}. Their picks show up on your Asks page.
         </p>
         <div className="mt-auto flex flex-col gap-2.5">
           <Link href="/asks" className="flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white">
@@ -46,7 +46,7 @@ export default function NewAsk({ category }: { category: { slug: string; name: s
       </span>
       <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Need {phrase}?</h1>
       <p className="mt-2.5 text-base leading-snug text-muted">
-        We&apos;ll ask neighbors within a mile who they use. They answer by picking a pro, so no long threads. Only your first name and
+        We&apos;ll ask nearby neighbors who they use. They answer by picking a pro, so no long threads. Only your first name and
         last initial show.
       </p>
       {error && (

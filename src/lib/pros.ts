@@ -45,11 +45,11 @@ type VouchRow = {
   household_id: string;
   categories: { slug: string; name: string } | null;
   profiles: { first_name: string; last_initial: string; privacy: string; banned: boolean } | null;
-  households: { neighborhood: string | null; display_location: unknown } | null;
+  households: { city: string | null; display_location: unknown } | null;
 };
 
 // Everything the pro page and its link preview show. Runs on the server with full access,
-// and returns only public info: counts, first name + last initial, neighborhood.
+// and returns only public info: counts, first name + last initial, city.
 export const getProPage = cache(async (id: string, near: { lat: number; lng: number }): Promise<ProLookup> => {
   if (!UUID.test(id)) return { kind: "missing" };
   const db = createAdminClient();
@@ -66,7 +66,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
   const { data } = await db
     .from("vouches")
     .select(
-      "*, categories(slug, name), profiles(first_name, last_initial, privacy, banned), households(neighborhood, display_location)"
+      "*, categories(slug, name), profiles(first_name, last_initial, privacy, banned), households(city, display_location)"
     )
     .eq("pro_id", id)
     .eq("status", "visible")
@@ -97,7 +97,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       const p = r.profiles!;
       const hidden = p.privacy === "hidden";
       const who = hidden ? "A neighbor" : `${p.first_name} ${p.last_initial}.`;
-      const hood = r.households?.neighborhood;
+      const hood = r.households?.city;
       return {
         vouchId: r.id,
         reaction: r.reaction,

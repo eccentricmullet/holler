@@ -6,6 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { porchFeed } from "@/lib/porch";
 import { TABS, type PorchTab } from "@/lib/porch-kinds";
 import PorchFeed from "./PorchFeed";
+import ReachPicker from "./ReachPicker";
+import { DEFAULT_REACH } from "@/lib/reach";
 import { SeenPorch } from "@/components/PorchButton";
 
 export const metadata: Metadata = { title: `The Porch · ${SITE.name}` };
@@ -18,7 +20,7 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data: profile } = user ? await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle() : { data: null };
+  const { data: profile } = user ? await supabase.from("profiles").select("id, reach_miles").eq("id", user.id).maybeSingle() : { data: null };
 
   const header = (
     <div className="flex items-center justify-between">
@@ -69,7 +71,8 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
       {header}
       <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">The Porch</h1>
-      <p className="mt-1.5 text-[15px] text-muted">What&apos;s happening within 2 miles. Posts tidy themselves up.</p>
+      <p className="mt-1.5 text-[15px] text-muted">What&apos;s happening near you. Posts tidy themselves up.</p>
+      <ReachPicker miles={profile.reach_miles ?? DEFAULT_REACH} />
 
       <nav className="no-scrollbar -mx-6 mt-4 flex gap-2 overflow-x-auto px-6" aria-label="Porch tabs">
         {TABS.map((t) => (

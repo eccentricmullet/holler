@@ -69,7 +69,7 @@ export default function AlertSettings({ initial, publicKey }: { initial: AlertPr
   }
 
   const rows: { key: keyof AlertPrefs; emoji: string; title: string; body: string }[] = [
-    { key: "asks", emoji: "🙋", title: "A neighbor needs a pro", body: "When someone within a mile asks who to hire." },
+    { key: "asks", emoji: "🙋", title: "A neighbor needs a pro", body: "When someone near you asks who to hire (your Porch distance)." },
     { key: "answers", emoji: "📬", title: "Someone answered your ask", body: "When a neighbor recommends a pro to you." },
     { key: "porchDaily", emoji: "🏡", title: "Daily Porch roundup", body: "One evening alert, only on days neighbors posted." },
   ];

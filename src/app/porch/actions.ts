@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPost, deletePost, markDone, reactToPost, reportPost, toggleAction } from "@/lib/porch";
+import { isReach } from "@/lib/reach";
 
 async function userId() {
   const supabase = await createClient();
@@ -62,4 +63,14 @@ export async function reportPostAction(postId: string, reason: string) {
   const uid = await userId();
   if (!uid) return { ok: false, hidden: false };
   return reportPost(createAdminClient(), uid, postId, reason);
+}
+
+// How far "neighbors" reaches for this person: 1, 3 or 5 miles (also used for ask alerts)
+export async function setReachAction(miles: number) {
+  const uid = await userId();
+  if (!uid || !isReach(miles)) return { ok: false };
+  const { error } = await createAdminClient().from("profiles").update({ reach_miles: miles }).eq("id", uid);
+  revalidatePath("/porch");
+  revalidatePath("/asks");
+  return { ok: !error };
 }

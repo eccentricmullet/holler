@@ -263,7 +263,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
         {pending ? "Posting…" : "Post to the porch"}
       </button>
       <p className="mt-2 text-center text-[13px] text-muted">
-        Neighbors within 2 miles see it. It comes down on its own{info.needsDate ? " after the date" : ` in ${info.days} days`}.
+        Neighbors nearby see it. It comes down on its own{info.needsDate ? " after the date" : ` in ${info.days} days`}.
       </p>
     </main>
   );

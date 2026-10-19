@@ -56,6 +56,7 @@ export type AddressDetails = {
   lat: number;
   lng: number;
   neighborhood: string | null;
+  city: string | null; // shown instead of neighborhood names
 };
 
 export async function getAddressDetails(placeId: string, sessionToken?: string): Promise<AddressDetails> {
@@ -75,12 +76,15 @@ export async function getAddressDetails(placeId: string, sessionToken?: string):
     addressComponents?: { longText: string; types: string[] }[];
   };
   const neighborhood = p.addressComponents?.find((c) => c.types.includes("neighborhood"))?.longText ?? null;
+  const find = (t: string) => p.addressComponents?.find((c) => c.types.includes(t))?.longText ?? null;
+  const city = find("locality") ?? find("postal_town") ?? find("administrative_area_level_3") ?? find("sublocality");
   return {
     placeId: p.id,
     address: p.formattedAddress,
     lat: p.location.latitude,
     lng: p.location.longitude,
     neighborhood,
+    city,
   };
 }
 

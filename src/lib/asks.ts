@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
+import { metersBetween, parsePoint } from "@/lib/geo";
+import { reachMeters } from "@/lib/reach";
 import { whenLabel } from "@/lib/recency";
 import { saveReaction, type Actor, type ProChoice } from "@/lib/reactions";
 
@@ -8,12 +9,12 @@ import { saveReaction, type Actor, type ProChoice } from "@/lib/reactions";
 export const ASK_DAYS_OPEN = 14;
 export const MAX_ASKS_PER_DAY = 3;
 
-type ProfileRow = { id: string; household_id: string | null; banned: boolean; first_name: string; last_initial: string; privacy: string };
+type ProfileRow = { id: string; household_id: string | null; banned: boolean; first_name: string; last_initial: string; privacy: string; reach_miles: number | null };
 
 async function profileOf(db: SupabaseClient, userId: string) {
   const { data } = await db
     .from("profiles")
-    .select("id, household_id, banned, first_name, last_initial, privacy")
+    .select("id, household_id, banned, first_name, last_initial, privacy, reach_miles")
     .eq("id", userId)
     .maybeSingle();
   return data as ProfileRow | null;
@@ -73,7 +74,7 @@ type AskRow = {
   ask_answers: { profile_id: string }[];
 };
 
-// Open asks from other homes within a mile of this person's block.
+// Open asks from other homes within this person's reach (1, 3 or 5 miles).
 export async function asksNear(db: SupabaseClient, userId: string): Promise<NearbyAsk[]> {
   const me = await profileOf(db, userId);
   if (!me?.household_id) return [];
@@ -93,7 +94,7 @@ export async function asksNear(db: SupabaseClient, userId: string): Promise<Near
   return ((data ?? []) as unknown as AskRow[])
     .filter((a) => {
       const p = parsePoint(a.households?.display_location);
-      return a.categories && a.profiles && !a.profiles.banned && p && metersBetween(p, here) <= ONE_MILE_M;
+      return a.categories && a.profiles && !a.profiles.banned && p && metersBetween(p, here) <= reachMeters(me.reach_miles);
     })
     .map((a) => ({
       id: a.id,

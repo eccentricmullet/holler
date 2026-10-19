@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
+import { metersBetween, parsePoint } from "@/lib/geo";
+import { reachMeters } from "@/lib/reach";
 import { porchFeed } from "@/lib/porch";
 import { KINDS } from "@/lib/porch-kinds";
 import { aCategoryPro } from "@/lib/words";
@@ -7,9 +8,9 @@ import type { Alert } from "@/lib/push";
 
 // Who should get which opt-in alert (11l). Only people who turned that alert on.
 
-type Row = { id: string; household_id: string | null; households: { display_location: unknown } | null };
+type Row = { id: string; household_id: string | null; reach_miles: number | null; households: { display_location: unknown } | null };
 
-// New ask: opted-in neighbors within a mile of the asker's block (not the asker's own home).
+// New ask: opted-in neighbors whose reach (1, 3 or 5 miles) covers the asker's block (not the asker's home).
 export async function newAskRecipients(db: SupabaseClient, askId: string): Promise<{ ids: string[]; alert: Alert } | null> {
   const { data: ask } = await db
     .from("asks")
@@ -21,14 +22,14 @@ export async function newAskRecipients(db: SupabaseClient, askId: string): Promi
   if (!here) return null;
   const { data } = await db
     .from("profiles")
-    .select("id, household_id, households(display_location)")
+    .select("id, household_id, reach_miles, households(display_location)")
     .eq("alert_asks", true)
     .eq("banned", false)
     .neq("household_id", ask.household_id);
   const ids = ((data ?? []) as unknown as Row[])
     .filter((p) => {
       const at = parsePoint(p.households?.display_location);
-      return at && metersBetween(at, here) <= ONE_MILE_M;
+      return at && metersBetween(at, here) <= reachMeters(p.reach_miles); // their own reach
     })
     .map((p) => p.id);
   const name = (ask.categories as unknown as { name: string } | null)?.name ?? "local";

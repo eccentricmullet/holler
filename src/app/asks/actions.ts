@@ -25,7 +25,7 @@ export async function createAskAction(categorySlug: string) {
   const db = createAdminClient();
   const r = await createAsk(db, user.id, categorySlug);
   revalidatePath("/asks");
-  // Opt-in alert to neighbors within a mile (after the screen has answered)
+  // Opt-in alert to neighbors whose reach covers the asker (after the screen has answered)
   if (r.ok) {
     const askId = r.askId;
     after(async () => {
