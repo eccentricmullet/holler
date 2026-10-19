@@ -2,6 +2,9 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { answerRecipients, newAskRecipients } from "@/lib/alerts";
+import { sendAlert } from "@/lib/push";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { answerAsk, closeAsk, createAsk } from "@/lib/asks";
@@ -19,8 +22,17 @@ async function me() {
 export async function createAskAction(categorySlug: string) {
   const user = await me();
   if (!user) return { ok: false as const, error: "Please sign in first." };
-  const r = await createAsk(createAdminClient(), user.id, categorySlug);
+  const db = createAdminClient();
+  const r = await createAsk(db, user.id, categorySlug);
   revalidatePath("/asks");
+  // Opt-in alert to neighbors within a mile (after the screen has answered)
+  if (r.ok) {
+    const askId = r.askId;
+    after(async () => {
+      const who = await newAskRecipients(db, askId);
+      if (who) await sendAlert(db, who.ids, who.alert);
+    });
+  }
   return r;
 }
 
@@ -34,6 +46,13 @@ export async function answerAskAction(
   const invitedBy = await inviteProId(db, (await cookies()).get(INVITE_COOKIE)?.value);
   const r = await answerAsk(db, { userId: user.id, phone: user.phone, inviteProId: invitedBy }, askId, input);
   revalidatePath("/asks");
+  // Opt-in alert to the person who asked
+  if (r.ok) {
+    after(async () => {
+      const who = await answerRecipients(db, askId);
+      if (who) await sendAlert(db, who.ids, who.alert);
+    });
+  }
   return r;
 }
 

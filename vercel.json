@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/cron/porch-daily", "schedule": "0 23 * * *" }]
+}

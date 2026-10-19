@@ -34,6 +34,9 @@ export default async function AsksPage() {
       </Link>
       <h1 className="mt-7 text-[34px] font-extrabold tracking-[-0.02em]">Neighbors asking</h1>
       <p className="mt-1.5 text-base text-muted">Know a good one? Tap to share a pro. It also goes on the map.</p>
+      <Link href="/profile/alerts" className="mt-2 text-sm font-semibold text-green-deep">
+        🔔 Get an alert when a neighbor asks or answers
+      </Link>
 
       <div className="mt-5 flex flex-col gap-2.5">
         {open.length === 0 && <p className="text-[15px] text-muted">No one near you is asking right now.</p>}
