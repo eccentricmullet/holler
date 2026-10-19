@@ -22,9 +22,9 @@ insert into public.categories (slug, name, icon, sort_order, section) values
   ('handyman',         'Handyman',         '🔧', 14, 'Inside'),
   ('painting',         'Painting',         '🎨', 15, 'Inside'),
   ('cleaning',         'Cleaning',         '🧹', 16, 'Inside'),
-  ('flooring',         'Flooring',         '🪵', 17, 'Inside'),
+  ('flooring',         'Flooring',         '🧱', 17, 'Inside'),
   ('appliance-repair', 'Appliance repair', '🔌', 18, 'Inside'),
-  ('garage-doors',     'Garage doors',     '🚪', 19, 'Inside'),
+  ('garage-doors',     'Garage doors',     '🚘', 19, 'Inside'),
   -- Moving & hauling
   ('junk-removal',     'Junk removal',     '🗑️', 20, 'Moving & hauling'),
   ('movers',           'Movers',           '📦', 21, 'Moving & hauling'),

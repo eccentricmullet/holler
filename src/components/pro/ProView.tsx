@@ -40,7 +40,7 @@ export default function ProView({
       <div className={`relative mt-[196px] flex flex-col rounded-t-[32px] bg-surface px-6 ${inPanel ? "min-h-[calc(100%-196px)]" : "min-h-[calc(100dvh-196px)]"}`}>
         <div className="-mt-[38px]">
           <span className="inline-flex rounded-full shadow-[0_6px_16px_rgba(26,29,36,0.18)]">
-            <ProLogo name={pro.name} logoUrl={pro.logoUrl} size={76} />
+            <ProLogo name={pro.name} logoUrl={pro.logoUrl} color={pro.color} size={76} />
           </span>
         </div>
         <h1 className="mt-3 text-[28px] font-extrabold leading-tight tracking-[-0.02em]">{pro.name}</h1>

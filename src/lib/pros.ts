@@ -22,6 +22,7 @@ export type ProPage = {
   phone: string | null;
   website: string | null;
   logoUrl: string | null;
+  color: string | null; // own pin color (11j)
   categoryName: string | null;
   categorySlug: string | null;
   thumbs: number;
@@ -55,7 +56,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
 
   const { data: pro } = await db
     .from("pros")
-    .select("id, name, phone, website, logo_url, status, merged_into_id")
+    .select("id, name, phone, website, logo_url, color, status, merged_into_id")
     .eq("id", id)
     .maybeSingle();
   if (!pro) return { kind: "missing" };
@@ -123,6 +124,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       phone: pro.phone,
       website: pro.website,
       logoUrl: pro.logo_url,
+      color: pro.color ?? null,
       categoryName: top?.name ?? null,
       categorySlug: top?.slug ?? null,
       thumbs: rows.filter((r) => r.reaction === "thumbs_up").length,

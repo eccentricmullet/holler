@@ -20,6 +20,7 @@ type Props = {
   // Loaded on the server for the default category so cards show right away
   initialPros: NearbyPro[] | null;
   initialPins: Pin[];
+  initialColors: Record<string, string>; // each pro's own pin color (11j)
 };
 
 const controlClass = "flex size-12 items-center justify-center rounded-2xl bg-surface text-ink shadow-control";
@@ -81,12 +82,16 @@ export default function MapScreen(props: Props) {
 
   // When each pro was most recently used (11d), for "this fall" on cards
   const [latest, setLatest] = useState<Record<string, string>>({});
+  const [colors, setColors] = useState<Record<string, string>>(props.initialColors);
   useEffect(() => {
     if (!pros?.length) return;
     const ctrl = new AbortController();
     fetch(`/api/pros/latest?ids=${pros.map((p) => p.id).join(",")}`, { signal: ctrl.signal })
       .then((r) => r.json())
-      .then((d) => setLatest((cur) => ({ ...cur, ...d.latest })))
+      .then((d) => {
+        setLatest((cur) => ({ ...cur, ...d.latest }));
+        setColors((cur) => ({ ...cur, ...d.colors }));
+      })
       .catch(() => {});
     return () => ctrl.abort();
   }, [pros]);
@@ -172,6 +177,7 @@ export default function MapScreen(props: Props) {
         satellite={satellite}
         pins={pins}
         pros={pros ?? []}
+        colors={colors}
         selectedId={hoverId ?? selectedId}
         onSelect={setSelectedId}
         recenterKey={recenterKey}
@@ -200,7 +206,7 @@ export default function MapScreen(props: Props) {
           ) : pros.length === 0 ? (
             <div className="px-1">{emptyState}</div>
           ) : (
-            <ProList pros={pros} pinCounts={pinCounts} latest={latest} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
+            <ProList pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
           )}
         </div>
         {unlockCard && <div className="p-3">{unlockCard}</div>}
@@ -274,7 +280,7 @@ export default function MapScreen(props: Props) {
         ) : pros.length === 0 ? (
           <div className="mx-5 mb-7">{emptyState}</div>
         ) : (
-          <ProCards pros={pros} pinCounts={pinCounts} latest={latest} selectedId={selectedId} onSelect={setSelectedId} />
+          <ProCards pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} />
         )}
       </div>
 

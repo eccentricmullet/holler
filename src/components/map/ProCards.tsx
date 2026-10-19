@@ -18,6 +18,7 @@ export default function ProCards(props: {
   pros: NearbyPro[];
   pinCounts: Record<string, number>;
   latest: Record<string, string>; // pro id -> most recent reaction date
+  colors: Record<string, string>; // pro id -> their own pin color
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
@@ -52,7 +53,7 @@ export default function ProCards(props: {
                 <span className="absolute -right-2.5 -top-[90px] size-[150px] rounded-full bg-lime" aria-hidden />
               </>
             )}
-            <ProLogo name={p.name} logoUrl={p.logo_url} size={on ? 56 : 48} />
+            <ProLogo name={p.name} logoUrl={p.logo_url} color={props.colors[p.id]} size={on ? 56 : 48} />
             <span className={`relative font-bold leading-[1.15] ${on ? "mt-[18px] text-xl" : "mt-3.5 text-lg"}`}>{p.name}</span>
             {on && when && <span className="relative mt-0.5 text-[13px] font-medium text-muted">Latest: {when}</span>}
             <span className="relative mt-2 flex items-center gap-3 text-base font-semibold">

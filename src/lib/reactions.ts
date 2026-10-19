@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkNote } from "@/lib/note-filter";
 import { cleanPrice, cleanTags } from "@/lib/tags";
+import { assignProColor } from "@/lib/pro-colors";
 import { getBusinessDetails } from "@/lib/places";
 
 // Trust rules for reacting. The server action passes in the signed-in user; tests pass in test users.
@@ -177,6 +178,9 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
     { onConflict: "household_id,pro_id,category_id" }
   );
   if (error) return { ok: false, error: "Something went wrong saving that. Try again." };
+
+  // New pros get their own pin color once we know their category (11j)
+  await assignProColor(db, pro.id);
 
   const { count } = await db
     .from("vouches")

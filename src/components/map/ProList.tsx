@@ -11,6 +11,7 @@ export default function ProList(props: {
   pros: NearbyPro[];
   pinCounts: Record<string, number>;
   latest: Record<string, string>; // pro id -> most recent reaction date
+  colors: Record<string, string>; // pro id -> their own pin color
   selectedId: string | null;
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
@@ -28,7 +29,7 @@ export default function ProList(props: {
               on ? "border-green bg-green-wash" : "border-transparent hover:bg-field"
             }`}
           >
-            <ProLogo name={p.name} logoUrl={p.logo_url} size={44} />
+            <ProLogo name={p.name} logoUrl={p.logo_url} color={props.colors[p.id]} size={44} />
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-base font-bold">{p.name}</span>
               <span className="flex items-center gap-2.5 text-sm font-semibold">

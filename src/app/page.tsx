@@ -35,6 +35,14 @@ export default async function Home() {
   const [prosRes, pinsRes] = await Promise.all([supabase.rpc("pros_near", args), supabase.rpc("map_pins", args)]);
   const ok = !prosRes.error && !pinsRes.error;
 
+  // Each pro's own pin color, so the first map draw already has them (11j)
+  const initialColors: Record<string, string> = {};
+  const ids = ok ? (prosRes.data as NearbyPro[]).map((p) => p.id) : [];
+  if (ids.length) {
+    const { data } = await supabase.from("pros").select("id, color").in("id", ids);
+    for (const p of (data ?? []) as { id: string; color: string | null }[]) if (p.color) initialColors[p.id] = p.color;
+  }
+
   return (
     <MapScreen
       farFromLaunch={farFromLaunch}
@@ -45,6 +53,7 @@ export default async function Home() {
       signedIn={!!userData.user}
       initialPros={ok ? (prosRes.data as NearbyPro[]) : null}
       initialPins={ok ? (pinsRes.data as Pin[]) : []}
+      initialColors={initialColors}
     />
   );
 }

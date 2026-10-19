@@ -49,7 +49,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             ) : (
               <div
                 style={{
-                  width: 140, height: 140, borderRadius: 140, background: logoColor(name), color: "#FFFFFF",
+                  width: 140, height: 140, borderRadius: 140, background: logoColor(name, pro?.color), color: "#FFFFFF",
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56, fontWeight: 800,
                 }}
               >

@@ -1,8 +1,9 @@
-// Business logos bring their own colors. When a pro has no logo yet, show colored initials
-// using the business colors from docs/mockups/GreenMap.dc.html.
-const FALLBACK_COLORS = ["#2F9E44", "#D9480F", "#6741D9"];
+// Business logos bring their own colors. Until a pro has a logo, they get their own saved
+// color (src/lib/pro-colors.ts). This fallback is only for the moment before one is assigned.
+const FALLBACK_COLORS = ["#E8590C", "#1971C2", "#C2255C", "#6741D9", "#0C8599"];
 
-export function logoColor(name: string) {
+export function logoColor(name: string, color?: string | null) {
+  if (color) return color;
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return FALLBACK_COLORS[h % FALLBACK_COLORS.length];

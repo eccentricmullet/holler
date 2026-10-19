@@ -21,6 +21,7 @@ type Props = {
   satellite: boolean;
   pins: Pin[];
   pros: NearbyPro[];
+  colors: Record<string, string>; // pro id -> their own pin color
   selectedId: string | null;
   onSelect: (proId: string | null) => void;
   recenterKey: number;
@@ -124,7 +125,7 @@ export default function MapView(props: Props) {
     );
     index.current = sc;
     renderMarkers();
-  }, [props.pins, props.pros, props.selectedId]);
+  }, [props.pins, props.pros, props.selectedId, props.colors]);
 
   useEffect(() => {
     renderHome();
@@ -154,7 +155,7 @@ export default function MapView(props: Props) {
     markersRef.current = [];
     if (!map || !Marker || !sc) return;
 
-    const { pros, selectedId, onSelect } = latest.current;
+    const { pros, selectedId, onSelect, colors } = latest.current;
     const byId = new Map(pros.map((p) => [p.id, p]));
     const b = map.getBounds();
     if (!b) return;
@@ -185,7 +186,7 @@ export default function MapView(props: Props) {
         el.setAttribute("aria-label", `${love ? "A neighbor loves" : "A neighbor uses"} ${name}`);
         el.className +=
           " relative flex size-[42px] items-center justify-center rounded-full border-[3px] border-white p-0 text-sm font-bold text-white transition-opacity";
-        el.style.background = pro?.logo_url ? `#fff url("${pro.logo_url}") center/cover` : logoColor(name);
+        el.style.background = pro?.logo_url ? `#fff url("${pro.logo_url}") center/cover` : logoColor(name, colors[proId]);
         el.style.boxShadow = on
           ? "0 0 0 3px #2BB24C, 0 4px 10px rgba(26,29,36,0.25)"
           : "0 4px 10px rgba(26,29,36,0.25)";

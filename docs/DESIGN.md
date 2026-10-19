@@ -23,6 +23,12 @@ The approved look is the **green** set in `docs/mockups/`. Open any `.dc.html` f
 
 Business logos bring their own colors; the app stays green and neutral around them.
 
+**Pro colors (step 11j).** Until a pro has a real logo, their pin and logo circle use their own saved color, chosen so no two pros in the same category share one. No greens (green is Holler's own color). Defined in `src/lib/pro-colors.ts`:
+
+| Orange | Blue | Raspberry | Purple | Teal | Amber | Red | Indigo | Plum | Brown |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| #E8590C | #1971C2 | #C2255C | #6741D9 | #0C8599 | #F08C00 | #E03131 | #364FC7 | #862E9C | #8D5524 |
+
 ## Type
 
 - Rubik from Google Fonts: 400, 500, 600, 700, 800.
@@ -43,7 +49,7 @@ Business logos bring their own colors; the app stays green and neutral around th
 
 ## Map
 
-- Mapbox custom style: very light gray ground, white roads, muted labels, so logos stand out.
+- Mapbox Standard style (step 11i), darkened slightly, with store and transit labels hidden so pro logos stand out.
 - Logo pins: 42px circles, 3px white border, soft shadow. Selected pro: 3px green ring; others fade to 30%.
 - Street is default, satellite is a toggle.
 
