@@ -293,3 +293,14 @@ export async function newPostCount(db: SupabaseClient, userId: string, sinceIso:
   const feed = await porchFeed(db, userId, "all");
   return feed.filter((f) => f.type === "post" && !f.mine && f.createdAt > sinceIso).length;
 }
+
+// Posts are hidden the moment they expire; a week later they're deleted for good, photos included.
+export async function purgeExpiredPosts(db: SupabaseClient, now = new Date()) {
+  const cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: old } = await db.from("porch_posts").select("id, photo_path").lt("expires_at", cutoff).limit(500);
+  if (!old?.length) return 0;
+  const photos = old.map((p) => p.photo_path).filter((p): p is string => !!p);
+  if (photos.length) await db.storage.from(PORCH_BUCKET).remove(photos);
+  await db.from("porch_posts").delete().in("id", old.map((p) => p.id));
+  return old.length;
+}

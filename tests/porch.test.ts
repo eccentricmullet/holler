@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { joinHousehold } from "@/lib/households";
-import { createPost, markDone, MAX_POSTS_PER_DAY, porchFeed, reactToPost, reportPost, toggleAction, deletePost, relative } from "@/lib/porch";
+import { createPost, markDone, MAX_POSTS_PER_DAY, porchFeed, reactToPost, reportPost, toggleAction, deletePost, relative, purgeExpiredPosts } from "@/lib/porch";
 
 const env = Object.fromEntries(
   readFileSync(new URL("../.env.local", import.meta.url), "utf8")
@@ -117,5 +117,22 @@ describe("The Porch", () => {
     expect(relative("2026-10-19T11:59:30Z", now)).toBe("just now");
     expect(relative("2026-10-19T09:00:00Z", now)).toBe("3h ago");
     expect(relative("2026-10-18T10:00:00Z", now)).toBe("yesterday");
+  });
+});
+
+describe("Porch cleanup", () => {
+  it("deletes posts a week after they expire, and leaves fresh ones alone", async () => {
+    // Inserted directly: the daily post limit is already used up by the tests above
+    const { data: me } = await db.from("profiles").select("household_id").eq("id", poster).single();
+    const { data: old } = await db
+      .from("porch_posts")
+      .insert({ profile_id: poster, household_id: me!.household_id, kind: "curb_alert", body: "Long gone", expires_at: new Date(Date.now() - 9 * 864e5).toISOString() })
+      .select("id")
+      .single();
+    expect(await purgeExpiredPosts(db)).toBeGreaterThanOrEqual(1);
+    const { count: gone } = await db.from("porch_posts").select("id", { count: "exact", head: true }).eq("id", old!.id);
+    expect(gone).toBe(0);
+    const { count: fresh } = await db.from("porch_posts").select("id", { count: "exact", head: true }).eq("profile_id", poster);
+    expect(fresh).toBeGreaterThan(0);
   });
 });

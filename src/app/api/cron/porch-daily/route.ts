@@ -2,8 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dailyPorchAlerts } from "@/lib/alerts";
 import { sendAlert } from "@/lib/push";
+import { purgeExpiredPosts } from "@/lib/porch";
 
-// Runs once each evening (vercel.json). Vercel signs the call with CRON_SECRET; anyone else is turned away.
+// Runs once each evening (vercel.json): the daily Porch roundup, then cleanup. Vercel signs the call with CRON_SECRET; anyone else is turned away.
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
@@ -13,5 +14,7 @@ export async function GET(request: NextRequest) {
   const alerts = await dailyPorchAlerts(db);
   let sent = 0;
   for (const a of alerts) sent += await sendAlert(db, [a.id], a.alert);
-  return NextResponse.json({ people: alerts.length, sent });
+  // Tidy up: posts that expired over a week ago are deleted for good
+  const purged = await purgeExpiredPosts(db);
+  return NextResponse.json({ people: alerts.length, sent, purged });
 }
