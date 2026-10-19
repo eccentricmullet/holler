@@ -151,13 +151,17 @@ Finish each step's "done when" before starting the next, and commit after every 
 | 11f | Saved pros ("My pros") plus a shareable "My Spring Hill pros" link | Save from a pro page; list in profile; share link opens a clean page |
 | 11g | Seasonal nudges as an in-app map banner ("Gutter season: who cleaned yours?"). Texts come later (needs Twilio A2P 10DLC registration). | The right banner shows for the season and opens the react flow for that category |
 | 11h | Ask the neighborhood: one-tap "Need a plumber? Ask neighbors." Neighbors within a mile answer by tapping a pro, not typing. In-app "Asks near you" list plus optional browser push. Not a message board. | An ask gets answered with a pro, and the answer adds a reaction |
+| 11i | Map style: Mapbox Standard, darkened slightly so parks, water and streets read clearly and pins pop | The map looks lively, not washed out, on phone and laptop |
+| 11j | Every pro gets its own color (no two pros in the same category nearby share one); a real logo replaces it | Three lawn pros in Spring Hill show three different colors everywhere |
+| 11k | **The Porch**: a self-running neighborhood board. Tabs: All · Pros (Need a pro, Just hired) · Sales & free (garage sales, curb alerts) · Pets (lost & found) · Events · Heads-up (roads, weather, power, water only). Also "New neighbor" posts. Short post + optional photo; 👍/❤️ and one-tap action buttons instead of comment threads; posts expire automatically; 3 reports from different homes auto-hides a post | A neighbor can post a curb alert with a photo in under 30 seconds; others see it in their area; it disappears on schedule |
+| 11l | Opt-in alerts (browser push): someone near you needs a pro; someone answered your ask; optional daily "Today on The Porch" | Opted-in phone gets the alert and tapping it opens the right screen |
 | 12 | Seed Spring Hill with real reactions; test with 10 neighbors | 100+ real reactions; testers find a pro in under 60 seconds |
 
-**v1.1 principles (steps 11a–11h):** every addition is one tap and optional; reactions stay positive-only with just 👍 and ❤️ (tags add detail instead of more emoji); no open message board or chat; never sell leads or share a neighbor's number with pros; ranking stays purely neighbor reactions.
+**v1.1 principles (steps 11a–11h):** every addition is one tap and optional; reactions stay positive-only with just 👍 and ❤️ (tags add detail instead of more emoji); no open comment threads or chat (The Porch, step 11k, uses reactions and one-tap actions instead and moderates itself); never sell leads or share a neighbor's number with pros; ranking stays purely neighbor reactions.
 
 ## Out of scope for v1
 
-Feed or chat, messaging, pro accounts/dashboards, payments or ads, star ratings or long reviews, native apps, marketing outside Spring Hill.
+Open comment threads or chat, private messaging, pro accounts/dashboards, payments or ads, star ratings or long reviews, native apps, marketing outside Spring Hill.
 
 ## Open questions
 
