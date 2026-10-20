@@ -107,15 +107,28 @@ export default function MapScreen(props: Props) {
 
   const reactHref = signedIn ? "/react" : "/signup";
 
-  const title = (onDark: boolean) => (
+  // The selected category as a bold black pill (tap to switch)
+  const title = (onMap: boolean) => (
     <>
-      <button type="button" onClick={() => setSheetOpen(true)} className={`flex items-center gap-2 ${onDark ? "text-white drop-shadow" : "text-ink"}`}>
-        <span className="text-4xl font-extrabold leading-none tracking-[-0.02em]">{current?.name ?? "Pros"}</span>
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-1" aria-hidden>
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+      <button
+        type="button"
+        onClick={() => setSheetOpen(true)}
+        aria-label={`${current?.name ?? "Pros"}: change category`}
+        className="flex max-w-full items-center gap-2.5 self-start rounded-[22px] bg-ink py-2.5 pl-3.5 pr-3 text-white shadow-float"
+      >
+        {current?.icon && (
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-white/12 text-[22px]" aria-hidden>
+            {current.icon}
+          </span>
+        )}
+        <span className="truncate text-[28px] font-extrabold leading-none tracking-[-0.02em]">{current?.name ?? "Pros"}</span>
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-lime text-ink" aria-hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
       </button>
-      <span className={`text-[15px] ${onDark ? "text-white drop-shadow" : "text-muted"}`}>Who {placeName} uses</span>
+      <span className={`mt-1.5 pl-1 text-[15px] font-semibold ${onMap ? "text-white drop-shadow" : "text-muted"}`}>Who {placeName} uses</span>
     </>
   );
 
@@ -160,6 +173,19 @@ export default function MapScreen(props: Props) {
       </Link>
     ) : null;
 
+  // Visitors who aren't signed in yet (e.g. opened a shared link): what this is
+  const introCard = !signedIn && (
+    <Link href="/signup" className="flex w-full items-center gap-3 rounded-[20px] bg-surface px-3.5 py-3 text-ink shadow-float">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-green-tint text-xl" aria-hidden>
+        👋
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <span className="text-[15px] font-bold leading-tight">New here? See who your neighbors hire</span>
+        <span className="text-[13px] text-muted">A map of local pros, shared by neighbors →</span>
+      </span>
+    </Link>
+  );
+
   const unlockCard = farFromLaunch && (
     <Link href="/unlock" className="flex items-center gap-3 rounded-[22px] bg-dark-card px-4 py-3.5 text-white shadow-float">
       <span className="text-2xl" aria-hidden>
@@ -186,10 +212,13 @@ export default function MapScreen(props: Props) {
         recenterKey={recenterKey}
       />
 
+      {/* Phone: a soft dark fade across the top so the title and banner pop */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[240px] bg-gradient-to-b from-ink/60 via-ink/25 to-transparent lg:hidden" aria-hidden />
       {/* Phone: title floats on the map */}
-      <div className="absolute left-6 top-7 flex flex-col gap-0.5 lg:hidden">{title(satellite)}</div>
+      <div className="absolute left-5 right-[84px] top-7 flex flex-col lg:hidden">{title(true)}</div>
       {/* Seasonal prompt under the title (leaves room for the buttons on the right) */}
-      <div className="absolute left-5 right-[84px] top-[118px] flex flex-col items-start gap-2 lg:hidden">
+      <div className="absolute left-5 right-[84px] top-[132px] flex flex-col items-start gap-2 lg:hidden">
+        {introCard}
         <SeasonalBanner signedIn={signedIn} className="w-full" />
         {askChip}
       </div>
@@ -197,8 +226,10 @@ export default function MapScreen(props: Props) {
       {/* Laptop: sidebar with the title and the pro list */}
       <aside className="absolute bottom-5 left-5 top-5 hidden w-[380px] flex-col overflow-hidden rounded-[28px] bg-surface shadow-float lg:flex">
         <div className="flex flex-col gap-0.5 px-6 pb-4 pt-6">{title(false)}</div>
+        <PorchButton signedIn={signedIn} className="mx-3 mb-3 shadow-none" />
         <SeasonalBanner signedIn={signedIn} className="mx-3 mb-3 bg-field shadow-none" />
         {askChip && <div className="mx-3 mb-3">{askChip}</div>}
+        {introCard && <div className="mx-3 mb-3">{introCard}</div>}
         <div className="flex-1 overflow-y-auto px-3 pb-4">
           {pros === null ? (
             <div className="flex flex-col gap-2 px-1" aria-label="Loading pros">
@@ -233,7 +264,6 @@ export default function MapScreen(props: Props) {
             </svg>
           </Link>
         )}
-        <PorchButton signedIn={signedIn} />
         <button type="button" aria-label="All categories" onClick={() => setSheetOpen(true)} className={controlClass}>
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
             <circle cx="7" cy="7" r="2.2" fill="currentColor" />
@@ -279,6 +309,7 @@ export default function MapScreen(props: Props) {
       {/* Phone: pro cards, empty state, or loading along the bottom */}
       <div className="absolute inset-x-0 bottom-0 lg:hidden">
         {unlockCard && <div className="mx-5 mb-1">{unlockCard}</div>}
+        <PorchButton signedIn={signedIn} className={`mx-5 ${pros?.length ? "-mb-1" : "mb-3"}`} />
         {pros === null ? (
           <ProCardsSkeleton />
         ) : pros.length === 0 ? (

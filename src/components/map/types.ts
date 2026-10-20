@@ -5,6 +5,7 @@ export type NearbyPro = {
   name: string;
   phone: string | null;
   website: string | null;
+  social_url?: string | null; // Instagram/Facebook when there is no phone
   logo_url: string | null;
   category_slug: string;
   thumbs_near: number;

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { completeSignup } from "./actions";
 import { track } from "@/components/Track";
 import GoogleAttribution from "@/components/GoogleAttribution";
+import Welcome from "@/components/Welcome";
 
 type Step = "phone" | "code" | "name" | "home";
 type Suggestion = { placeId: string; main: string; secondary: string };
@@ -32,6 +33,8 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
   const supabase = useRef(createClient()).current;
 
   const [step, setStep] = useState<Step>(startAt);
+  // First stop for anyone new: what Holler is
+  const [welcome, setWelcome] = useState(startAt === "phone");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,6 +132,8 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
       ctrl.abort();
     };
   }, [addressText, placeId, step, sessionToken]);
+
+  if (welcome) return <Welcome onStart={() => setWelcome(false)} />;
 
   const displayName = `${firstName.trim() || "Zak"} ${(lastInitial.trim() || "H").toUpperCase()}.`;
 

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hideUserReactions, mergePros, setBanned } from "@/lib/admin";
 import { toE164 } from "@/lib/reactions";
+import { cleanSocialUrl } from "@/lib/social";
 import { getOrCreateInvite } from "@/lib/invites";
 
 // Every admin action checks, on the server, that the signed-in user is an admin.
@@ -42,10 +43,12 @@ export async function updatePro(form: FormData) {
   const phoneRaw = str(form, "phone");
   const website = str(form, "website").slice(0, 300);
   const phone = phoneRaw ? toE164(phoneRaw) : null;
-  if (name.length < 2 || (phoneRaw && !phone)) redirect(`/admin/pros/${id}?error=check`);
+  const socialRaw = str(form, "social");
+  const social = socialRaw ? cleanSocialUrl(socialRaw) : null;
+  if (name.length < 2 || (phoneRaw && !phone) || (socialRaw && !social)) redirect(`/admin/pros/${id}?error=check`);
   await db
     .from("pros")
-    .update({ name, phone, website: website || null })
+    .update({ name, phone, website: website || null, social_url: social })
     .eq("id", id);
   revalidatePath(`/admin/pros/${id}`);
   redirect(`/admin/pros/${id}?saved=1`);

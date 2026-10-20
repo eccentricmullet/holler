@@ -27,7 +27,7 @@ export default async function AdminProPage({
 
   const { data: pro } = await db
     .from("pros")
-    .select("id, name, phone, website, status, merged_into_id, google_place_id, vouches(reaction, status, via_invite), flags(status)")
+    .select("id, name, phone, website, social_url, status, merged_into_id, google_place_id, vouches(reaction, status, via_invite), flags(status)")
     .eq("id", id)
     .maybeSingle();
   if (!pro) notFound();
@@ -71,7 +71,7 @@ export default async function AdminProPage({
       )}
       {error && (
         <p className="rounded-xl bg-love-tint p-3 text-sm font-semibold text-love">
-          {error === "check" ? "Check the name and phone number." : error}
+          {error === "check" ? "Check the name, phone number and Instagram or Facebook link." : error}
         </p>
       )}
       {pro.merged_into_id && (
@@ -98,6 +98,10 @@ export default async function AdminProPage({
           Website
         </label>
         <input id="website" name="website" defaultValue={pro.website ?? ""} className={input} />
+        <label className="mt-2 text-sm font-semibold" htmlFor="social">
+          Instagram or Facebook
+        </label>
+        <input id="social" name="social" placeholder="@name or facebook.com/page" defaultValue={pro.social_url ?? ""} className={input} />
         <button type="submit" className="mt-3 h-12 rounded-2xl bg-green-deep text-[15px] font-semibold text-white">
           Save
         </button>

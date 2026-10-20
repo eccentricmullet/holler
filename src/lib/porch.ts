@@ -290,8 +290,26 @@ export async function reportPost(db: SupabaseClient, userId: string, postId: str
 
 // How many new posts near you since a time (for the badge on the Porch button)
 export async function newPostCount(db: SupabaseClient, userId: string, sinceIso: string) {
+  return (await porchSummary(db, userId, sinceIso)).count;
+}
+
+// For the Porch button on the map: how many new posts, plus a one-line peek at the newest one.
+export async function porchSummary(db: SupabaseClient, userId: string, sinceIso: string) {
   const feed = await porchFeed(db, userId, "all");
-  return feed.filter((f) => f.type === "post" && !f.mine && f.createdAt > sinceIso).length;
+  const posts = feed
+    .filter((f): f is Extract<FeedItem, { type: "post" }> => f.type === "post" && !f.done)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  const count = posts.filter((p) => !p.mine && p.createdAt > sinceIso).length;
+  const newest = posts.find((p) => !p.mine) ?? posts[0];
+  const peek = newest
+    ? { emoji: KINDS[newest.kind].emoji, label: KINDS[newest.kind].label, text: peekText(newest.body) }
+    : null;
+  return { count, peek };
+}
+
+function peekText(body: string) {
+  const line = body.replace(/\s+/g, " ").trim();
+  return line.length > 60 ? `${line.slice(0, 57).trimEnd()}…` : line;
 }
 
 // Posts are hidden the moment they expire; a week later they're deleted for good, photos included.

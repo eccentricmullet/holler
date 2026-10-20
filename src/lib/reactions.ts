@@ -3,6 +3,7 @@ import { checkNote } from "@/lib/note-filter";
 import { cleanPrice, cleanTags } from "@/lib/tags";
 import { assignProColor } from "@/lib/pro-colors";
 import { getBusinessDetails } from "@/lib/places";
+import { cleanSocialUrl } from "@/lib/social";
 
 // Trust rules for reacting. The server action passes in the signed-in user; tests pass in test users.
 export const MAX_REACTIONS_PER_DAY = 15;
@@ -10,7 +11,7 @@ export const MAX_REACTIONS_PER_DAY = 15;
 export type ProChoice =
   | { kind: "holler"; proId: string }
   | { kind: "google"; placeId: string; sessionToken: string }
-  | { kind: "manual"; name: string; phone: string };
+  | { kind: "manual"; name: string; phone: string; social?: string }; // phone, or an Instagram/Facebook link
 
 export type ReactInput = {
   pro: ProChoice;
@@ -94,21 +95,22 @@ async function resolvePro(db: SupabaseClient, choice: ProChoice, actor: Actor): 
   }
 
   const name = choice.name.trim().replace(/\s+/g, " ").slice(0, 80);
-  const phone = toE164(choice.phone);
+  const phone = choice.phone?.trim() ? toE164(choice.phone) : null;
+  const social = choice.social?.trim() ? cleanSocialUrl(choice.social) : null;
   if (name.length < 2) return "Add the business name.";
-  if (!phone) return "Add their 10-digit phone number.";
+  if (choice.phone?.trim() && !phone) return "Check their phone number: it needs 10 digits.";
+  if (choice.social?.trim() && !social) return "That link doesn't look like an Instagram or Facebook page.";
+  if (!phone && !social) return "Add their phone number, or their Instagram or Facebook.";
   if (own && phone === own) return SELF_REACT;
-  // Same phone number = same business
-  const { data: samePhone } = await db
-    .from("pros")
-    .select("id, name, phone")
-    .eq("phone", phone)
-    .eq("status", "active")
-    .limit(1);
-  if (samePhone?.[0]) return samePhone[0];
+  // Same phone number, or same Instagram/Facebook page = same business
+  for (const [col, val] of [["phone", phone], ["social_url", social]] as const) {
+    if (!val) continue;
+    const { data: same } = await db.from("pros").select("id, name, phone").eq(col, val).eq("status", "active").limit(1);
+    if (same?.[0]) return same[0];
+  }
   const { data: created } = await db
     .from("pros")
-    .insert({ name, phone, created_by: actor.userId })
+    .insert({ name, phone, social_url: social, created_by: actor.userId })
     .select("id, name, phone")
     .single();
   return created ?? "Something went wrong adding that business. Try again.";

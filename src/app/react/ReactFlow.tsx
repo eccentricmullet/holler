@@ -15,6 +15,7 @@ import type { SearchResult } from "@/app/api/pros/search/route";
 import { previewBusiness, submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
 import type { BusinessPreview } from "@/lib/places";
 import { answerAskAction } from "@/app/asks/actions";
+import { cleanSocialUrl, socialKind, SOCIAL_LABEL } from "@/lib/social";
 
 type Picked = { choice: ProChoice; name: string; logoUrl: string | null; counts?: { thumbs: number; love: number } };
 type Step = "find" | "manual" | "confirm" | "react" | "done";
@@ -80,6 +81,7 @@ export default function ReactFlow({
   // Manual add
   const [manualName, setManualName] = useState("");
   const [manualPhone, setManualPhone] = useState("");
+  const [manualSocial, setManualSocial] = useState("");
 
   useEffect(() => {
     if (step !== "find" || query.trim().length < 2) {
@@ -153,6 +155,7 @@ export default function ReactFlow({
     setResults([]);
     setManualName("");
     setManualPhone("");
+    setManualSocial("");
     setSessionToken(crypto.randomUUID());
     setError(null);
     setStep("find");
@@ -310,7 +313,20 @@ export default function ReactFlow({
             </p>
           )}
           {manual && (
-            <p className="mt-4 text-[15px]">📞 {formatPhone(manual.phone.replace(/\D/g, "").slice(-10))}</p>
+            <dl className="mt-4 flex flex-col gap-2 text-[15px]">
+              {manual.phone && (
+                <div className="flex gap-2">
+                  <dt aria-label="Phone">📞</dt>
+                  <dd>{formatPhone(manual.phone.replace(/\D/g, "").slice(-10))}</dd>
+                </div>
+              )}
+              {manual.social && (
+                <div className="flex gap-2">
+                  <dt aria-label={SOCIAL_LABEL[socialKind(manual.social) ?? "instagram"]}>{socialKind(manual.social) === "facebook" ? "📘" : "📸"}</dt>
+                  <dd className="truncate">{manual.social.replace(/^https:\/\/(www\.)?/, "")}</dd>
+                </div>
+              )}
+            </dl>
           )}
           {preview && <GoogleAttribution className="mt-4" />}
         </div>
@@ -517,7 +533,7 @@ export default function ReactFlow({
           </svg>
         </button>
         <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Add a pro</h1>
-        <p className="mt-2.5 text-base leading-snug text-muted">Just their name and number. Neighbors can call them from the map.</p>
+        <p className="mt-2.5 text-base leading-snug text-muted">Their name, plus a phone number or their Instagram or Facebook. Neighbors reach them from the map.</p>
 
         <label htmlFor="m-name" className="mb-2 mt-6 text-[15px] font-semibold">
           Business name
@@ -543,6 +559,26 @@ export default function ReactFlow({
           placeholder="(615) 555-0123"
           className="h-14 rounded-[18px] bg-field px-4 text-base outline-none placeholder:text-muted"
         />
+        <div className="mt-4 flex items-center gap-3 text-[13px] font-semibold text-muted" aria-hidden>
+          <span className="h-px flex-1 bg-line" />
+          or, no phone?
+          <span className="h-px flex-1 bg-line" />
+        </div>
+        <label htmlFor="m-social" className="mb-2 mt-3 text-[15px] font-semibold">
+          Instagram or Facebook
+        </label>
+        <input
+          id="m-social"
+          type="url"
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          value={manualSocial}
+          maxLength={200}
+          onChange={(e) => setManualSocial(e.target.value)}
+          placeholder="@joesmowing or facebook.com/joesmowing"
+          className="h-14 rounded-[18px] bg-field px-4 text-base outline-none placeholder:text-muted"
+        />
 
         {error && (
           <p role="alert" className="mt-4 text-[15px] font-medium text-love">
@@ -555,8 +591,11 @@ export default function ReactFlow({
           onClick={() => {
             if (manualName.trim().length < 2) return setError("Add the business name.");
             const d = phoneDigits.length === 11 && phoneDigits.startsWith("1") ? phoneDigits.slice(1) : phoneDigits;
-            if (d.length !== 10) return setError("Add their 10-digit phone number.");
-            pick({ choice: { kind: "manual", name: manualName, phone: d }, name: manualName.trim(), logoUrl: null });
+            if (d && d.length !== 10) return setError("Check their phone number: it needs 10 digits.");
+            const social = manualSocial.trim() ? cleanSocialUrl(manualSocial) : null;
+            if (manualSocial.trim() && !social) return setError("That doesn't look like an Instagram or Facebook link. Try @name or paste their page link.");
+            if (!d && !social) return setError("Add their phone number, or their Instagram or Facebook.");
+            pick({ choice: { kind: "manual", name: manualName, phone: d, social: social ?? undefined }, name: manualName.trim(), logoUrl: null });
           }}
           className="mt-auto h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white"
         >
@@ -684,7 +723,7 @@ export default function ReactFlow({
         </span>
         <span className="flex flex-col gap-0.5">
           <span className="text-base font-bold">Not listed?</span>
-          <span className="text-sm text-muted">Add them with a name and phone number</span>
+          <span className="text-sm text-muted">Add them with a phone number, Instagram or Facebook</span>
         </span>
       </button>
     </main>

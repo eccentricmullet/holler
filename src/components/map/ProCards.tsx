@@ -63,8 +63,8 @@ export default function ProCards(props: {
             </span>
             {on ? (
               <span className="mt-auto flex gap-2 pt-3">
-                {p.phone && (
-                  <ContactButton proId={p.id} proName={p.name} phone={p.phone} from="map_card" label="Call or text" size="md" className="flex-1" />
+                {(p.phone || p.social_url) && (
+                  <ContactButton proId={p.id} proName={p.name} phone={p.phone} social={p.social_url} from="map_card" label={p.phone ? "Call or text" : undefined} size="md" className="flex-1" />
                 )}
                 <Link
                   href={`/pro/${p.id}`}

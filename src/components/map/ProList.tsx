@@ -40,7 +40,7 @@ export default function ProList(props: {
                 </span>
               </span>
             </span>
-            {p.phone && <ContactButton proId={p.id} proName={p.name} phone={p.phone} from="map_list" size="icon" className="shrink-0" />}
+            {(p.phone || p.social_url) && <ContactButton proId={p.id} proName={p.name} phone={p.phone} social={p.social_url} from="map_list" size="icon" className="shrink-0" />}
             <Link
               href={`/pro/${p.id}`}
               onClick={(e) => e.stopPropagation()}

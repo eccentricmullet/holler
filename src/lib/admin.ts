@@ -10,7 +10,7 @@ export async function mergePros(db: SupabaseClient, sourceId: string, targetId: 
   if (sourceId === targetId) return { ok: false, error: "Pick two different pros." };
   const { data: pros } = await db
     .from("pros")
-    .select("id, name, phone, website, logo_url, google_place_id, merged_into_id")
+    .select("id, name, phone, website, social_url, logo_url, google_place_id, merged_into_id")
     .in("id", [sourceId, targetId]);
   const source = pros?.find((p) => p.id === sourceId);
   const target = pros?.find((p) => p.id === targetId);
@@ -38,6 +38,7 @@ export async function mergePros(db: SupabaseClient, sourceId: string, targetId: 
   const fill: Record<string, string> = {};
   if (!target.phone && source.phone) fill.phone = source.phone;
   if (!target.website && source.website) fill.website = source.website;
+  if (!target.social_url && source.social_url) fill.social_url = source.social_url;
   if (!target.logo_url && source.logo_url) fill.logo_url = source.logo_url;
   const movePlace = !target.google_place_id && source.google_place_id;
 

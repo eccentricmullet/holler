@@ -12,6 +12,7 @@ export type TrackEvent =
   | "reacted"
   | "tapped_call"
   | "tapped_text"
+  | "tapped_social"
   | "shared_pro"
   | "invited_neighbor"
   | "joined_waitlist"

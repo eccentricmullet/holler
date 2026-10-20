@@ -2,13 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/components/Track";
+import { socialKind, SOCIAL_LABEL } from "@/lib/social";
 
 // One button to reach a pro. Tapping it offers Call or Text, so there's no
 // separate chat-bubble button that looks like "leave a comment".
+// No phone? It opens their Instagram or Facebook instead.
 export default function ContactButton({
   proId,
   proName,
   phone,
+  social = null,
   from,
   label = "Contact",
   size = "lg",
@@ -16,7 +19,8 @@ export default function ContactButton({
 }: {
   proId: string;
   proName: string;
-  phone: string;
+  phone: string | null;
+  social?: string | null;
   from: string;
   label?: string;
   size?: "lg" | "md" | "icon";
@@ -46,6 +50,29 @@ export default function ContactButton({
     icon: "size-10 rounded-xl",
   };
   const shortName = proName.split(" ")[0];
+  const kind = socialKind(social);
+  const button = `flex w-full items-center justify-center bg-green-deep font-semibold text-white ${sizes[size]}`;
+
+  // Instagram/Facebook only: one tap straight to their page
+  if (!phone) {
+    if (!social || !kind) return null;
+    return (
+      <a
+        href={social}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={size === "icon" ? `Message ${proName} on ${SOCIAL_LABEL[kind]}` : undefined}
+        onClick={(e) => {
+          e.stopPropagation();
+          track("tapped_social", { pro_id: proId, from, network: kind });
+        }}
+        className={`${button} ${className}`}
+      >
+        <SocialIcon kind={kind} />
+        {size !== "icon" && (size === "lg" ? `Message on ${SOCIAL_LABEL[kind]}` : SOCIAL_LABEL[kind])}
+      </a>
+    );
+  }
 
   return (
     <div ref={ref} className={`relative ${className}`} onClick={(e) => e.stopPropagation()}>
@@ -55,7 +82,7 @@ export default function ContactButton({
         aria-expanded={open}
         aria-label={size === "icon" ? `Contact ${proName}` : undefined}
         onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center justify-center bg-green-deep font-semibold text-white ${sizes[size]}`}
+        className={button}
       >
         <PhoneIcon />
         {size !== "icon" && label}
@@ -99,6 +126,24 @@ export default function ContactButton({
             </span>
             Text {shortName}
           </a>
+          {social && kind && (
+            <a
+              role="menuitem"
+              href={social}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                track("tapped_social", { pro_id: proId, from, network: kind });
+                setOpen(false);
+              }}
+              className="flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
+            >
+              <span className="flex size-8 items-center justify-center rounded-xl bg-green-tint text-green-deep">
+                <SocialIcon kind={kind} />
+              </span>
+              Message on {SOCIAL_LABEL[kind]}
+            </a>
+          )}
           <button
             type="button"
             onClick={() => setOpen(false)}
@@ -126,6 +171,20 @@ function TextIcon() {
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="3" y="5" width="18" height="12" rx="3" />
       <path d="M8 21l3-4" />
+    </svg>
+  );
+}
+
+function SocialIcon({ kind }: { kind: "instagram" | "facebook" }) {
+  return kind === "instagram" ? (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M17.5 6.5h.01" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V10H6v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h2z" />
     </svg>
   );
 }

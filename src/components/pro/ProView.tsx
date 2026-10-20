@@ -97,13 +97,15 @@ export default function ProView({
 
         <div className="sticky bottom-0 mt-auto bg-surface pb-4 pt-3">
           <div className="flex gap-2.5">
-            {pro.phone ? (
+            {pro.phone || pro.socialUrl ? (
               <ContactButton
                 proId={pro.id}
                 proName={pro.name}
                 phone={pro.phone}
+                social={pro.socialUrl}
                 from="pro_page"
                 label={`Call or text ${shortName}`}
+                size="lg"
                 className="flex-1"
               />
             ) : (
