@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import { SITE } from "@/config/site";
 import { preconnect } from "react-dom";
 import Analytics from "@/components/Analytics";
+import RegisterServiceWorker from "@/components/RegisterServiceWorker";
 import "./globals.css";
 
 const rubik = Rubik({
@@ -20,6 +21,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: `${SITE.name} · ${SITE.tagline}`,
   description: SITE.tagline,
+  // Opens full screen (no Safari bar) when added to an iPhone home screen
+  appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -39,6 +42,7 @@ export default function RootLayout({ children, panel }: Readonly<{ children: Rea
         {children}
         {panel}
         <Analytics />
+        <RegisterServiceWorker />
       </body>
     </html>
   );

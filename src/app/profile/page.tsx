@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
 import InviteButton from "@/components/InviteButton";
+import InstallCard from "@/components/InstallCard";
 import { signOut } from "./actions";
 
 export const metadata: Metadata = { title: `Profile · ${SITE.name}` };
@@ -82,6 +83,8 @@ export default async function ProfilePage() {
         </span>
         <span className="absolute right-[18px] top-3.5 size-1.5 rounded-full bg-lime" aria-hidden />
       </InviteButton>
+
+      <InstallCard className="mt-4" />
 
       <nav aria-label="Profile menu" className="mt-[18px] flex flex-col">
         <MenuLink href="/profile/reactions" label="My reactions">

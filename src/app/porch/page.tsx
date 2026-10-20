@@ -7,6 +7,7 @@ import { porchFeed } from "@/lib/porch";
 import { TABS, type PorchTab } from "@/lib/porch-kinds";
 import PorchFeed from "./PorchFeed";
 import ReachPicker from "./ReachPicker";
+import InstallCard from "@/components/InstallCard";
 import { DEFAULT_REACH } from "@/lib/reach";
 import { SeenPorch } from "@/components/PorchButton";
 
@@ -90,6 +91,7 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
         ))}
       </nav>
 
+      <InstallCard className="mt-4" />
       <PorchFeed items={feed} tab={tab} />
       <SeenPorch />
     </main>

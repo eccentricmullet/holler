@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ProLogo from "@/components/map/ProLogo";
 import { shareInvite } from "@/components/InviteButton";
 import GoogleAttribution from "@/components/GoogleAttribution";
+import InstallCard from "@/components/InstallCard";
 import { PRICES, TAGS } from "@/lib/tags";
 import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
@@ -209,7 +210,9 @@ export default function ReactFlow({
           </p>
         )}
 
-        <div className="relative mt-auto flex flex-col gap-2.5">
+        <InstallCard dark className="relative mt-6" />
+
+        <div className="relative mt-auto flex flex-col gap-2.5 pt-6">
           {answerTo ? (
             <Link
               href="/asks"
