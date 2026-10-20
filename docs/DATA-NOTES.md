@@ -23,7 +23,7 @@ Plain-English summary for a quick legal review before launch. Written October 19
 | Waitlist phone/email + ZIP | The person joining | Until their town unlocks | No |
 | Usage events (opened a link, tapped Call…) | The app (PostHog) | PostHog's retention | No. Tied to an account ID, never name or phone |
 | Business: Google place ID | Google Places | Indefinitely (allowed by Google) | No |
-| Business: name, phone, website | Google Places, when a neighbor picks a business | Until the pro is removed | Yes, on the pro page |
+| Business: name, phone, website | Google Places, confirmed by the neighbor on "Is this them?" | Until the pro is removed | Yes, on the pro page |
 | Business: own pin color, logo (future) | Holler / the business owner | Until removed | Yes |
 
 Service providers: Supabase (database and login), Twilio (text codes), Google Places (address and business search), Mapbox (map), Vercel (hosting), PostHog (usage counts).
@@ -35,7 +35,7 @@ Service providers: Supabase (database and login), Twilio (text codes), Google Pl
    - **B.** Show a quick "Is this right?" step where the neighbor confirms or edits the name and phone before saving, so it's clearly neighbor-submitted.
    - **C.** Store only the place ID and fetch name/phone/website from Google each time the page is viewed (costs about 1–2¢ per view and adds a little delay).
 
-   Already done: we show the required "Google Maps" credit under search results, we no longer save Google's map location for businesses, and we never bulk-import businesses.
+   **Now in place (closest to option B):** after picking a business, the neighbor sees an "Is this them?" screen with the name, address, phone and type from Google and taps "Yes, that's them" before anything is saved. The address is shown only, never stored. Also done: the required "Google Maps" credit under search results and on that screen, no saving of Google's map location for businesses, and no bulk import of businesses.
 2. **Business pages.** Pro pages exist because neighbors react to a business. Is anything needed (like a takedown/claim process) for a business that doesn't want to be listed? Planned: "Own this business? Claim it" with phone verification.
 3. **The Porch.** Neighbor posts (garage sales, lost pets, local heads-ups) with photos. Posts auto-expire, filters block phone numbers/links/profanity, and 3 reports from different homes hide a post automatically. Is the current terms page enough for user posts and photos (Section 230 / takedown process)?
 4. **Texts.** Login codes only (Twilio Verify). Opt-in browser alerts for asks and a daily Porch roundup. No marketing texts. Anything required beyond the consent line on the sign-up screen?

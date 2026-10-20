@@ -169,3 +169,59 @@ export async function getBusinessDetails(placeId: string, sessionToken?: string)
     types: p.types ?? [],
   };
 }
+
+// Kinds of places that aren't home-service pros. Picking one gets a gentle "are you sure?"
+const NOT_A_SERVICE = new Set([
+  "restaurant", "cafe", "coffee_shop", "bar", "bakery", "fast_food_restaurant", "meal_takeaway", "meal_delivery", "food",
+  "grocery_store", "supermarket", "convenience_store", "clothing_store", "shopping_mall", "department_store", "liquor_store",
+  "school", "primary_school", "secondary_school", "university", "church", "place_of_worship", "hospital", "doctor", "dentist",
+  "pharmacy", "bank", "atm", "gas_station", "park", "gym", "lodging", "hotel", "movie_theater", "library", "post_office",
+  "local_government_office", "city_hall", "courthouse", "police", "fire_station", "tourist_attraction", "museum", "stadium",
+  "night_club", "casino", "amusement_park", "zoo", "airport", "train_station", "bus_station",
+]);
+
+export type BusinessPreview = {
+  placeId: string;
+  name: string;
+  address: string | null; // shown on the check screen only, never saved
+  phone: string | null; // as people write it, e.g. (615) 555-0101
+  website: string | null;
+  kind: string | null; // Google's label, e.g. "Landscaper"
+  notAService: boolean; // looks like a restaurant, store, school…
+  types: string[];
+};
+
+// What the neighbor sees on "Is this them?" before reacting.
+export async function getBusinessPreview(placeId: string, sessionToken?: string): Promise<BusinessPreview> {
+  const qs = sessionToken ? `?sessionToken=${encodeURIComponent(sessionToken)}` : "";
+  const res = await fetch(`${BASE}/places/${encodeURIComponent(placeId)}${qs}`, {
+    headers: {
+      "X-Goog-Api-Key": key(),
+      "X-Goog-FieldMask": "id,displayName,formattedAddress,nationalPhoneNumber,websiteUri,primaryType,primaryTypeDisplayName,types",
+    },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Places business preview failed (${res.status})`);
+  const p = (await res.json()) as {
+    id: string;
+    displayName?: { text: string };
+    formattedAddress?: string;
+    nationalPhoneNumber?: string;
+    websiteUri?: string;
+    primaryType?: string;
+    primaryTypeDisplayName?: { text: string };
+    types?: string[];
+  };
+  const types = p.types ?? [];
+  const primary = p.primaryType ?? "";
+  return {
+    placeId: p.id,
+    name: p.displayName?.text ?? "Unnamed business",
+    address: p.formattedAddress?.replace(/, USA$/, "") ?? null,
+    phone: p.nationalPhoneNumber ?? null,
+    website: p.websiteUri ?? null,
+    kind: p.primaryTypeDisplayName?.text ?? null,
+    notAService: NOT_A_SERVICE.has(primary) || (!primary && types.some((t) => NOT_A_SERVICE.has(t))),
+    types,
+  };
+}

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { INVITE_COOKIE, inviteProId } from "@/lib/invites";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { guessCategory } from "@/lib/guess-category";
+import { getBusinessPreview, type BusinessPreview } from "@/lib/places";
 import { saveReaction, type ProChoice, type ReactInput, type ReactResult } from "@/lib/reactions";
 
 export type { ProChoice, ReactResult };
@@ -34,4 +35,23 @@ export async function suggestCategory(choice: ProChoice, name: string): Promise<
     if (top) return top;
   }
   return guessCategory(name);
+}
+
+export type PreviewResult =
+  | { ok: true; preview: BusinessPreview; suggestedCategory: string | null }
+  | { ok: false; error: string };
+
+// "Is this them?": details for the business a neighbor just picked from Google
+export async function previewBusiness(placeId: string, sessionToken: string): Promise<PreviewResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Please sign in first." };
+  try {
+    const preview = await getBusinessPreview(placeId, sessionToken);
+    return { ok: true, preview, suggestedCategory: guessCategory(preview.name, preview.types) };
+  } catch {
+    return { ok: false, error: "We couldn't look up that business. Try again, or add them by name and phone." };
+  }
 }

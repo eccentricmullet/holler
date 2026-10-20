@@ -11,11 +11,12 @@ import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
-import { submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
+import { previewBusiness, submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
+import type { BusinessPreview } from "@/lib/places";
 import { answerAskAction } from "@/app/asks/actions";
 
-type Picked = { choice: ProChoice; name: string; logoUrl: string | null };
-type Step = "find" | "manual" | "react" | "done";
+type Picked = { choice: ProChoice; name: string; logoUrl: string | null; counts?: { thumbs: number; love: number } };
+type Step = "find" | "manual" | "confirm" | "react" | "done";
 
 const NOTE_MAX = 140;
 
@@ -63,6 +64,9 @@ export default function ReactFlow({
   const [tags, setTags] = useState<string[]>([]);
   const [price, setPrice] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  // "Is this them?" check after picking a business
+  const [preview, setPreview] = useState<BusinessPreview | null>(null);
+  const [previewing, setPreviewing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Extract<ReactResult, { ok: true }> | null>(null);
 
@@ -102,6 +106,7 @@ export default function ReactFlow({
     };
   }, [query, step, sessionToken]);
 
+  // Picking a business first shows "Is this them?" so wrong picks get caught
   async function pick(p: Picked) {
     setPicked(p);
     setError(null);
@@ -110,8 +115,18 @@ export default function ReactFlow({
     setTags([]);
     setPrice(null);
     setCategory(null);
-    setStep("react");
-    setCategory(presetCategory ?? (await suggestCategory(p.choice, p.name)));
+    setPreview(null);
+    setStep("confirm");
+    if (p.choice.kind === "google") {
+      setPreviewing(true);
+      const r = await previewBusiness(p.choice.placeId, p.choice.sessionToken);
+      setPreviewing(false);
+      if (!r.ok) return setError(r.error);
+      setPreview(r.preview);
+      setCategory(presetCategory ?? r.suggestedCategory);
+    } else {
+      setCategory(presetCategory ?? (await suggestCategory(p.choice, p.name)));
+    }
   }
 
   async function submit() {
@@ -224,6 +239,106 @@ export default function ReactFlow({
             className="flex h-[58px] items-center justify-center rounded-[20px] border-2 border-white/50 text-[17px] font-semibold"
           >
             📣 Invite a neighbor
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // ---------- Is this them? ----------
+  if (step === "confirm" && picked) {
+    const kind = picked.choice.kind;
+    const manual = picked.choice.kind === "manual" ? picked.choice : null;
+    const website = preview?.website?.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "");
+    const waiting = kind === "google" && previewing;
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={() => setStep(kind === "manual" ? "manual" : "find")}
+          className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink"
+        >
+          <svg {...iconProps} width="22" height="22">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+        </button>
+        <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Is this them?</h1>
+        <p className="mt-2.5 text-base leading-snug text-muted">Make sure it&apos;s the right business so neighbors call the right people.</p>
+
+        <div className="mt-6 rounded-[24px] bg-surface p-5 shadow-[0_6px_18px_rgba(26,29,36,0.08)]">
+          <div className="flex items-center gap-3.5">
+            <ProLogo name={preview?.name ?? picked.name} logoUrl={picked.logoUrl} size={52} />
+            <span className="min-w-0 text-xl font-bold leading-tight">{preview?.name ?? picked.name}</span>
+          </div>
+          {waiting && <div className="mt-4 h-16 animate-pulse rounded-2xl bg-field" aria-label="Loading details" />}
+          {preview && (
+            <dl className="mt-4 flex flex-col gap-2 text-[15px]">
+              {preview.kind && (
+                <div className="flex gap-2">
+                  <dt aria-label="Kind of business">🏷️</dt>
+                  <dd>{preview.kind}</dd>
+                </div>
+              )}
+              {preview.address && (
+                <div className="flex gap-2">
+                  <dt aria-label="Address">📍</dt>
+                  <dd>{preview.address}</dd>
+                </div>
+              )}
+              {preview.phone && (
+                <div className="flex gap-2">
+                  <dt aria-label="Phone">📞</dt>
+                  <dd>{preview.phone}</dd>
+                </div>
+              )}
+              {website && (
+                <div className="flex gap-2">
+                  <dt aria-label="Website">🌐</dt>
+                  <dd className="truncate">{website}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          {kind === "holler" && (
+            <p className="mt-4 text-[15px] text-muted">
+              Already on {SITE.name}
+              {picked.counts && (picked.counts.thumbs || picked.counts.love) ? ` · 👍 ${picked.counts.thumbs} · ❤️ ${picked.counts.love}` : ""}
+            </p>
+          )}
+          {manual && (
+            <p className="mt-4 text-[15px]">📞 {formatPhone(manual.phone.replace(/\D/g, "").slice(-10))}</p>
+          )}
+          {preview && <GoogleAttribution className="mt-4" />}
+        </div>
+
+        {preview?.notAService && (
+          <p role="alert" className="mt-4 rounded-[18px] bg-love-tint p-4 text-[15px] leading-snug">
+            <span className="font-semibold">Heads up:</span> Google lists this as {preview.kind ? `${/^[aeiou]/i.test(preview.kind) ? "an" : "a"} ${preview.kind.toLowerCase()}` : "a business that isn't a home-service pro"}. Are you sure
+            they did work for you?
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="mt-4 text-[15px] font-medium text-love">
+            {error}
+          </p>
+        )}
+
+        <div className="mt-auto flex flex-col gap-2.5 pt-6">
+          <button
+            type="button"
+            disabled={waiting || (kind === "google" && !preview)}
+            onClick={() => setStep("react")}
+            className="h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-40"
+          >
+            Yes, that&apos;s them
+          </button>
+          <button
+            type="button"
+            onClick={() => setStep(kind === "manual" ? "manual" : "find")}
+            className="h-[58px] rounded-[20px] bg-field text-[17px] font-semibold text-ink"
+          >
+            No, pick again
           </button>
         </div>
       </main>
@@ -524,7 +639,7 @@ export default function ReactFlow({
             onClick={() =>
               pick(
                 r.kind === "holler"
-                  ? { choice: { kind: "holler", proId: r.proId }, name: r.name, logoUrl: r.logoUrl }
+                  ? { choice: { kind: "holler", proId: r.proId }, name: r.name, logoUrl: r.logoUrl, counts: { thumbs: r.thumbs, love: r.love } }
                   : { choice: { kind: "google", placeId: r.placeId, sessionToken }, name: r.name, logoUrl: null }
               )
             }
