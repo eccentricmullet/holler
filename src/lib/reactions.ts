@@ -4,9 +4,11 @@ import { cleanPrice, cleanTags } from "@/lib/tags";
 import { assignProColor } from "@/lib/pro-colors";
 import { getBusinessDetails } from "@/lib/places";
 import { cleanSocialUrl } from "@/lib/social";
+import { MAX_CATEGORIES_PER_REACTION } from "@/lib/limits";
 
 // Trust rules for reacting. The server action passes in the signed-in user; tests pass in test users.
 export const MAX_REACTIONS_PER_DAY = 15;
+export { MAX_CATEGORIES_PER_REACTION };
 
 export type ProChoice =
   | { kind: "holler"; proId: string }
@@ -16,6 +18,7 @@ export type ProChoice =
 export type ReactInput = {
   pro: ProChoice;
   category: string;
+  alsoCategories?: string[]; // more things they do, e.g. lawn + gutters + landscaping (one reaction each)
   reaction: "thumbs_up" | "love";
   note: string;
   tags?: string[]; // optional quick tags (11b)
@@ -23,7 +26,7 @@ export type ReactInput = {
 };
 
 export type ReactResult =
-  | { ok: true; proId: string; proName: string; categoryName: string; reaction: "thumbs_up" | "love"; neighbors: number }
+  | { ok: true; proId: string; proName: string; categoryName: string; categoryNames: string[]; reaction: "thumbs_up" | "love"; neighbors: number }
   | { ok: false; error: string };
 
 // inviteProId: the pro whose invite link brought this user here, if any (labels the reaction).
@@ -130,8 +133,15 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
   const noteCheck = checkNote(note);
   if (!noteCheck.ok) return { ok: false, error: noteCheck.reason };
 
-  const { data: category } = await db.from("categories").select("id, name").eq("slug", input.category).maybeSingle();
-  if (!category) return { ok: false, error: "Pick a category." };
+  const slugs = [...new Set([input.category, ...(input.alsoCategories ?? [])])];
+  if (slugs.length > MAX_CATEGORIES_PER_REACTION) {
+    return { ok: false, error: `Pick up to ${MAX_CATEGORIES_PER_REACTION} things they do.` };
+  }
+  const { data: found } = await db.from("categories").select("id, slug, name").in("slug", slugs);
+  // Keep the order the neighbor picked them in
+  const picked = slugs.map((slug) => found?.find((c) => c.slug === slug));
+  if (picked.some((c) => !c)) return { ok: false, error: "Pick a category." };
+  const categories = picked as { id: number; slug: string; name: string }[];
 
   const pro = await resolvePro(db, input.pro, actor);
   if (typeof pro === "string") return { ok: false, error: pro };
@@ -143,30 +153,30 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
   // One reaction per household per pro per category: reacting again switches it (doesn't count as new).
   const { data: existing } = await db
     .from("vouches")
-    .select("id")
+    .select("category_id")
     .eq("household_id", profile.household_id)
     .eq("pro_id", pro.id)
-    .eq("category_id", category.id)
-    .maybeSingle();
+    .in("category_id", categories.map((c) => c.id));
+  const fresh = categories.filter((c) => !existing?.some((e) => e.category_id === c.id)).length;
 
-  if (!existing) {
+  if (fresh > 0) {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count } = await db
       .from("vouches")
       .select("id", { count: "exact", head: true })
       .eq("profile_id", profile.id)
       .gte("created_at", since);
-    if ((count ?? 0) >= MAX_REACTIONS_PER_DAY) {
+    if ((count ?? 0) + fresh > MAX_REACTIONS_PER_DAY) {
       return { ok: false, error: `That's ${MAX_REACTIONS_PER_DAY} reactions today. Come back tomorrow to add more.` };
     }
   }
 
   const { error } = await db.from("vouches").upsert(
-    {
+    categories.map((c) => ({
       household_id: profile.household_id,
       profile_id: profile.id,
       pro_id: pro.id,
-      category_id: category.id,
+      category_id: c.id,
       reaction: input.reaction,
       note: note || null,
       tags: cleanTags(input.tags),
@@ -174,7 +184,7 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
       status: "visible",
       // Reactions that came through the pro's own invite link are labeled internally
       ...(actor.inviteProId && actor.inviteProId === pro.id ? { via_invite: true } : {}),
-    },
+    })),
     { onConflict: "household_id,pro_id,category_id" }
   );
   if (error) return { ok: false, error: "Something went wrong saving that. Try again." };
@@ -182,18 +192,21 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
   // New pros get their own pin color once we know their category (11j)
   await assignProColor(db, pro.id);
 
-  const { count } = await db
+  // Neighbors are homes: one home that picked lawn + gutters still counts once
+  const { data: homes } = await db
     .from("vouches")
-    .select("id", { count: "exact", head: true })
+    .select("household_id")
     .eq("pro_id", pro.id)
-    .eq("status", "visible");
+    .eq("status", "visible")
+    .limit(5000);
 
   return {
     ok: true,
     proId: pro.id,
     proName: pro.name,
-    categoryName: category.name,
+    categoryName: categories[0].name,
+    categoryNames: categories.map((c) => c.name),
     reaction: input.reaction,
-    neighbors: count ?? 1,
+    neighbors: new Set((homes ?? []).map((h) => h.household_id)).size || 1,
   };
 }

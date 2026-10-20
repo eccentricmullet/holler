@@ -92,6 +92,21 @@ describe("one reaction per household per pro per category", () => {
     const { data } = await db.from("vouches").select("reaction").eq("pro_id", pro);
     expect(data).toEqual([{ reaction: "love" }]);
   });
+
+  it("one reaction can put a pro in several categories, still counted as one neighbor", async () => {
+    const [pro] = await makePros(1, 120);
+    const r = await saveReaction(db, alice, {
+      pro: { kind: "holler", proId: pro },
+      category: "lawn",
+      alsoCategories: ["gutter-cleaning", "landscaping", "lawn"],
+      reaction: "love",
+      note: "",
+    });
+    expect(r).toMatchObject({ ok: true, categoryNames: ["Lawn", "Gutter cleaning", "Landscaping"], neighbors: 1 });
+    const { data } = await db.from("vouches").select("categories(slug)").eq("pro_id", pro);
+    const slugs = (data ?? []).map((v) => (v.categories as unknown as { slug: string }).slug).sort();
+    expect(slugs).toEqual(["gutter-cleaning", "landscaping", "lawn"]);
+  });
 });
 
 describe("no self-reacting", () => {

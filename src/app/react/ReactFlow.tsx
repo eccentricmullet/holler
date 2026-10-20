@@ -8,6 +8,7 @@ import { shareInvite } from "@/components/InviteButton";
 import GoogleAttribution from "@/components/GoogleAttribution";
 import InstallCard from "@/components/InstallCard";
 import { PRICES, TAGS } from "@/lib/tags";
+import { MAX_CATEGORIES_PER_REACTION } from "@/lib/limits";
 import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
@@ -41,6 +42,16 @@ function formatPhone(digits: string) {
 
 const ONBOARD_GOAL = 3;
 
+// "lawn", but "HVAC" stays HVAC
+function lowerName(n: string) {
+  return n === n.toUpperCase() ? n : n.toLowerCase();
+}
+
+// "lawn", "lawn or gutters", "lawn, gutters or landscaping"
+function orList(names: string[]) {
+  return names.length < 2 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
+}
+
 export default function ReactFlow({
   categories,
   start,
@@ -60,7 +71,17 @@ export default function ReactFlow({
   const [picked, setPicked] = useState<Picked | null>(
     start ? { choice: { kind: "holler", proId: start.proId }, name: start.name, logoUrl: start.logoUrl } : null
   );
-  const [category, setCategory] = useState<string | null>(start?.category ?? presetCategory);
+  // Everything they do for you (lawn + gutters + landscaping); the first pick leads
+  const [cats, setCats] = useState<string[]>(() => {
+    const first = start?.category ?? presetCategory;
+    return first ? [first] : [];
+  });
+  const category = cats[0] ?? null;
+  const setCategory = (slug: string | null) => setCats(slug ? [slug] : []);
+  const toggleCategory = (slug: string) =>
+    setCats((cur) =>
+      cur.includes(slug) ? cur.filter((x) => x !== slug) : [...cur, slug].slice(0, MAX_CATEGORIES_PER_REACTION)
+    );
   const [reaction, setReaction] = useState<"thumbs_up" | "love">("thumbs_up");
   const [note, setNote] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -138,12 +159,14 @@ export default function ReactFlow({
     setBusy(true);
     setError(null);
     const input = { pro: picked.choice, category, reaction, note, tags, price };
-    const r = answerTo ? await answerAskAction(answerTo.id, input) : await submitReaction(input);
+    const r = answerTo
+      ? await answerAskAction(answerTo.id, input)
+      : await submitReaction({ ...input, alsoCategories: cats.slice(1) });
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setResult(r);
     setDoneCount((n) => n + 1);
-    track("reacted", { pro_id: r.proId, category, reaction, source: picked.choice.kind, with_note: note.trim().length > 0 });
+    track("reacted", { pro_id: r.proId, category, categories: answerTo ? 1 : cats.length, reaction, source: picked.choice.kind, with_note: note.trim().length > 0 });
     setStep("done");
     router.refresh();
   }
@@ -166,7 +189,7 @@ export default function ReactFlow({
   const currentCategory = categories.find((c) => c.slug === category);
   const presetName = (() => {
     const n = categories.find((c) => c.slug === presetCategory)?.name;
-    return n ? (n === n.toUpperCase() ? n : n.toLowerCase()) : null;
+    return n ? lowerName(n) : null;
   })();
 
   // Keep the picked category visible in the long chip row
@@ -203,7 +226,7 @@ export default function ReactFlow({
         <p className="relative mt-3.5 text-[17px] leading-[1.45] text-green-tint">
           {answerTo ? `Sent to ${answerTo.who} Thanks for helping a neighbor. ` : ""}
           {result.neighbors > 1 ? `That makes ${result.neighbors} neighbors. ` : "You're the first neighbor to say so. "}
-          The next person on your street looking for {result.categoryName.toLowerCase()} help will see it on the map.
+          The next person on your street looking for {orList(result.categoryNames.map(lowerName))} help will see it on the map.
         </p>
         {onboarding && (
           <p className="relative mt-5 text-[15px] font-semibold">
@@ -394,17 +417,19 @@ export default function ReactFlow({
           </p>
         ) : (
         <div className="mt-5">
-          <span className="text-[15px] font-semibold">They do my</span>
+          <span className="text-[15px] font-semibold">
+            They do my <span className="font-normal text-muted">pick all that apply</span>
+          </span>
           <div className="no-scrollbar -mx-6 mt-2 flex gap-2 overflow-x-auto px-6">
             {categories.map((c) => (
               <button
                 key={c.slug}
                 data-cat={c.slug}
                 type="button"
-                aria-pressed={c.slug === category}
-                onClick={() => setCategory(c.slug)}
+                aria-pressed={cats.includes(c.slug)}
+                onClick={() => toggleCategory(c.slug)}
                 className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border-2 px-3.5 text-sm font-semibold ${
-                  c.slug === category ? "border-green bg-green-wash" : "border-line bg-surface"
+                  cats.includes(c.slug) ? "border-green bg-green-wash" : "border-line bg-surface"
                 }`}
               >
                 <span aria-hidden>{c.icon}</span>
