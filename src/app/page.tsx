@@ -3,6 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 import MapScreen from "@/components/map/MapScreen";
 import { DEFAULT_CATEGORY, type NearbyPro, type Pin } from "@/components/map/types";
 import { metersBetween } from "@/lib/geo";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+// Most-reacted category overall (falls back to Lawn before anyone has reacted)
+async function busiestCategory() {
+  const { data } = await createAdminClient().from("vouches").select("categories(slug)").eq("status", "visible").limit(5000);
+  const tally = new Map<string, number>();
+  for (const v of data ?? []) {
+    const slug = (v.categories as unknown as { slug: string } | null)?.slug;
+    if (slug) tally.set(slug, (tally.get(slug) ?? 0) + 1);
+  }
+  return [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? DEFAULT_CATEGORY;
+}
 
 export default async function Home() {
   const supabase = await createClient();
@@ -32,7 +44,9 @@ export default async function Home() {
   const farFromLaunch = !!home && metersBetween(home.point, SITE.launchCenter) > SITE.launchRadiusM;
 
   // Load the first category here so pro cards appear with the page instead of after it
-  const args = { lat: center.lat, lng: center.lng, category: DEFAULT_CATEGORY };
+  // Open on the category neighbors have reacted to most, so the first screen shows pros
+  const startCategory = await busiestCategory();
+  const args = { lat: center.lat, lng: center.lng, category: startCategory };
   const [prosRes, pinsRes] = await Promise.all([supabase.rpc("pros_near", args), supabase.rpc("map_pins", args)]);
   const ok = !prosRes.error && !pinsRes.error;
 
@@ -55,6 +69,7 @@ export default async function Home() {
       initialPros={ok ? (prosRes.data as NearbyPro[]) : null}
       initialPins={ok ? (pinsRes.data as Pin[]) : []}
       initialColors={initialColors}
+      initialCategory={startCategory}
     />
   );
 }

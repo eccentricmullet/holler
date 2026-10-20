@@ -9,7 +9,7 @@ import ProCards, { ProCardsSkeleton } from "./ProCards";
 import ProList from "./ProList";
 import SeasonalBanner from "./SeasonalBanner";
 import PorchButton from "@/components/PorchButton";
-import { DEFAULT_CATEGORY, type Category, type LatLng, type NearbyPro, type Pin } from "./types";
+import type { Category, LatLng, NearbyPro, Pin } from "./types";
 
 type Props = {
   categories: Category[];
@@ -22,6 +22,7 @@ type Props = {
   initialPros: NearbyPro[] | null;
   initialPins: Pin[];
   initialColors: Record<string, string>; // each pro's own pin color (11j)
+  initialCategory: string; // the busiest category, loaded on the server
 };
 
 const controlClass = "flex size-12 items-center justify-center rounded-2xl bg-surface text-ink shadow-control";
@@ -39,7 +40,8 @@ function proWord(name: string) {
 export default function MapScreen(props: Props) {
   const { categories, center, home, placeName, signedIn, farFromLaunch } = props;
   const supabase = useRef(createClient()).current;
-  const [category, setCategory] = useState(DEFAULT_CATEGORY);
+  const startCategory = useRef(props.initialCategory).current;
+  const [category, setCategory] = useState(startCategory);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [satellite, setSatellite] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export default function MapScreen(props: Props) {
 
   useEffect(() => {
     // The server already loaded the first category
-    if (usedInitial.current && category === DEFAULT_CATEGORY) {
+    if (usedInitial.current && category === startCategory) {
       usedInitial.current = false;
       return;
     }
@@ -79,7 +81,7 @@ export default function MapScreen(props: Props) {
     return () => {
       stale = true;
     };
-  }, [category, center.lat, center.lng, supabase]);
+  }, [category, center.lat, center.lng, supabase, startCategory]);
 
   // When each pro was most recently used (11d), for "this fall" on cards
   const [latest, setLatest] = useState<Record<string, string>>({});
