@@ -100,7 +100,9 @@ export async function autocompleteBusiness(input: string, sessionToken: string):
       sessionToken,
       includedPrimaryTypes: ["establishment"],
       includedRegionCodes: ["us"],
-      locationBias: {
+      // Only businesses around the launch town. A bias isn't enough: typing "Spring Hill pools"
+      // matched the town name and listed Spring Hill, FL businesses.
+      locationRestriction: {
         circle: {
           center: { latitude: SITE.launchCenter.lat, longitude: SITE.launchCenter.lng },
           radius: 50000,
