@@ -25,6 +25,7 @@ export type ProPage = {
   logoUrl: string | null;
   color: string | null; // own pin color (11j)
   categoryName: string | null;
+  categoryNames: string[]; // everything neighbors use them for, most-used first
   categorySlug: string | null;
   thumbs: number;
   love: number;
@@ -83,7 +84,12 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
     t.n++;
     tally.set(t.slug, t);
   }
-  const top = [...tally.values()].sort((a, b) => b.n - a.n)[0] ?? null;
+  const ranked = [...tally.values()].sort((a, b) => b.n - a.n);
+  const top = ranked[0] ?? null;
+
+  // A home that picked lawn + gutters + landscaping is one neighbor: keep its newest reaction
+  const seen = new Set<string>();
+  const people = rows.filter((r) => !seen.has(r.household_id) && !!seen.add(r.household_id));
 
   const nearHomes = new Set<string>();
   for (const r of rows) {
@@ -91,7 +97,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
     if (p && metersBetween(p, near) <= ONE_MILE_M) nearHomes.add(r.household_id);
   }
 
-  const notes: ProNote[] = rows
+  const notes: ProNote[] = people
     .filter((r) => r.note)
     .slice(0, 30)
     .map((r) => {
@@ -109,12 +115,12 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
     });
 
   // 11b: how many neighbors picked each quick tag, most-said first
-  const tagCounts = TAGS.map((t) => ({ ...t, count: rows.filter((r) => r.tags?.includes(t.id)).length }))
+  const tagCounts = TAGS.map((t) => ({ ...t, count: people.filter((r) => r.tags?.includes(t.id)).length }))
     .filter((t) => t.count > 0)
     .sort((a, b) => b.count - a.count);
 
   // 11c: typical price = the middle answer among neighbors who gave one
-  const prices = rows.map((r) => r.price).filter((p): p is number => p === 1 || p === 2 || p === 3).sort();
+  const prices = people.map((r) => r.price).filter((p): p is number => p === 1 || p === 2 || p === 3).sort();
   const price = prices.length ? { level: prices[Math.floor((prices.length - 1) / 2)] as 1 | 2 | 3, from: prices.length } : null;
 
   return {
@@ -128,9 +134,10 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       logoUrl: pro.logo_url,
       color: pro.color ?? null,
       categoryName: top?.name ?? null,
+      categoryNames: ranked.map((c) => c.name),
       categorySlug: top?.slug ?? null,
-      thumbs: rows.filter((r) => r.reaction === "thumbs_up").length,
-      love: rows.filter((r) => r.reaction === "love").length,
+      thumbs: people.filter((r) => r.reaction === "thumbs_up").length,
+      love: people.filter((r) => r.reaction === "love").length,
       nearCustomers: nearHomes.size,
       notes,
       tagCounts,
