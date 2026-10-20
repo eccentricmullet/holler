@@ -23,7 +23,7 @@ Goal from the spec: **100+ real reactions, and testers find a pro in under 60 se
 
 **Message to send friends (copy and edit):**
 
-> I'm building a little map of the local pros Spring Hill neighbors actually trust: lawn, HVAC, plumbers, all of it. Would you add the 3 you use? Takes a minute: holler-smoky.vercel.app
+> I'm building a little map of the local pros Spring Hill neighbors actually trust: lawn, HVAC, plumbers, all of it. Would you add the 3 you use? Takes a minute: helloholler.co
 
 ## 3. Spread the word (weeks 2–4)
 
