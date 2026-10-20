@@ -2,7 +2,7 @@
 export const LEGAL = {
   lastUpdated: "October 20, 2026",
   // Where people write about privacy, deletion or the terms
-  contactEmail: "helloneighbors@gmail.com",
+  contactEmail: "hollerneighbors@gmail.com",
   // Who runs the app. Switch to the company name once it's approved.
   operator: "Zachary Stone Higgins",
   governingState: "Tennessee",
