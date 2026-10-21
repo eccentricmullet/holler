@@ -32,10 +32,19 @@ function PageViews() {
   useEffect(() => {
     if (!ENABLED || !posthog.__loaded) return;
     posthog.capture("$pageview", { $current_url: window.location.href });
-    // First step of the funnel: someone arrived from a texted/shared link
+    // First step of the funnel: the first page of each visit, wherever the link pointed
+    // (the home page counts too, since that's the link people text each other)
     const from = search.get("from") ?? (search.get("next")?.includes("from=invite") ? "invite" : null);
-    if (pathname.startsWith("/pro/") || from === "invite") {
-      track("link_opened", { kind: from === "invite" ? "invite" : "pro_page", path: pathname });
+    let firstPage = true;
+    try {
+      firstPage = !sessionStorage.getItem("holler-visit");
+      sessionStorage.setItem("holler-visit", "1");
+    } catch {
+      // storage blocked: count every page
+    }
+    if (firstPage || from === "invite") {
+      const kind = from === "invite" ? "invite" : pathname.startsWith("/pro/") ? "pro_page" : pathname === "/" ? "home" : "other";
+      track("link_opened", { kind, path: pathname });
     }
   }, [pathname, search]);
   return null;
