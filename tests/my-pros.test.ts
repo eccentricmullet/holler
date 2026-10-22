@@ -49,8 +49,8 @@ describe("My pros", () => {
     const list = await listMyPros(db, userId);
     const byName = Object.fromEntries(list.map((p) => [p.name.replace(` ${RUN}`, ""), p]));
     expect(Object.keys(byName).sort()).toEqual(["Reacted Only", "Saved And Loved", "Saved Only"]);
-    expect(byName["Saved And Loved"]).toMatchObject({ saved: true, reaction: "love", category: "Lawn" });
+    expect(byName["Saved And Loved"]).toMatchObject({ saved: true, reaction: "love", category: "🌿 Lawn" });
     expect(byName["Saved Only"]).toMatchObject({ saved: true, reaction: null });
-    expect(byName["Reacted Only"]).toMatchObject({ saved: false, reaction: "thumbs_up", category: "Pool" });
+    expect(byName["Reacted Only"]).toMatchObject({ saved: false, reaction: "thumbs_up", category: "🏊 Pool" });
   });
 });
