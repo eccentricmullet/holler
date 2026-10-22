@@ -17,7 +17,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const btn = "h-10 rounded-xl px-3.5 text-sm font-semibold";
-const card = "rounded-[20px] bg-surface p-4 shadow-[0_6px_18px_rgba(26,29,36,0.08)]";
+const card = "rounded-[18px] bg-surface p-4 shadow-card";
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string; q?: string }> }) {
   const { tab: tabParam, q = "" } = await searchParams;
@@ -27,7 +27,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col p-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-[28px] font-extrabold tracking-[-0.02em]">Admin</h1>
+        <h1 className="text-[28px] font-bold tracking-[-0.02em]">Admin</h1>
         <Link href="/" className="text-sm font-semibold text-green-deep">
           Back to map
         </Link>
@@ -38,8 +38,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             key={t.id}
             href={`/admin?tab=${t.id}`}
             aria-current={tab === t.id ? "page" : undefined}
-            className={`flex h-10 shrink-0 items-center rounded-full border-2 px-4 text-sm font-semibold ${
-              tab === t.id ? "border-green bg-green-wash" : "border-line"
+            className={`flex h-10 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${
+              tab === t.id ? "border-neon bg-green-wash" : "border-line"
             }`}
           >
             {t.label}
@@ -73,7 +73,7 @@ async function FlagsTab({ db }: { db: Db }) {
   return (
     <>
       {alerts.map(([id, v]) => (
-        <Link key={id} href={`/admin/pros/${id}`} className="rounded-[20px] border-2 border-love bg-love-tint p-4 text-[15px] font-semibold">
+        <Link key={id} href={`/admin/pros/${id}`} className="rounded-[18px] border border-love bg-love-tint p-4 text-[15px] font-semibold">
           ⚠️ {v.name} has {v.n} open flags. Take a look →
         </Link>
       ))}
@@ -105,7 +105,7 @@ async function FlagsTab({ db }: { db: Db }) {
           <div className="mt-3 flex flex-wrap gap-2">
             <form action={resolveFlag}>
               <input type="hidden" name="flagId" value={f.id} />
-              <button type="submit" className={`${btn} bg-green-deep text-white`}>
+              <button type="submit" className={`${btn} bg-neon text-on-neon`}>
                 Clear flag
               </button>
             </form>
@@ -258,7 +258,7 @@ async function StatsTab({ db }: { db: Db }) {
           ["Reactions", (vouches ?? []).filter((v) => v.status === "visible").length],
           ["Open flags", openFlagCount ?? 0],
         ].map(([label, n]) => (
-          <div key={label} className="rounded-[20px] border-2 border-lime p-3 text-center">
+          <div key={label} className="rounded-[18px] bg-surface p-3 text-center shadow-card">
             <p className="text-[26px] font-bold">{n}</p>
             <p className="text-[13px] text-muted">{label}</p>
           </div>
@@ -299,7 +299,7 @@ function SearchBox({ tab, q, placeholder }: { tab: string; q: string; placeholde
         placeholder={placeholder}
         className="h-12 min-w-0 flex-1 rounded-2xl bg-field px-4 text-base outline-none placeholder:text-muted"
       />
-      <button type="submit" className="h-12 rounded-2xl bg-green-deep px-4 text-sm font-semibold text-white">
+      <button type="submit" className="h-12 rounded-2xl bg-neon px-4 text-sm font-semibold text-on-neon">
         Search
       </button>
     </form>

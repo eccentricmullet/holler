@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Rubik } from "next/font/google";
+import { Inter } from "next/font/google";
 import { SITE } from "@/config/site";
 import { preconnect } from "react-dom";
 import Analytics from "@/components/Analytics";
 import RegisterServiceWorker from "@/components/RegisterServiceWorker";
+import TabBar from "@/components/TabBar";
 import "./globals.css";
 
-const rubik = Rubik({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-rubik",
+  variable: "--font-inter",
 });
 
 // Full links in previews need the site's address. Vercel provides it; locally it's localhost.
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2bb24c",
+  themeColor: "#f6f7f4",
   width: "device-width",
   initialScale: 1,
 };
@@ -37,10 +37,11 @@ export default function RootLayout({ children, panel }: Readonly<{ children: Rea
   preconnect("https://api.mapbox.com");
   preconnect("https://events.mapbox.com");
   return (
-    <html lang="en" className={rubik.variable}>
+    <html lang="en" className={inter.variable}>
       <body className="min-h-dvh">
         {children}
         {panel}
+        <TabBar />
         <Analytics />
         <RegisterServiceWorker />
       </body>

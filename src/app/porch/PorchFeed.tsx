@@ -23,7 +23,7 @@ export default function PorchFeed({ items, tab }: { items: FeedItem[]; tab: Porc
         </span>
         <p className="mt-3 text-lg font-bold">Quiet on the porch</p>
         <p className="mt-1 text-[15px] text-muted">Be the first. A curb alert or a shout-out takes 30 seconds.</p>
-        <Link href={`/porch/new${tab !== "all" ? `?tab=${tab}` : ""}`} className="mt-5 rounded-2xl bg-green-deep px-5 py-3 text-[15px] font-semibold text-white">
+        <Link href={`/porch/new${tab !== "all" ? `?tab=${tab}` : ""}`} className="mt-5 rounded-2xl bg-neon px-5 py-3 text-[15px] font-semibold text-on-neon">
           Post something
         </Link>
       </div>
@@ -36,11 +36,11 @@ export default function PorchFeed({ items, tab }: { items: FeedItem[]; tab: Porc
   );
 }
 
-const card = "rounded-[22px] bg-surface p-4 shadow-[0_6px_18px_rgba(26,29,36,0.08)]";
+const card = "rounded-[18px] bg-surface p-4 shadow-card";
 
 function AskCard({ item }: { item: Extract<FeedItem, { type: "ask" }> }) {
   return (
-    <Link href={`/react?ask=${item.id}`} className={`${card} flex items-center gap-3.5 border-2 border-lime`}>
+    <Link href={`/react?ask=${item.id}`} className={`${card} flex items-center gap-3.5 border border-neon`}>
       <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-green-tint text-2xl" aria-hidden>
         {item.icon}
       </span>
@@ -54,7 +54,7 @@ function AskCard({ item }: { item: Extract<FeedItem, { type: "ask" }> }) {
           {item.answers ? ` · ${item.answers} answered` : ""}
         </span>
       </span>
-      <span className="shrink-0 rounded-xl bg-green-deep px-3 py-2 text-sm font-semibold text-white">I know one</span>
+      <span className="shrink-0 rounded-xl bg-neon px-3 py-2 text-sm font-semibold text-on-neon">I know one</span>
     </Link>
   );
 }
@@ -86,7 +86,7 @@ function PostCard({ item }: { item: Extract<FeedItem, { type: "post" }> }) {
   return (
     <article className={`${card} ${done ? "opacity-60" : ""}`}>
       <header className="flex items-center gap-2.5">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-bold text-white">{item.initial}</span>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-green-tint text-sm font-bold text-green-deep">{item.initial}</span>
         <span className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="truncate text-[15px] font-bold">{item.who}</span>
           <span className="text-[13px] text-muted">
@@ -126,8 +126,8 @@ function PostCard({ item }: { item: Extract<FeedItem, { type: "post" }> }) {
           type="button"
           aria-pressed={reaction === "thumbs_up"}
           onClick={() => react("thumbs_up")}
-          className={`flex h-9 items-center gap-1.5 rounded-full border-2 px-3 text-sm font-semibold ${
-            reaction === "thumbs_up" ? "border-green-deep bg-green text-white" : "border-line"
+          className={`flex h-9 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold ${
+            reaction === "thumbs_up" ? "border-neon bg-neon text-on-neon" : "border-line"
           }`}
         >
           👍 {counts.thumbs || ""}
@@ -136,8 +136,8 @@ function PostCard({ item }: { item: Extract<FeedItem, { type: "post" }> }) {
           type="button"
           aria-pressed={reaction === "love"}
           onClick={() => react("love")}
-          className={`flex h-9 items-center gap-1.5 rounded-full border-2 px-3 text-sm font-semibold ${
-            reaction === "love" ? "border-love bg-love text-white" : "border-line"
+          className={`flex h-9 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold ${
+            reaction === "love" ? "border-neon bg-neon text-on-neon" : "border-line"
           }`}
         >
           ❤️ {counts.love || ""}
@@ -151,7 +151,7 @@ function PostCard({ item }: { item: Extract<FeedItem, { type: "post" }> }) {
               setActionCount((n) => n + (acted ? -1 : 1));
               startTransition(() => void oneTapAction(item.id, !acted));
             }}
-            className={`flex h-9 items-center rounded-full border-2 px-3 text-sm font-semibold ${acted ? "border-green-deep bg-green text-white" : "border-line"}`}
+            className={`flex h-9 items-center rounded-full border px-3 text-sm font-semibold ${acted ? "border-neon bg-neon text-on-neon" : "border-line"}`}
           >
             {acted ? info.action.done : info.action.label}
           </button>
@@ -168,7 +168,7 @@ function PostCard({ item }: { item: Extract<FeedItem, { type: "post" }> }) {
               setDone(true);
               startTransition(() => void markDoneAction(item.id));
             }}
-            className="ml-auto h-9 rounded-full bg-ink px-3.5 text-sm font-semibold text-white"
+            className="ml-auto h-9 rounded-full border border-line bg-surface px-3.5 text-sm font-semibold text-ink"
           >
             Mark {info.doneLabel.toLowerCase()}
           </button>
@@ -204,7 +204,7 @@ function PostCard({ item }: { item: Extract<FeedItem, { type: "post" }> }) {
                         if (res.hidden) setGone(true);
                       });
                     }}
-                    className="h-9 rounded-full border-2 border-line bg-surface px-3 text-sm font-semibold"
+                    className="h-9 rounded-full border border-line bg-surface px-3 text-sm font-semibold"
                   >
                     {r}
                   </button>

@@ -16,7 +16,7 @@ export default function PanelShell({ children }: { children: React.ReactNode }) 
     <div
       role="dialog"
       aria-modal="false"
-      className="fixed inset-0 z-30 overflow-y-auto bg-surface lg:inset-auto lg:bottom-5 lg:right-5 lg:top-5 lg:w-[420px] lg:rounded-[28px] lg:shadow-float"
+      className="fixed inset-0 z-30 overflow-y-auto bg-surface lg:inset-auto lg:bottom-5 lg:right-5 lg:top-5 lg:w-[420px] lg:rounded-[18px] lg:shadow-float"
     >
       {children}
     </div>

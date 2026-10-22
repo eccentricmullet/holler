@@ -37,7 +37,7 @@ export default function ShareListButton() {
             }
           })
         }
-        className="h-[58px] w-full rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-60"
+        className="h-[54px] w-full rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-60"
       >
         {pending ? "One sec…" : "📣 Share my list"}
       </button>

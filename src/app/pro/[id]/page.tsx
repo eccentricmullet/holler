@@ -35,7 +35,7 @@ export default async function ProPageRoute({ params }: Params) {
 
   return (
     <main className="lg:min-h-dvh lg:bg-field lg:py-10">
-      <div className="lg:mx-auto lg:max-w-md lg:overflow-hidden lg:rounded-[32px] lg:shadow-float">
+      <div className="lg:mx-auto lg:max-w-md lg:overflow-hidden lg:rounded-[18px] lg:shadow-float">
         <ProView
           pro={result.pro}
           saved={await isSaved(supabase, result.pro.id)}

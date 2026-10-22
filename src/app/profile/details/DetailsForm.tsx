@@ -19,12 +19,12 @@ export default function DetailsForm({ initial }: { initial: Details }) {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/profile" aria-label="Back to profile" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href="/profile" aria-label="Back to profile" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </Link>
-      <h1 className="mt-7 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Privacy and details</h1>
+      <h1 className="mt-7 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Privacy and details</h1>
 
       <form
         className="flex flex-col"
@@ -47,7 +47,7 @@ export default function DetailsForm({ initial }: { initial: Details }) {
           value={d.firstName}
           maxLength={40}
           onChange={(e) => setD({ ...d, firstName: e.target.value })}
-          className="h-14 rounded-[18px] bg-field px-4 text-base outline-none"
+          className="h-14 rounded-[16px] border border-line bg-surface px-4 text-base outline-none"
         />
         <label htmlFor="initial" className="mb-2 mt-5 text-[15px] font-semibold">
           Last initial
@@ -88,7 +88,7 @@ export default function DetailsForm({ initial }: { initial: Details }) {
         <button
           type="submit"
           disabled={pending || !changed}
-          className="mt-6 h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-40"
+          className="mt-6 h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-40"
         >
           {pending ? "One sec…" : "Save changes"}
         </button>
@@ -98,7 +98,7 @@ export default function DetailsForm({ initial }: { initial: Details }) {
         Moved? Delete your account below and sign up again with your new address.
       </p>
 
-      <section id="delete" className="mt-8 rounded-[22px] border-2 border-line p-5">
+      <section id="delete" className="mt-8 rounded-[18px] border border-line p-5">
         <h2 className="text-lg font-bold">Delete my account</h2>
         <p className="mt-1.5 text-sm leading-snug text-muted">
           This removes your reactions, notes, name and home right away. It can&apos;t be undone.
@@ -143,8 +143,8 @@ function Choice(props: { selected: boolean; onClick: () => void; emoji: string; 
       type="button"
       aria-pressed={props.selected}
       onClick={props.onClick}
-      className={`flex items-start gap-3.5 rounded-[22px] border-[2.5px] p-4 text-left ${
-        props.selected ? "border-green bg-green-wash" : "border-line bg-surface"
+      className={`flex items-start gap-3.5 rounded-[18px] border p-4 text-left ${
+        props.selected ? "border-neon bg-green-wash" : "border-line bg-surface"
       }`}
     >
       <span className={`size-12 shrink-0 rounded-2xl text-center text-2xl leading-[48px] ${props.selected ? "bg-surface" : "bg-field"}`} aria-hidden>

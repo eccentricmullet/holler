@@ -1,29 +1,31 @@
 # Holler design rules
 
-The approved look is the **green** set in `docs/mockups/`. Open any `.dc.html` file in a text editor to read exact sizes, spacing and colors. (They were made in a design tool, so they won't render on their own in a browser; treat them as reference, not code to copy.)
+The current look is the **neon redesign** (Oct 2026): calm off-white screens, white cards, and one bright neon green used sparingly. The older green mockups in `docs/mockups/` are kept for layout reference only; their colors and font are retired.
 
 ## Colors
 
 | Token | Hex | Use |
 | --- | --- | --- |
-| `green` | #2BB24C | Shapes, selected rings, outlines |
-| `lime` | #7ED957 | Tile outlines, soft shapes, dashed borders |
-| `lime-soft` | #B8F27C | Decorative circles |
-| `green-deep` | #178A35 | Buttons with white text (passes contrast) |
-| `green-tint` | #E6F8DC | Emoji tile backgrounds, soft buttons |
-| `green-wash` | #F1FBEA | Selected card background |
-| `love` | #E5486A | Selected ❤️ border |
+| `neon` | #35E07B | ONLY primary buttons, selected chips/tabs, the center + button, request pins, badges |
+| `on-neon` | #10241A | Text and icons on neon (never white on neon) |
+| `green-deep` | #0E6B33 | Green text on white (never neon text) |
+| `green-tint` | #E4F9EC | Emoji tile backgrounds, avatar circles |
+| `green-wash` | #F0FCF4 | Selected card background (with a neon border) |
+| `love` | #E5486A | Delete / danger buttons |
 | `love-tint` | #FFF0F2 | ❤️ tile background |
-| `ink` | #1A1D24 | Text, dark buttons |
-| `muted` | #6B7079 | Secondary text |
-| `dark-card` | #23262F | Promo cards |
-| `surface` | #FFFFFF | Screens, cards |
-| `field` | #F1F2F0 | Inputs, light buttons, map ground |
-| `line` | #EEEFED | Dividers, unselected borders |
+| `ink` | #1F2421 | Text (charcoal) |
+| `muted` | #5B635E | Secondary text |
+| `page` | #F6F7F4 | Screen background (off-white) |
+| `surface` | #FFFFFF | Cards, sheets, inputs, the tab bar |
+| `field` | #EEF0EC | Loading placeholders, quiet buttons |
+| `line` | #E3E6E1 | 1px borders on unselected chips and inputs, dividers |
 
-Business logos bring their own colors; the app stays green and neutral around them.
+Rules:
+- Selected chips and tabs: neon with dark text. Unselected chips: white with a 1px `line` border and dark text. Never black for a selected state.
+- No heavy borders, no decorative circles, nothing chunky or game-like.
+- Business logos bring their own colors; the app stays neutral around them.
 
-**Pro colors (step 11j).** Until a pro has a real logo, their pin and logo circle use their own saved color, chosen so no two pros in the same category share one. No greens (green is Holler's own color). Defined in `src/lib/pro-colors.ts`:
+**Pro colors (step 11j).** Until a pro has a real logo, their pin and logo circle use their own saved color, chosen so no two pros in the same category share one. No greens. Defined in `src/lib/pro-colors.ts`:
 
 | Orange | Blue | Raspberry | Purple | Teal | Amber | Red | Indigo | Plum | Brown |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -31,28 +33,30 @@ Business logos bring their own colors; the app stays green and neutral around th
 
 ## Type
 
-- Rubik from Google Fonts: 400, 500, 600, 700, 800.
-- Screen titles 34px / 800 / -0.02em. Card titles 18–20px / 700. Body 15–16px. Small 13–14px muted.
+- Inter (Google Fonts), falling back to the system font.
+- Screen titles 28px bold. Card titles 16–20px bold. Body 15px. Small 13px muted. Text inputs stay 16px so iPhones don't zoom in.
 
 ## Shape and spacing
 
-- Corner radius: buttons 16–20px, cards 20–28px, sheets 32px top corners, map controls 16px squares (48px).
-- Spacing on a 4/8px grid; screen padding 24px (20px on the map).
-- Shadows: soft and consistent, e.g. `0 4px 14px rgba(26,29,36,0.10)` for controls, `0 10px 30px rgba(26,29,36,0.14)` for floating cards.
+- Cards: white, 16–18px corners, shadow `0 1px 3px rgba(20,30,25,0.06)` (`shadow-card`).
+- Floating things on the map use `shadow-control` / `shadow-float` (a little stronger so they read over the map).
+- Buttons 54px tall with 16px corners; chips are fully rounded pills.
+- Sheets: 24px top corners. Spacing on a 4/8px grid; screen padding 24px (20px on the map).
 - Touch targets at least 44px.
 
-## Reactions
+## Navigation
 
-- Use real emoji: 👍 Thumbs up, ❤️ Love them. 🏡 for "within 1 mile", 📍/🕶️ for privacy choices, 📣 for invites.
-- Emoji sit in rounded tiles (green-tint for 👍, love-tint for ❤️).
+- Bottom tab bar on the main screens: **Porch · Curb · [+] · Map · Me** (`src/components/TabBar.tsx`). Active tab: neon pill behind the icon, bold dark label. Inactive: gray.
+- The + opens a sheet: Recommend a pro, Ask for a pro, List on the Curb, Garage sale, Pet post.
+- Screens under the tab bar leave room for it with `pb-[calc(var(--tabbar)+24px)]`.
+
+## Reactions and emoji
+
+- Real emoji for services (🔌 Electrician, 🚰 Plumbing, 🌿 Lawn, 🏊 Pools, 🧹 Cleaning, ❄️ HVAC, 🏠 Roofing, 🪜 Gutters, 🌳 Landscaping) and reactions (👍 ❤️).
 - Map logos get a small white circle with ❤️ when that neighbor chose Love.
 
 ## Map
 
 - Mapbox Standard style (step 11i), darkened slightly, with store and transit labels hidden so pro logos stand out.
-- Logo pins: 42px circles, 3px white border, soft shadow. Selected pro: 3px green ring; others fade to 30%.
+- Logo pins: 42px circles, 3px white border, soft shadow. Selected pro: 3px neon ring; others fade to 30%.
 - Street is default, satellite is a toggle.
-
-## Screens in `docs/mockups/`
-
-GreenMap (home), GreenPro (pro page), GreenFind (find a pro), GreenReact (👍/❤️), GreenDone (celebration), GreenProfile, GreenMine (my reactions), GreenSignup (address + privacy).

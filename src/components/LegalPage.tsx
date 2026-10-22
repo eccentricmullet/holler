@@ -7,7 +7,7 @@ export default function LegalPage({ title, children }: { title: string; children
       <Link href="/" className="text-sm font-semibold text-green-deep">
         ‹ Back to the map
       </Link>
-      <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">{title}</h1>
+      <h1 className="mt-6 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">{title}</h1>
       <p className="mt-2 text-sm text-muted">Last updated {LEGAL.lastUpdated}</p>
       {LEGAL.isDraft && (
         <p className="mt-4 rounded-2xl bg-love-tint p-4 text-sm font-medium">

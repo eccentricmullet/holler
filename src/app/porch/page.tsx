@@ -24,14 +24,10 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
   const { data: profile } = user ? await supabase.from("profiles").select("id, reach_miles").eq("id", user.id).maybeSingle() : { data: null };
 
   const header = (
-    <div className="flex items-center justify-between">
-      <Link href="/" aria-label="Back to map" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M15 6l-6 6 6 6" />
-        </svg>
-      </Link>
+    <div className="flex min-h-11 items-center justify-between">
+      <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Porch</h1>
       {profile && (
-        <Link href={`/porch/new${tab !== "all" ? `?tab=${tab}` : ""}`} className="flex h-[46px] items-center gap-1.5 rounded-2xl bg-green-deep px-4 text-[15px] font-semibold text-white">
+        <Link href={`/porch/new${tab !== "all" ? `?tab=${tab}` : ""}`} className="flex h-11 items-center gap-1.5 rounded-full bg-neon px-4 text-[15px] font-semibold text-on-neon">
           <span aria-hidden className="text-lg leading-none">+</span> Post
         </Link>
       )}
@@ -41,13 +37,12 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
   // Neighbors only: posts can mention a street or show a photo, so they're not public
   if (!profile) {
     return (
-      <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6 pb-[calc(var(--tabbar)+24px)]">
         {header}
-        <span className="mt-12 text-[56px]" aria-hidden>
+        <span className="mt-10 text-[56px]" aria-hidden>
           🏡
         </span>
-        <h1 className="mt-4 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">The Porch</h1>
-        <p className="mt-2.5 text-base leading-snug text-muted">
+        <p className="mt-4 text-base leading-snug text-muted">
           Garage sales, curb alerts, lost pets, local events and who just did great work, from verified neighbors near you.
         </p>
         <ul className="mt-6 flex flex-col gap-2 text-[15px]">
@@ -58,7 +53,7 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
         </ul>
         <Link
           href="/signup?next=/porch"
-          className="mt-auto flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white"
+          className="mt-auto flex h-[54px] items-center justify-center rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon"
         >
           Join your neighbors
         </Link>
@@ -69,9 +64,8 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
   const feed = await porchFeed(createAdminClient(), user!.id, tab);
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6 pb-[calc(var(--tabbar)+24px)]">
       {header}
-      <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">The Porch</h1>
       <p className="mt-1.5 text-[15px] text-muted">What&apos;s happening near you. Posts tidy themselves up.</p>
       <ReachPicker miles={profile.reach_miles ?? DEFAULT_REACH} />
 
@@ -81,8 +75,8 @@ export default async function PorchPage({ searchParams }: { searchParams: Promis
             key={t.id}
             href={t.id === "all" ? "/porch" : `/porch?tab=${t.id}`}
             aria-current={tab === t.id ? "page" : undefined}
-            className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border-2 px-3.5 text-sm font-semibold ${
-              tab === t.id ? "border-green-deep bg-green text-white" : "border-line bg-surface"
+            className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold ${
+              tab === t.id ? "border-neon bg-neon text-on-neon" : "border-line bg-surface"
             }`}
           >
             <span aria-hidden>{t.emoji}</span>

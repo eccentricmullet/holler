@@ -144,7 +144,7 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
           <span
             key={i}
             className={`h-1.5 rounded-full transition-all ${
-              i === PROGRESS[step] ? "w-14 bg-green" : i < PROGRESS[step] ? "w-7 bg-green" : "w-7 bg-line"
+              i === PROGRESS[step] ? "w-14 bg-neon" : i < PROGRESS[step] ? "w-7 bg-neon" : "w-7 bg-line"
             }`}
           />
         ))}
@@ -282,7 +282,7 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
                 <ul
                   id="addr-list"
                   role="listbox"
-                  className="absolute inset-x-0 top-full z-10 mt-2 overflow-hidden rounded-[20px] bg-surface shadow-float"
+                  className="absolute inset-x-0 top-full z-10 mt-2 overflow-hidden rounded-[18px] bg-surface shadow-float"
                 >
                   {suggestions.map((s) => (
                     <li key={s.placeId} role="option" aria-selected={false}>
@@ -337,7 +337,7 @@ export default function SignupFlow({ startAt, next }: { startAt: Step; next: str
         <button
           type="submit"
           disabled={busy}
-          className="mt-auto h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-60"
+          className="mt-auto h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-60"
         >
           {busy
             ? "One sec…"
@@ -361,7 +361,7 @@ const inputClass =
   "min-w-0 flex-1 border-0 bg-transparent text-base text-ink outline-none placeholder:text-muted";
 
 function Title({ children }: { children: React.ReactNode }) {
-  return <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">{children}</h1>;
+  return <h1 className="mt-8 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">{children}</h1>;
 }
 
 function Lead({ children }: { children: React.ReactNode }) {
@@ -378,7 +378,7 @@ function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNo
 
 function Field({ emoji, className = "", children }: { emoji?: string; className?: string; children: React.ReactNode }) {
   return (
-    <div className={`flex h-14 items-center gap-2.5 rounded-[18px] bg-field px-4 ${className}`}>
+    <div className={`flex h-14 items-center gap-2.5 rounded-[16px] border border-line bg-surface px-4 ${className}`}>
       {emoji && (
         <span className="text-lg" aria-hidden>
           {emoji}
@@ -395,8 +395,8 @@ function PrivacyChoice(props: { selected: boolean; onClick: () => void; emoji: s
       type="button"
       aria-pressed={props.selected}
       onClick={props.onClick}
-      className={`flex items-start gap-3.5 rounded-[22px] border-[2.5px] p-4 text-left ${
-        props.selected ? "border-green bg-green-wash" : "border-line bg-surface"
+      className={`flex items-start gap-3.5 rounded-[18px] border p-4 text-left ${
+        props.selected ? "border-neon bg-green-wash" : "border-line bg-surface"
       }`}
     >
       <span

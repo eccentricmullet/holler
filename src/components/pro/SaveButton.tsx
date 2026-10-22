@@ -26,7 +26,7 @@ export default function SaveButton({ proId, initiallySaved }: { proId: string; i
         });
       }}
       className={`flex h-[46px] items-center justify-center gap-1.5 rounded-2xl px-3 text-sm font-semibold transition-colors ${
-        saved ? "bg-ink text-white" : "bg-surface text-ink"
+        saved ? "bg-neon text-on-neon" : "bg-surface text-ink"
       }`}
     >
       <svg viewBox="0 0 24 24" width="18" height="18" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

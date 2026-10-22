@@ -24,16 +24,16 @@ export default function FlagForm({
   if (sent) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-        <span className="mt-20 size-20 rounded-[28px] bg-green-tint text-center text-[42px] leading-[80px]" aria-hidden>
+        <span className="mt-20 size-20 rounded-[18px] bg-green-tint text-center text-[42px] leading-[80px]" aria-hidden>
           🙏
         </span>
-        <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Thanks for telling us</h1>
+        <h1 className="mt-6 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Thanks for telling us</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">
           Only the admin sees this. Nothing about it shows on the map or the pro&apos;s page.
         </p>
         <Link
           href={backHref}
-          className="mt-auto flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white"
+          className="mt-auto flex h-[54px] items-center justify-center rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon"
         >
           Done
         </Link>
@@ -43,12 +43,12 @@ export default function FlagForm({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href={backHref} aria-label="Back" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href={backHref} aria-label="Back" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </Link>
-      <h1 className="mt-7 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+      <h1 className="mt-7 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">
         {target.kind === "pro" ? "Had a bad experience?" : "Report this note"}
       </h1>
       <p className="mt-2.5 text-base leading-snug text-muted">
@@ -71,8 +71,8 @@ export default function FlagForm({
             role="radio"
             aria-checked={reason === r}
             onClick={() => setReason(r)}
-            className={`flex h-[52px] items-center rounded-[18px] border-2 px-4 text-left text-base font-semibold ${
-              reason === r ? "border-green bg-green-wash" : "border-line"
+            className={`flex h-[52px] items-center rounded-[18px] border px-4 text-left text-base font-semibold ${
+              reason === r ? "border-neon bg-green-wash" : "border-line"
             }`}
           >
             {r}
@@ -89,7 +89,7 @@ export default function FlagForm({
         maxLength={1000}
         value={details}
         onChange={(e) => setDetails(e.target.value)}
-        className="mt-2 resize-none rounded-[18px] bg-field px-4 py-3.5 text-base outline-none"
+        className="mt-2 resize-none rounded-[16px] border border-line bg-surface px-4 py-3.5 text-base outline-none"
       />
 
       {error && (
@@ -109,7 +109,7 @@ export default function FlagForm({
             else setSent(true);
           });
         }}
-        className="mt-auto h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-40"
+        className="mt-auto h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-40"
       >
         {pending ? "One sec…" : "Send privately"}
       </button>

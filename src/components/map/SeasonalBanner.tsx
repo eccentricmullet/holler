@@ -25,7 +25,7 @@ export default function SeasonalBanner({ signedIn, className = "" }: { signedIn:
   const href = signedIn ? target : `/signup?next=${encodeURIComponent(target)}`;
 
   return (
-    <div className={`flex items-center gap-3 rounded-[20px] bg-surface py-2.5 pl-3 pr-2 shadow-control ${className}`}>
+    <div className={`flex items-center gap-3 rounded-[18px] bg-surface py-2.5 pl-3 pr-2 shadow-control ${className}`}>
       <Link href={href} className="flex min-w-0 flex-1 items-center gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-green-tint text-xl" aria-hidden>
           {nudge.emoji}

@@ -37,13 +37,13 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/profile" aria-label="Back to profile" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href="/profile" aria-label="Back to profile" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </Link>
 
-      <h1 className="mt-7 text-[34px] font-extrabold tracking-[-0.02em]">My reactions</h1>
+      <h1 className="mt-7 text-[28px] font-bold tracking-[-0.02em]">My reactions</h1>
       <p className="mt-1.5 text-base text-muted">
         👍 {thumbs} · ❤️ {love} · {hidden ? "you're hidden on the map" : "shown near your block"}
       </p>
@@ -53,7 +53,7 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
         {reactions.map((r) => {
           const open = openId === r.id;
           return (
-            <div key={r.id} className="rounded-[20px] bg-surface p-3.5 shadow-[0_6px_18px_rgba(26,29,36,0.08)]">
+            <div key={r.id} className="rounded-[18px] bg-surface p-3.5 shadow-card">
               <div className="flex items-center gap-3.5">
                 <Link href={`/pro/${r.proId}`} className="flex min-w-0 flex-1 items-center gap-3.5">
                   <ProLogo name={r.proName} logoUrl={r.logoUrl} size={48} />
@@ -87,8 +87,8 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
                       disabled={pending}
                       aria-pressed={r.reaction === "thumbs_up"}
                       onClick={() => run(() => setReaction(r.id, "thumbs_up"))}
-                      className={`h-11 flex-1 rounded-2xl border-2 text-[15px] font-semibold ${
-                        r.reaction === "thumbs_up" ? "border-green-deep bg-green text-white" : "border-line text-muted"
+                      className={`h-11 flex-1 rounded-2xl border text-[15px] font-semibold ${
+                        r.reaction === "thumbs_up" ? "border-neon bg-neon text-on-neon" : "border-line text-muted"
                       }`}
                     >
                       👍 Thumbs up
@@ -98,8 +98,8 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
                       disabled={pending}
                       aria-pressed={r.reaction === "love"}
                       onClick={() => run(() => setReaction(r.id, "love"))}
-                      className={`h-11 flex-1 rounded-2xl border-2 text-[15px] font-semibold ${
-                        r.reaction === "love" ? "border-love bg-love text-white" : "border-line text-muted"
+                      className={`h-11 flex-1 rounded-2xl border text-[15px] font-semibold ${
+                        r.reaction === "love" ? "border-neon bg-neon text-on-neon" : "border-line text-muted"
                       }`}
                     >
                       ❤️ Love them
@@ -112,7 +112,7 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
                     onChange={(e) => setNoteDraft(e.target.value)}
                     placeholder="What made them good?"
                     aria-label="Your note"
-                    className="resize-none rounded-2xl bg-field px-3.5 py-3 text-[15px] outline-none placeholder:text-muted"
+                    className="resize-none rounded-2xl border border-line bg-surface px-3.5 py-3 text-[15px] outline-none placeholder:text-muted"
                   />
                   <div className="flex items-center justify-between">
                     <button
@@ -129,7 +129,7 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
                       type="button"
                       disabled={pending || noteDraft === (r.note ?? "")}
                       onClick={() => run(() => setNote(r.id, noteDraft))}
-                      className="h-10 rounded-xl bg-green-deep px-4 text-sm font-semibold text-white disabled:opacity-40"
+                      className="h-10 rounded-xl bg-neon px-4 text-sm font-semibold text-on-neon disabled:opacity-40"
                     >
                       Save note
                     </button>
@@ -148,7 +148,7 @@ export default function MyReactions({ reactions, hidden }: { reactions: MyReacti
 
       <Link
         href="/react"
-        className="mt-3.5 flex h-14 items-center justify-center gap-2 rounded-[20px] border-2 border-dashed border-lime text-base font-semibold text-green-deep"
+        className="mt-3.5 flex h-14 items-center justify-center gap-2 rounded-[18px] border border-dashed border-line bg-surface text-base font-semibold text-green-deep"
       >
         + React to another pro
       </Link>

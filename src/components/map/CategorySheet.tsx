@@ -34,7 +34,7 @@ export default function CategorySheet(props: {
       <div
         role="dialog"
         aria-label="Pick a category"
-        className="mx-auto flex max-h-[85dvh] w-full max-w-md flex-col rounded-t-[32px] bg-surface shadow-float lg:max-h-[80dvh] lg:rounded-[32px]"
+        className="mx-auto flex max-h-[85dvh] w-full max-w-md flex-col rounded-t-[24px] bg-surface shadow-float lg:max-h-[80dvh] lg:rounded-[18px]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-5 pt-3">
@@ -69,8 +69,8 @@ export default function CategorySheet(props: {
                       type="button"
                       aria-pressed={on}
                       onClick={() => props.onPick(c.slug)}
-                      className={`flex flex-col items-center gap-1.5 rounded-[20px] border-[2.5px] px-2 py-3 text-center text-[13px] font-semibold leading-tight ${
-                        on ? "border-green bg-green-wash" : "border-line bg-surface"
+                      className={`flex flex-col items-center gap-1.5 rounded-[18px] border px-2 py-3 text-center text-[13px] font-semibold leading-tight ${
+                        on ? "border-neon bg-green-wash" : "border-line bg-surface"
                       }`}
                     >
                       <span className="text-2xl" aria-hidden>

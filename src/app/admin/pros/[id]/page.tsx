@@ -10,8 +10,8 @@ import ConfirmButton from "../../ConfirmButton";
 export const metadata: Metadata = { title: `Edit pro · ${SITE.name}`, robots: { index: false } };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const card = "rounded-[20px] bg-surface p-4 shadow-[0_6px_18px_rgba(26,29,36,0.08)]";
-const input = "h-12 rounded-2xl bg-field px-4 text-base outline-none";
+const card = "rounded-[18px] bg-surface p-4 shadow-card";
+const input = "h-12 rounded-2xl border border-line bg-surface px-4 text-base outline-none";
 
 export default async function AdminProPage({
   params,
@@ -52,7 +52,7 @@ export default async function AdminProPage({
         ‹ All pros
       </Link>
       <div>
-        <h1 className="text-[26px] font-extrabold leading-tight tracking-[-0.02em]">{pro.name}</h1>
+        <h1 className="text-[26px] font-bold leading-tight tracking-[-0.02em]">{pro.name}</h1>
         <p className="text-[13px] text-muted">
           👍 {vouches.filter((v) => v.reaction === "thumbs_up").length} · ❤️ {vouches.filter((v) => v.reaction === "love").length} ·{" "}
           {openFlags} open flags · {pro.status}
@@ -102,7 +102,7 @@ export default async function AdminProPage({
           Instagram or Facebook
         </label>
         <input id="social" name="social" placeholder="@name or facebook.com/page" defaultValue={pro.social_url ?? ""} className={input} />
-        <button type="submit" className="mt-3 h-12 rounded-2xl bg-green-deep text-[15px] font-semibold text-white">
+        <button type="submit" className="mt-3 h-12 rounded-2xl bg-neon text-[15px] font-semibold text-on-neon">
           Save
         </button>
       </form>
@@ -123,7 +123,7 @@ export default async function AdminProPage({
           ) : (
             <form action={createInviteAction}>
               <input type="hidden" name="proId" value={pro.id} />
-              <button type="submit" className="mt-3 h-11 rounded-xl bg-green-deep px-4 text-sm font-semibold text-white">
+              <button type="submit" className="mt-3 h-11 rounded-xl bg-neon px-4 text-sm font-semibold text-on-neon">
                 Make invite link
               </button>
             </form>
@@ -172,7 +172,7 @@ export default async function AdminProPage({
                 </span>
                 <ConfirmButton
                   message={`Merge "${pro.name}" into "${c.name}"? This can't be undone from the app.`}
-                  className="h-10 shrink-0 rounded-xl bg-green-deep px-3 text-sm font-semibold text-white"
+                  className="h-10 shrink-0 rounded-xl bg-neon px-3 text-sm font-semibold text-on-neon"
                 >
                   Merge into this
                 </ConfirmButton>

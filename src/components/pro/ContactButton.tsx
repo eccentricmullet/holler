@@ -51,7 +51,7 @@ export default function ContactButton({
   };
   const shortName = proName.split(" ")[0];
   const kind = socialKind(social);
-  const button = `flex w-full items-center justify-center bg-green-deep font-semibold text-white ${sizes[size]}`;
+  const button = `flex w-full items-center justify-center bg-neon font-semibold text-on-neon ${sizes[size]}`;
 
   // Instagram/Facebook only: one tap straight to their page
   if (!phone) {
@@ -95,7 +95,7 @@ export default function ContactButton({
           role="menu"
           aria-label={`Contact ${proName}`}
           onClick={(e) => e.stopPropagation()}
-          className="flex w-full max-w-sm flex-col overflow-hidden rounded-[24px] bg-surface p-2 shadow-float"
+          className="flex w-full max-w-sm flex-col overflow-hidden rounded-[18px] bg-surface p-2 shadow-float"
         >
           <p className="px-3.5 pb-1 pt-2 text-[13px] font-semibold text-muted">{proName}</p>
           <a

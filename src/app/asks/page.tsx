@@ -11,7 +11,7 @@ import { aCategoryPro } from "@/lib/words";
 
 export const metadata: Metadata = { title: `Asks · ${SITE.name}` };
 
-const card = "rounded-[20px] bg-surface p-4 shadow-[0_6px_18px_rgba(26,29,36,0.08)]";
+const card = "rounded-[18px] bg-surface p-4 shadow-card";
 
 // Neighbors asking who to hire (answer with a pro), and your own asks with the pros neighbors suggested.
 export default async function AsksPage() {
@@ -27,12 +27,12 @@ export default async function AsksPage() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/" aria-label="Back to map" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href="/" aria-label="Back to map" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </Link>
-      <h1 className="mt-7 text-[34px] font-extrabold tracking-[-0.02em]">Neighbors asking</h1>
+      <h1 className="mt-7 text-[28px] font-bold tracking-[-0.02em]">Neighbors asking</h1>
       <p className="mt-1.5 text-base text-muted">Know a good one? Tap to share a pro. It also goes on the map.</p>
       <Link href="/profile/alerts" className="mt-2 text-sm font-semibold text-green-deep">
         🔔 Get an alert when a neighbor asks or answers
@@ -54,7 +54,7 @@ export default async function AsksPage() {
                 {a.answers ? ` · ${a.answers} answered` : ""}
               </span>
             </span>
-            <span className="shrink-0 rounded-xl bg-green-deep px-3 py-2 text-sm font-semibold text-white">I know one</span>
+            <span className="shrink-0 rounded-xl bg-neon px-3 py-2 text-sm font-semibold text-on-neon">I know one</span>
           </Link>
         ))}
         {answered.length > 0 && <p className="px-1 text-[13px] text-muted">You&apos;ve helped with {answered.length} more. Thanks!</p>}

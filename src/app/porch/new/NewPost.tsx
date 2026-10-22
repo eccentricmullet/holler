@@ -61,19 +61,19 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
   if (!kind) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-        <Link href="/porch" aria-label="Back to The Porch" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+        <Link href="/porch" aria-label="Back to The Porch" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </Link>
-        <h1 className="mt-7 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">What&apos;s up?</h1>
+        <h1 className="mt-7 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">What&apos;s up?</h1>
         <div className="mt-6 grid grid-cols-2 gap-3">
           {kinds.map((k) => (
             <button
               key={k}
               type="button"
               onClick={() => setKind(k)}
-              className="flex flex-col items-start gap-2 rounded-[22px] border-[2.5px] border-line bg-surface p-4 text-left"
+              className="flex flex-col items-start gap-2 rounded-[18px] border border-line bg-surface p-4 text-left"
             >
               <span className="text-3xl" aria-hidden>
                 {KINDS[k].emoji}
@@ -112,13 +112,13 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
         type="button"
         aria-label="Back"
         onClick={() => (preset ? router.back() : setKind(null))}
-        className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink"
+        className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink"
       >
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </button>
-      <h1 className="mt-6 text-[30px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+      <h1 className="mt-6 text-[30px] font-bold leading-[1.1] tracking-[-0.02em]">
         <span aria-hidden>{info.emoji}</span> {info.label}
       </h1>
 
@@ -131,8 +131,8 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
               role="radio"
               aria-checked={topic === t.id}
               onClick={() => setTopic(t.id)}
-              className={`flex flex-col items-center gap-1 rounded-2xl border-2 py-2.5 text-[13px] font-semibold ${
-                topic === t.id ? "border-green-deep bg-green text-white" : "border-line"
+              className={`flex flex-col items-center gap-1 rounded-2xl border py-2.5 text-[13px] font-semibold ${
+                topic === t.id ? "border-neon bg-neon text-on-neon" : "border-line"
               }`}
             >
               <span className="text-xl" aria-hidden>
@@ -165,7 +165,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
         placeholder={info.prompt}
         aria-label="Your post"
         autoFocus
-        className="mt-5 resize-none rounded-[18px] bg-field px-4 py-3.5 text-base outline-none placeholder:text-muted"
+        className="mt-5 resize-none rounded-[16px] border border-line bg-surface px-4 py-3.5 text-base outline-none placeholder:text-muted"
       />
       <span className="mt-1 self-end text-[13px] text-muted">
         {body.length}/{MAX}
@@ -242,7 +242,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="mt-3 flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-lime text-[15px] font-semibold text-green-deep"
+          className="mt-3 flex h-12 items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface text-[15px] font-semibold text-green-deep"
         >
           📷 Add a photo <span className="font-normal text-muted">optional</span>
         </button>
@@ -258,7 +258,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
         type="button"
         disabled={pending || !body.trim() || (kind === "heads_up" && !topic)}
         onClick={submit}
-        className="mt-auto h-[58px] rounded-[20px] bg-green-deep pt-0 text-[17px] font-semibold text-white disabled:opacity-40"
+        className="mt-auto h-[54px] rounded-[16px] bg-neon pt-0 text-[17px] font-semibold text-on-neon disabled:opacity-40"
       >
         {pending ? "Posting…" : "Post to the porch"}
       </button>

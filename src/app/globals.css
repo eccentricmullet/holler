@@ -2,29 +2,43 @@
 
 /* Holler design tokens — see docs/DESIGN.md */
 @theme {
-  --color-green: #2bb24c;
-  --color-lime: #7ed957;
-  --color-lime-soft: #b8f27c;
-  --color-green-deep: #178a35;
-  --color-green-tint: #e6f8dc;
-  --color-green-wash: #f1fbea;
+  /* Neon green: ONLY primary buttons, selected chips/tabs, the center + button, request pins, badges.
+     Text on neon is always on-neon (dark), never white. */
+  --color-neon: #35e07b;
+  --color-on-neon: #10241a;
+  /* Green text on white (never neon text) */
+  --color-green-deep: #0e6b33;
+  /* Pale neon wash for soft highlights (selected cards, icon tiles) */
+  --color-green-tint: #e4f9ec;
+  --color-green-wash: #f0fcf4;
   --color-love: #e5486a;
   --color-love-tint: #fff0f2;
-  --color-ink: #1a1d24;
-  --color-muted: #6b7079;
-  --color-dark-card: #23262f;
+  --color-ink: #1f2421;
+  --color-muted: #5b635e;
+  --color-page: #f6f7f4;
   --color-surface: #ffffff;
-  --color-field: #f1f2f0;
-  --color-line: #eeefed;
+  --color-field: #eef0ec;
+  --color-line: #e3e6e1;
 
-  --font-sans: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  --radius-control: 16px;
-  --radius-card: 24px;
-  --radius-sheet: 32px;
+  --radius-control: 14px;
+  --radius-card: 18px;
+  --radius-sheet: 24px;
 
-  --shadow-control: 0 4px 14px rgba(26, 29, 36, 0.1);
-  --shadow-float: 0 10px 30px rgba(26, 29, 36, 0.14);
+  --shadow-card: 0 1px 3px rgba(20, 30, 25, 0.06);
+  --shadow-control: 0 2px 8px rgba(20, 30, 25, 0.1);
+  --shadow-float: 0 4px 16px rgba(20, 30, 25, 0.1);
+}
+
+:root {
+  /* Height of the bottom tab bar on phones (screens leave this much room at the bottom) */
+  --tabbar: calc(64px + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  :root {
+    --tabbar: 0px;
+  }
 }
 
 @utility no-scrollbar {
@@ -36,9 +50,10 @@
 
 html,
 body {
-  background: var(--color-surface);
+  background: var(--color-page);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -52,4 +67,10 @@ body {
 /* Map style C, darkened a hair so streets and parks read clearly (pins aren't affected) */
 .holler-map .mapboxgl-canvas {
   filter: brightness(0.92) contrast(1.06) saturate(1.12);
+}
+
+/* Keep the map's logo and credits above the tab bar */
+.holler-map .mapboxgl-ctrl-bottom-left,
+.holler-map .mapboxgl-ctrl-bottom-right {
+  bottom: var(--tabbar);
 }

@@ -31,8 +31,8 @@ export default function ReachPicker({ miles }: { miles: number }) {
                 router.refresh();
               });
             }}
-            className={`flex h-9 items-center gap-1 rounded-full border-2 px-3 text-sm font-semibold transition-colors ${
-              on ? "border-ink bg-ink text-white" : "border-line text-ink"
+            className={`flex h-9 items-center gap-1 rounded-full border px-3 text-sm font-semibold transition-colors ${
+              on ? "border-neon bg-neon text-on-neon" : "border-line text-ink"
             }`}
           >
             <span aria-hidden>{o.emoji}</span>

@@ -142,7 +142,7 @@ export default function MapView(props: Props) {
     el.setAttribute("aria-label", "Your home");
     el.className =
       "flex size-10 items-center justify-center rounded-full border-[3px] border-white bg-ink text-[15px] font-bold text-white";
-    el.style.boxShadow = "0 0 0 4px #2BB24C, 0 4px 10px rgba(26,29,36,0.25)";
+    el.style.boxShadow = "0 0 0 4px #35E07B, 0 4px 10px rgba(26,29,36,0.25)";
     el.textContent = home.initial;
     homeMarkerRef.current = new Marker({ element: el }).setLngLat([home.point.lng, home.point.lat]).addTo(map);
   }
@@ -171,7 +171,7 @@ export default function MapView(props: Props) {
         const count = f.properties.point_count;
         el.setAttribute("aria-label", `${count} neighbors here. Zoom in.`);
         el.className +=
-          " flex size-11 items-center justify-center rounded-full border-[3px] border-white bg-green-deep text-[15px] font-bold text-white shadow-[0_4px_10px_rgba(26,29,36,0.25)]";
+          " flex size-11 items-center justify-center rounded-full border-[3px] border-white bg-neon text-[15px] font-bold text-on-neon shadow-[0_4px_10px_rgba(26,29,36,0.25)]";
         el.textContent = String(count);
         const clusterId = f.properties.cluster_id;
         el.addEventListener("click", () => {
@@ -188,7 +188,7 @@ export default function MapView(props: Props) {
           " relative flex size-[42px] items-center justify-center rounded-full border-[3px] border-white p-0 text-sm font-bold text-white transition-opacity";
         el.style.background = pro?.logo_url ? `#fff url("${pro.logo_url}") center/cover` : logoColor(name, colors[proId]);
         el.style.boxShadow = on
-          ? "0 0 0 3px #2BB24C, 0 4px 10px rgba(26,29,36,0.25)"
+          ? "0 0 0 3px #35E07B, 0 4px 10px rgba(26,29,36,0.25)"
           : "0 4px 10px rgba(26,29,36,0.25)";
         el.style.opacity = faded ? "0.3" : "1";
         el.style.zIndex = on ? "3" : "1";

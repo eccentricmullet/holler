@@ -30,7 +30,7 @@ export default function InviteLink({ code, proName }: { code: string; proName: s
   return (
     <div className="mt-3 flex items-center gap-2">
       <code className="min-w-0 flex-1 truncate rounded-xl bg-field px-3 py-3 text-sm">{url}</code>
-      <button type="button" onClick={share} className="h-11 shrink-0 rounded-xl bg-green-deep px-4 text-sm font-semibold text-white">
+      <button type="button" onClick={share} className="h-11 shrink-0 rounded-xl bg-neon px-4 text-sm font-semibold text-on-neon">
         {copied ? "Copied" : "Share"}
       </button>
     </div>

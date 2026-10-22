@@ -20,12 +20,12 @@ export default async function MyProsPage() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/profile" aria-label="Back to profile" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href="/profile" aria-label="Back to profile" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </Link>
-      <h1 className="mt-7 text-[34px] font-extrabold tracking-[-0.02em]">My pros</h1>
+      <h1 className="mt-7 text-[28px] font-bold tracking-[-0.02em]">My pros</h1>
       <p className="mt-1.5 text-base text-muted">The pros you&apos;ve saved 🔖 or reacted to. Share the list with a neighbor or new move-in.</p>
 
       <div className="mt-[22px] flex flex-col gap-2.5">
@@ -36,7 +36,7 @@ export default async function MyProsPage() {
           <Link
             key={p.id}
             href={`/pro/${p.id}`}
-            className="flex items-center gap-3.5 rounded-[20px] bg-surface p-3.5 shadow-[0_6px_18px_rgba(26,29,36,0.08)]"
+            className="flex items-center gap-3.5 rounded-[18px] bg-surface p-3.5 shadow-card"
           >
             <ProLogo name={p.name} logoUrl={p.logoUrl} size={48} />
             <span className="flex min-w-0 flex-1 flex-col gap-[3px]">

@@ -8,7 +8,6 @@ import MapView from "./MapView";
 import ProCards, { ProCardsSkeleton } from "./ProCards";
 import ProList from "./ProList";
 import SeasonalBanner from "./SeasonalBanner";
-import PorchButton from "@/components/PorchButton";
 import type { Category, LatLng, NearbyPro, Pin } from "./types";
 
 type Props = {
@@ -107,33 +106,35 @@ export default function MapScreen(props: Props) {
 
   const reactHref = signedIn ? "/react" : "/signup";
 
-  // The selected category as a bold black pill (tap to switch)
+  // The selected category as a neon chip (tap to switch)
   const title = (onMap: boolean) => (
     <>
       <button
         type="button"
         onClick={() => setSheetOpen(true)}
         aria-label={`${current?.name ?? "Pros"}: change category`}
-        className="flex max-w-full items-center gap-2.5 self-start rounded-[22px] bg-ink py-2.5 pl-3.5 pr-3 text-white shadow-float"
+        className="flex h-12 max-w-full items-center gap-2 self-start rounded-full bg-neon pl-3.5 pr-3 text-on-neon shadow-control"
       >
         {current?.icon && (
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-white/12 text-[22px]" aria-hidden>
+          <span className="text-[20px] leading-none" aria-hidden>
             {current.icon}
           </span>
         )}
-        <span className="truncate text-[28px] font-extrabold leading-none tracking-[-0.02em]">{current?.name ?? "Pros"}</span>
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-lime text-ink" aria-hidden>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </span>
+        <span className="truncate text-[20px] font-bold leading-none tracking-[-0.01em]">{current?.name ?? "Pros"}</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       </button>
-      <span className={`mt-1.5 pl-1 text-[15px] font-semibold ${onMap ? "text-white drop-shadow" : "text-muted"}`}>Who {placeName} uses</span>
+      <span
+        className={`mt-2 self-start text-[13px] font-semibold ${onMap ? "rounded-full bg-surface/95 px-2.5 py-1 text-ink shadow-card" : "pl-1 text-muted"}`}
+      >
+        Who {placeName} uses
+      </span>
     </>
   );
 
   const emptyState = (
-    <div className="rounded-[28px] bg-surface p-5 shadow-float lg:shadow-none">
+    <div className="rounded-[18px] bg-surface p-5 shadow-float lg:shadow-none">
       <p className="text-lg font-bold leading-snug">
         {error
           ? "We couldn't load pros right now. Try again in a minute."
@@ -141,7 +142,7 @@ export default function MapScreen(props: Props) {
       </p>
       {!error && (
         <div className="mt-4 flex gap-2">
-          <Link href={reactHref} className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-green-deep text-[15px] font-semibold text-white">
+          <Link href={reactHref} className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-neon text-[15px] font-semibold text-on-neon">
             Know a good one?
           </Link>
           <Link
@@ -166,7 +167,7 @@ export default function MapScreen(props: Props) {
   }, [signedIn]);
   const askChip =
     askSummary.answers > 0 || askSummary.near > 0 ? (
-      <Link href="/asks" className="flex items-center gap-2 rounded-full bg-ink px-3.5 py-2 text-[13px] font-semibold text-white shadow-control">
+      <Link href="/asks" className="flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-[13px] font-semibold text-ink shadow-card">
         {askSummary.answers > 0
           ? `📬 Your ask got ${askSummary.answers} ${askSummary.answers === 1 ? "answer" : "answers"}`
           : `🙋 ${askSummary.near} ${askSummary.near === 1 ? "neighbor needs" : "neighbors need"} a pro`}
@@ -175,7 +176,7 @@ export default function MapScreen(props: Props) {
 
   // Visitors who aren't signed in yet (e.g. opened a shared link): what this is
   const introCard = !signedIn && (
-    <Link href="/signup" className="flex w-full items-center gap-3 rounded-[20px] bg-surface px-3.5 py-3 text-ink shadow-float">
+    <Link href="/signup" className="flex w-full items-center gap-3 rounded-[18px] bg-surface px-3.5 py-3 text-ink shadow-float">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-green-tint text-xl" aria-hidden>
         👋
       </span>
@@ -187,13 +188,13 @@ export default function MapScreen(props: Props) {
   );
 
   const unlockCard = farFromLaunch && (
-    <Link href="/unlock" className="flex items-center gap-3 rounded-[22px] bg-dark-card px-4 py-3.5 text-white shadow-float">
+    <Link href="/unlock" className="flex items-center gap-3 rounded-[18px] bg-surface px-4 py-3.5 text-ink shadow-float">
       <span className="text-2xl" aria-hidden>
         📣
       </span>
       <span className="flex flex-col">
         <span className="text-[15px] font-bold">We&apos;re just getting started here</span>
-        <span className="text-[13px] text-white/70">Get neighbors on the list to unlock your town →</span>
+        <span className="text-[13px] text-muted">Get neighbors on the list to unlock your town →</span>
       </span>
     </Link>
   );
@@ -212,21 +213,18 @@ export default function MapScreen(props: Props) {
         recenterKey={recenterKey}
       />
 
-      {/* Phone: a soft dark fade across the top so the title and banner pop */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[240px] bg-gradient-to-b from-ink/60 via-ink/25 to-transparent lg:hidden" aria-hidden />
       {/* Phone: title floats on the map */}
       <div className="absolute left-5 right-[84px] top-7 flex flex-col lg:hidden">{title(true)}</div>
       {/* Seasonal prompt under the title (leaves room for the buttons on the right) */}
-      <div className="absolute left-5 right-[84px] top-[132px] flex flex-col items-start gap-2 lg:hidden">
+      <div className="absolute left-5 right-[84px] top-[112px] flex flex-col items-start gap-2 lg:hidden">
         {introCard}
         <SeasonalBanner signedIn={signedIn} className="w-full" />
         {askChip}
       </div>
 
       {/* Laptop: sidebar with the title and the pro list */}
-      <aside className="absolute bottom-5 left-5 top-5 hidden w-[380px] flex-col overflow-hidden rounded-[28px] bg-surface shadow-float lg:flex">
+      <aside className="absolute bottom-5 left-5 top-5 hidden w-[380px] flex-col overflow-hidden rounded-[18px] bg-surface shadow-float lg:flex">
         <div className="flex flex-col gap-0.5 px-6 pb-4 pt-6">{title(false)}</div>
-        <PorchButton signedIn={signedIn} className="mx-3 mb-3 shadow-none" />
         <SeasonalBanner signedIn={signedIn} className="mx-3 mb-3 bg-field shadow-none" />
         {askChip && <div className="mx-3 mb-3">{askChip}</div>}
         {introCard && <div className="mx-3 mb-3">{introCard}</div>}
@@ -234,7 +232,7 @@ export default function MapScreen(props: Props) {
           {pros === null ? (
             <div className="flex flex-col gap-2 px-1" aria-label="Loading pros">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="h-[68px] animate-pulse rounded-[20px] bg-field" />
+                <div key={i} className="h-[68px] animate-pulse rounded-[18px] bg-field" />
               ))}
             </div>
           ) : pros.length === 0 ? (
@@ -248,22 +246,6 @@ export default function MapScreen(props: Props) {
 
       {/* Right-side controls */}
       <div className="absolute right-5 top-7 flex flex-col gap-3">
-        {signedIn && home ? (
-          <Link
-            href="/profile"
-            aria-label="My profile"
-            className="flex size-12 items-center justify-center rounded-2xl bg-ink text-[17px] font-bold text-white shadow-control"
-          >
-            {home.initial}
-          </Link>
-        ) : (
-          <Link href="/signup" aria-label="Sign up or log in" className={controlClass}>
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-            </svg>
-          </Link>
-        )}
         <button type="button" aria-label="All categories" onClick={() => setSheetOpen(true)} className={controlClass}>
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
             <circle cx="7" cy="7" r="2.2" fill="currentColor" />
@@ -295,25 +277,15 @@ export default function MapScreen(props: Props) {
             <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
           </svg>
         </button>
-        <Link
-          href={reactHref}
-          aria-label="React to a pro you use"
-          className="flex size-14 items-center justify-center self-end rounded-[20px] bg-green-deep text-white shadow-[0_8px_20px_rgba(23,138,53,0.35)]"
-        >
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-        </Link>
       </div>
 
       {/* Phone: pro cards, empty state, or loading along the bottom */}
-      <div className="absolute inset-x-0 bottom-0 lg:hidden">
+      <div className="absolute inset-x-0 bottom-[var(--tabbar)] lg:hidden">
         {unlockCard && <div className="mx-5 mb-1">{unlockCard}</div>}
-        <PorchButton signedIn={signedIn} className={`mx-5 ${pros?.length ? "-mb-1" : "mb-3"}`} />
         {pros === null ? (
           <ProCardsSkeleton />
         ) : pros.length === 0 ? (
-          <div className="mx-5 mb-7">{emptyState}</div>
+          <div className="mx-5 mb-4">{emptyState}</div>
         ) : (
           <ProCards pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} />
         )}

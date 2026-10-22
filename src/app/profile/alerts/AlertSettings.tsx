@@ -76,16 +76,16 @@ export default function AlertSettings({ initial, publicKey }: { initial: AlertPr
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/profile" aria-label="Back to profile" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href="/profile" aria-label="Back to profile" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
       </Link>
-      <h1 className="mt-7 text-[34px] font-extrabold tracking-[-0.02em]">Alerts</h1>
+      <h1 className="mt-7 text-[28px] font-bold tracking-[-0.02em]">Alerts</h1>
       <p className="mt-1.5 text-base text-muted">All off unless you turn them on. Change anytime.</p>
 
       {support === "ios-needs-home-screen" && (
-        <div className="mt-5 rounded-[20px] bg-green-tint p-4 text-[15px] leading-snug">
+        <div className="mt-5 rounded-[18px] bg-green-tint p-4 text-[15px] leading-snug">
           <p className="font-bold">On iPhone, add {SITE.name} to your home screen first</p>
           <p className="mt-1">
             Tap <span className="font-semibold">Share</span> (the square with an arrow) → <span className="font-semibold">Add to Home Screen</span>, then open {SITE.name} from
@@ -94,10 +94,10 @@ export default function AlertSettings({ initial, publicKey }: { initial: AlertPr
         </div>
       )}
       {support === "unsupported" && (
-        <p className="mt-5 rounded-[20px] bg-field p-4 text-[15px]">This browser can&apos;t show alerts. Try {SITE.name} in Chrome or Safari on your phone.</p>
+        <p className="mt-5 rounded-[18px] bg-field p-4 text-[15px]">This browser can&apos;t show alerts. Try {SITE.name} in Chrome or Safari on your phone.</p>
       )}
       {support === "blocked" && (
-        <p className="mt-5 rounded-[20px] bg-love-tint p-4 text-[15px]">
+        <p className="mt-5 rounded-[18px] bg-love-tint p-4 text-[15px]">
           Alerts are blocked for {SITE.name} on this phone. Turn them on in your phone&apos;s settings for this site, then come back.
         </p>
       )}
@@ -114,8 +114,8 @@ export default function AlertSettings({ initial, publicKey }: { initial: AlertPr
               aria-checked={on}
               disabled={disabled}
               onClick={() => update({ ...prefs, [r.key]: !on })}
-              className={`flex items-center gap-3.5 rounded-[22px] border-[2.5px] p-4 text-left transition-colors disabled:opacity-50 ${
-                on ? "border-green-deep bg-green-tint" : "border-line bg-surface"
+              className={`flex items-center gap-3.5 rounded-[18px] border p-4 text-left transition-colors disabled:opacity-50 ${
+                on ? "border-neon bg-green-tint" : "border-line bg-surface"
               }`}
             >
               <span className="text-2xl" aria-hidden>
@@ -125,7 +125,7 @@ export default function AlertSettings({ initial, publicKey }: { initial: AlertPr
                 <span className="text-[17px] font-bold">{r.title}</span>
                 <span className="text-sm text-muted">{r.body}</span>
               </span>
-              <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${on ? "bg-green-deep" : "bg-line"}`} aria-hidden>
+              <span className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${on ? "bg-neon" : "bg-line"}`} aria-hidden>
                 <span className={`absolute top-1 size-5 rounded-full bg-white shadow transition-all ${on ? "left-6" : "left-1"}`} />
               </span>
             </button>

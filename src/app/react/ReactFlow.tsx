@@ -202,28 +202,25 @@ export default function ReactFlow({
   if (step === "done" && result) {
     const love = result.reaction === "love";
     return (
-      <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden bg-green-deep p-6 text-white">
-        <span className="absolute -right-[90px] -top-20 size-[300px] rounded-full bg-green" aria-hidden />
-        <span className="absolute -left-[120px] top-[260px] size-[280px] rounded-full bg-green opacity-50" aria-hidden />
-        <span className="absolute right-10 top-[150px] size-[110px] rounded-full bg-lime opacity-50" aria-hidden />
+      <main className="relative mx-auto flex min-h-dvh max-w-md flex-col bg-page p-6 text-ink">
 
-        <Link href="/" aria-label="Close" className="relative flex size-[46px] items-center justify-center self-end rounded-2xl bg-white/20">
+        <Link href="/" aria-label="Close" className="relative flex size-[46px] items-center justify-center self-end rounded-[14px] bg-surface shadow-card">
           <svg {...iconProps} width="22" height="22">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </Link>
 
         <span
-          className="relative mt-[90px] size-24 rounded-[32px] bg-white text-center text-[52px] leading-[96px] shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
+          className="relative mt-16 size-24 rounded-[18px] bg-surface text-center text-[52px] leading-[96px] shadow-card"
           role="img"
           aria-label={love ? "Love them" : "Thumbs up"}
         >
           {love ? "❤️" : "👍"}
         </span>
-        <h1 className="relative mt-7 text-[38px] font-extrabold leading-[1.08] tracking-[-0.02em]">
+        <h1 className="relative mt-7 text-[28px] font-bold leading-[1.15] tracking-[-0.02em]">
           {love ? `You love ${result.proName.split(" ")[0]}.` : `You gave ${result.proName.split(" ")[0]} a thumbs up.`}
         </h1>
-        <p className="relative mt-3.5 text-[17px] leading-[1.45] text-green-tint">
+        <p className="relative mt-3 text-[15px] leading-[1.45] text-muted">
           {answerTo ? `Sent to ${answerTo.who} Thanks for helping a neighbor. ` : ""}
           {result.neighbors > 1 ? `That makes ${result.neighbors} neighbors. ` : "You're the first neighbor to say so. "}
           The next person on your street looking for {orList(result.categoryNames.map(lowerName))} help will see it on the map.
@@ -236,20 +233,20 @@ export default function ReactFlow({
           </p>
         )}
 
-        <InstallCard dark className="relative mt-6" />
+        <InstallCard className="relative mt-6" />
 
         <div className="relative mt-auto flex flex-col gap-2.5 pt-6">
           {answerTo ? (
             <Link
               href="/asks"
-              className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
+              className="flex h-[54px] items-center justify-center rounded-[16px] bg-neon text-[16px] font-bold text-on-neon"
             >
               See more neighbors asking
             </Link>
           ) : onboarding && doneCount >= ONBOARD_GOAL ? (
             <Link
               href="/"
-              className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
+              className="flex h-[54px] items-center justify-center rounded-[16px] bg-neon text-[16px] font-bold text-on-neon"
             >
               See your map
             </Link>
@@ -257,7 +254,7 @@ export default function ReactFlow({
             <button
               type="button"
               onClick={startOver}
-              className="flex h-[58px] items-center justify-center rounded-[20px] bg-white text-[17px] font-bold text-green-deep"
+              className="flex h-[54px] items-center justify-center rounded-[16px] bg-neon text-[16px] font-bold text-on-neon"
             >
               {onboarding ? `Add pro ${doneCount + 1} of ${ONBOARD_GOAL}` : "React to another pro"}
             </button>
@@ -265,7 +262,7 @@ export default function ReactFlow({
           <button
             type="button"
             onClick={shareInvite}
-            className="flex h-[58px] items-center justify-center rounded-[20px] border-2 border-white/50 text-[17px] font-semibold"
+            className="flex h-[54px] items-center justify-center rounded-[16px] border border-line bg-surface text-[16px] font-semibold"
           >
             📣 Invite a neighbor
           </button>
@@ -286,16 +283,16 @@ export default function ReactFlow({
           type="button"
           aria-label="Back"
           onClick={() => setStep(kind === "manual" ? "manual" : "find")}
-          className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink"
+          className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink"
         >
           <svg {...iconProps} width="22" height="22">
             <path d="M15 6l-6 6 6 6" />
           </svg>
         </button>
-        <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Is this them?</h1>
+        <h1 className="mt-8 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Is this them?</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">Make sure it&apos;s the right business so neighbors call the right people.</p>
 
-        <div className="mt-6 rounded-[24px] bg-surface p-5 shadow-[0_6px_18px_rgba(26,29,36,0.08)]">
+        <div className="mt-6 rounded-[18px] bg-surface p-5 shadow-card">
           <div className="flex items-center gap-3.5">
             <ProLogo name={preview?.name ?? picked.name} logoUrl={picked.logoUrl} size={52} />
             <span className="min-w-0 text-xl font-bold leading-tight">{preview?.name ?? picked.name}</span>
@@ -371,14 +368,14 @@ export default function ReactFlow({
             type="button"
             disabled={waiting || (kind === "google" && !preview)}
             onClick={() => setStep("react")}
-            className="h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-40"
+            className="h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-40"
           >
             Yes, that&apos;s them
           </button>
           <button
             type="button"
             onClick={() => setStep(kind === "manual" ? "manual" : "find")}
-            className="h-[58px] rounded-[20px] bg-field text-[17px] font-semibold text-ink"
+            className="h-[54px] rounded-[16px] bg-field text-[17px] font-semibold text-ink"
           >
             No, pick again
           </button>
@@ -396,7 +393,7 @@ export default function ReactFlow({
             type="button"
             aria-label="Back"
             onClick={() => (start && picked.choice.kind === "holler" && picked.choice.proId === start.proId ? router.back() : startOver())}
-            className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink"
+            className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink"
           >
             <svg {...iconProps} width="22" height="22">
               <path d="M15 6l-6 6 6 6" />
@@ -408,7 +405,7 @@ export default function ReactFlow({
           </span>
         </div>
 
-        <h1 className="mt-9 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">How was {shortName}?</h1>
+        <h1 className="mt-9 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">How was {shortName}?</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">One tap. Your neighbors see it on the map.</p>
 
         {answerTo && currentCategory ? (
@@ -428,8 +425,8 @@ export default function ReactFlow({
                 type="button"
                 aria-pressed={cats.includes(c.slug)}
                 onClick={() => toggleCategory(c.slug)}
-                className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border-2 px-3.5 text-sm font-semibold ${
-                  cats.includes(c.slug) ? "border-green bg-green-wash" : "border-line bg-surface"
+                className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold ${
+                  cats.includes(c.slug) ? "border-neon bg-green-wash" : "border-line bg-surface"
                 }`}
               >
                 <span aria-hidden>{c.icon}</span>
@@ -447,8 +444,8 @@ export default function ReactFlow({
             emoji="👍"
             title="Thumbs up"
             body="Good work. I'd hire them again."
-            selectedClass="border-green-deep bg-green-tint"
-            tileClass="bg-green"
+            selectedClass="border-neon bg-green-tint"
+            tileClass="bg-neon"
           />
           <ReactionChoice
             selected={reaction === "love"}
@@ -473,8 +470,8 @@ export default function ReactFlow({
                 type="button"
                 aria-pressed={on}
                 onClick={() => setTags((cur) => (on ? cur.filter((x) => x !== t.id) : [...cur, t.id]))}
-                className={`flex h-10 items-center gap-1.5 rounded-full border-2 px-3.5 text-sm font-semibold transition-colors ${
-                  on ? "border-green-deep bg-green text-white" : "border-line bg-surface text-ink"
+                className={`flex h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold transition-colors ${
+                  on ? "border-neon bg-neon text-on-neon" : "border-line bg-surface text-ink"
                 }`}
               >
                 <span aria-hidden>{t.emoji}</span>
@@ -497,12 +494,12 @@ export default function ReactFlow({
                 role="radio"
                 aria-checked={on}
                 onClick={() => setPrice(on ? null : p.value)}
-                className={`flex h-14 flex-col items-center justify-center rounded-2xl border-2 transition-colors ${
-                  on ? "border-green-deep bg-green text-white" : "border-line bg-surface text-ink"
+                className={`flex h-14 flex-col items-center justify-center rounded-2xl border transition-colors ${
+                  on ? "border-neon bg-neon text-on-neon" : "border-line bg-surface text-ink"
                 }`}
               >
                 <span className="text-base font-bold leading-none">{p.label}</span>
-                <span className={`mt-1 text-xs ${on ? "text-white" : "text-muted"}`}>{p.hint}</span>
+                <span className={`mt-1 text-xs ${on ? "text-on-neon" : "text-muted"}`}>{p.hint}</span>
               </button>
             );
           })}
@@ -518,7 +515,7 @@ export default function ReactFlow({
           placeholder="What made them good?"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="mt-2 resize-none rounded-[18px] bg-field px-4 py-3.5 text-base text-ink outline-none placeholder:text-muted"
+          className="mt-2 resize-none rounded-[16px] border border-line bg-surface px-4 py-3.5 text-base text-ink outline-none placeholder:text-muted"
         />
         <span className="mt-1 self-end text-[13px] text-muted">
           {note.length}/{NOTE_MAX}
@@ -534,7 +531,7 @@ export default function ReactFlow({
           type="button"
           onClick={submit}
           disabled={busy}
-          className="mt-auto h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-60"
+          className="mt-auto h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-60"
         >
           {busy ? "One sec…" : currentCategory ? "Put it on the map" : "Pick what they do for you"}
         </button>
@@ -551,13 +548,13 @@ export default function ReactFlow({
           type="button"
           aria-label="Back"
           onClick={() => setStep("find")}
-          className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink"
+          className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink"
         >
           <svg {...iconProps} width="22" height="22">
             <path d="M15 6l-6 6 6 6" />
           </svg>
         </button>
-        <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Add a pro</h1>
+        <h1 className="mt-8 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Add a pro</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">Their name, plus a phone number or their Instagram or Facebook. Neighbors reach them from the map.</p>
 
         <label htmlFor="m-name" className="mb-2 mt-6 text-[15px] font-semibold">
@@ -570,7 +567,7 @@ export default function ReactFlow({
           onChange={(e) => setManualName(e.target.value)}
           autoFocus
           placeholder="Joe's Mowing"
-          className="h-14 rounded-[18px] bg-field px-4 text-base outline-none placeholder:text-muted"
+          className="h-14 rounded-[16px] border border-line bg-surface px-4 text-base outline-none placeholder:text-muted"
         />
         <label htmlFor="m-phone" className="mb-2 mt-5 text-[15px] font-semibold">
           Phone number
@@ -582,7 +579,7 @@ export default function ReactFlow({
           value={formatPhone(phoneDigits.length === 11 && phoneDigits.startsWith("1") ? phoneDigits.slice(1) : phoneDigits)}
           onChange={(e) => setManualPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
           placeholder="(615) 555-0123"
-          className="h-14 rounded-[18px] bg-field px-4 text-base outline-none placeholder:text-muted"
+          className="h-14 rounded-[16px] border border-line bg-surface px-4 text-base outline-none placeholder:text-muted"
         />
         <div className="mt-4 flex items-center gap-3 text-[13px] font-semibold text-muted" aria-hidden>
           <span className="h-px flex-1 bg-line" />
@@ -602,7 +599,7 @@ export default function ReactFlow({
           maxLength={200}
           onChange={(e) => setManualSocial(e.target.value)}
           placeholder="@joesmowing or facebook.com/joesmowing"
-          className="h-14 rounded-[18px] bg-field px-4 text-base outline-none placeholder:text-muted"
+          className="h-14 rounded-[16px] border border-line bg-surface px-4 text-base outline-none placeholder:text-muted"
         />
 
         {error && (
@@ -622,7 +619,7 @@ export default function ReactFlow({
             if (!d && !social) return setError("Add their phone number, or their Instagram or Facebook.");
             pick({ choice: { kind: "manual", name: manualName, phone: d, social: social ?? undefined }, name: manualName.trim(), logoUrl: null });
           }}
-          className="mt-auto h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white"
+          className="mt-auto h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon"
         >
           Next
         </button>
@@ -634,7 +631,7 @@ export default function ReactFlow({
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
       <div className="flex items-center justify-between">
-        <Link href="/" aria-label="Close" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+        <Link href="/" aria-label="Close" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
           <svg {...iconProps} width="22" height="22">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
@@ -650,10 +647,10 @@ export default function ReactFlow({
         <>
           <div className="mt-6 flex gap-1.5" aria-label={`${doneCount} of ${ONBOARD_GOAL} added`}>
             {Array.from({ length: ONBOARD_GOAL }, (_, i) => (
-              <span key={i} className={`h-1.5 flex-1 rounded-full ${i < doneCount ? "bg-green" : "bg-line"}`} />
+              <span key={i} className={`h-1.5 flex-1 rounded-full ${i < doneCount ? "bg-neon" : "bg-line"}`} />
             ))}
           </div>
-          <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+          <h1 className="mt-6 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">
             Add {ONBOARD_GOAL - doneCount === ONBOARD_GOAL ? "3 pros" : `${ONBOARD_GOAL - doneCount} more`} you use
           </h1>
           <p className="mt-2.5 text-base leading-snug text-muted">
@@ -662,7 +659,7 @@ export default function ReactFlow({
         </>
       ) : (
         <>
-          <h1 className="mt-8 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+          <h1 className="mt-8 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">
             {answerTo ? (
               <>Who would you recommend to {answerTo.who}?</>
             ) : presetName ? (
@@ -682,7 +679,7 @@ export default function ReactFlow({
       <label htmlFor="find-pro" className="sr-only">
         Business name
       </label>
-      <div className="mt-6 flex h-14 items-center gap-2.5 rounded-[18px] border-2 border-green bg-field px-4">
+      <div className="mt-6 flex h-14 items-center gap-2.5 rounded-[18px] border border-neon bg-surface px-4">
         <svg {...iconProps} width="20" height="20" className="shrink-0 text-muted">
           <circle cx="11" cy="11" r="7" />
           <path d="M20 20l-3.5-3.5" />
@@ -710,7 +707,7 @@ export default function ReactFlow({
                   : { choice: { kind: "google", placeId: r.placeId, sessionToken }, name: r.name, logoUrl: null }
               )
             }
-            className="flex items-center gap-3.5 rounded-[20px] bg-surface p-3.5 text-left shadow-[0_6px_18px_rgba(26,29,36,0.08)]"
+            className="flex items-center gap-3.5 rounded-[18px] bg-surface p-3.5 text-left shadow-card"
           >
             <ProLogo name={r.name} logoUrl={r.kind === "holler" ? r.logoUrl : null} size={48} />
             <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
@@ -739,7 +736,7 @@ export default function ReactFlow({
           setError(null);
           setStep("manual");
         }}
-        className="mt-auto flex items-center gap-3.5 rounded-[22px] border-2 border-dashed border-lime p-[18px] text-left"
+        className="mt-auto flex items-center gap-3.5 rounded-[18px] border border-dashed border-line bg-surface p-[18px] text-left"
       >
         <span className="flex size-11 shrink-0 items-center justify-center rounded-[15px] bg-green-tint text-green-deep">
           <svg {...iconProps} width="22" height="22" strokeWidth={2.5}>
@@ -771,12 +768,12 @@ function ReactionChoice(props: {
       type="button"
       aria-pressed={props.selected}
       onClick={props.onClick}
-      className={`relative flex items-center gap-4 rounded-3xl border-[2.5px] p-[18px] text-left transition-colors ${
+      className={`relative flex items-center gap-4 rounded-3xl border p-[18px] text-left transition-colors ${
         props.selected ? props.selectedClass : "border-line bg-surface"
       }`}
     >
       <span
-        className={`size-16 shrink-0 rounded-[20px] text-center text-[34px] leading-[64px] transition-all ${
+        className={`size-16 shrink-0 rounded-[18px] text-center text-[28px] leading-[64px] transition-all ${
           props.selected ? props.tileClass : "bg-field opacity-60 grayscale"
         }`}
         aria-hidden
@@ -788,7 +785,7 @@ function ReactionChoice(props: {
         <span className="text-sm text-muted">{props.body}</span>
       </span>
       {props.selected && (
-        <span className="absolute right-4 top-4 flex size-6 items-center justify-center rounded-full bg-ink text-[13px] font-bold text-white" aria-hidden>
+        <span className="absolute right-4 top-4 flex size-6 items-center justify-center rounded-full bg-neon text-[13px] font-bold text-on-neon" aria-hidden>
           ✓
         </span>
       )}

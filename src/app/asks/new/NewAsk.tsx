@@ -15,18 +15,18 @@ export default function NewAsk({ category }: { category: { slug: string; name: s
   if (sent) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-        <span className="mt-20 size-20 rounded-[28px] bg-green-tint text-center text-[42px] leading-[80px]" aria-hidden>
+        <span className="mt-20 size-20 rounded-[18px] bg-green-tint text-center text-[42px] leading-[80px]" aria-hidden>
           📣
         </span>
-        <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Asked!</h1>
+        <h1 className="mt-6 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Asked!</h1>
         <p className="mt-2.5 text-base leading-snug text-muted">
           Nearby neighbors will see that you need {phrase}. Their picks show up on your Asks page.
         </p>
         <div className="mt-auto flex flex-col gap-2.5">
-          <Link href="/asks" className="flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white">
+          <Link href="/asks" className="flex h-[54px] items-center justify-center rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon">
             See your asks
           </Link>
-          <Link href="/" className="flex h-[58px] items-center justify-center rounded-[20px] bg-field text-[17px] font-semibold text-ink">
+          <Link href="/" className="flex h-[54px] items-center justify-center rounded-[18px] bg-field text-[17px] font-semibold text-ink">
             Back to the map
           </Link>
         </div>
@@ -36,15 +36,15 @@ export default function NewAsk({ category }: { category: { slug: string; name: s
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/" aria-label="Close" className="flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
+      <Link href="/" aria-label="Close" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
       </Link>
-      <span className="mt-10 size-20 rounded-[28px] bg-green-tint text-center text-[42px] leading-[80px]" aria-hidden>
+      <span className="mt-10 size-20 rounded-[18px] bg-green-tint text-center text-[42px] leading-[80px]" aria-hidden>
         {category.icon}
       </span>
-      <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">Need {phrase}?</h1>
+      <h1 className="mt-6 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Need {phrase}?</h1>
       <p className="mt-2.5 text-base leading-snug text-muted">
         We&apos;ll ask nearby neighbors who they use. They answer by picking a pro, so no long threads. Only your first name and
         last initial show.
@@ -65,7 +65,7 @@ export default function NewAsk({ category }: { category: { slug: string; name: s
             else setError(r.error);
           })
         }
-        className="mt-auto h-[58px] rounded-[20px] bg-green-deep text-[17px] font-semibold text-white disabled:opacity-60"
+        className="mt-auto h-[54px] rounded-[16px] bg-neon text-[17px] font-semibold text-on-neon disabled:opacity-60"
       >
         {pending ? "One sec…" : "Ask my neighbors"}
       </button>

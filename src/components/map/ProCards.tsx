@@ -29,7 +29,7 @@ export default function ProCards(props: {
   }, [props.selectedId]);
 
   return (
-    <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-5 items-end gap-3.5 overflow-x-auto px-5 pb-7 pt-4">
+    <div className="no-scrollbar flex snap-x snap-mandatory scroll-px-5 items-end gap-3 overflow-x-auto px-5 pb-4 pt-4">
       {props.pros.map((p) => {
         const on = p.id === props.selectedId;
         const thumbs = p.thumbs_total;
@@ -43,16 +43,10 @@ export default function ProCards(props: {
               refs.current[p.id] = el;
             }}
             onClick={() => props.onSelect(p.id)}
-            className={`relative flex shrink-0 snap-start cursor-pointer flex-col overflow-hidden bg-surface shadow-float transition-all ${
-              on ? "min-h-[252px] w-[236px] rounded-[28px] p-5" : "h-[214px] w-[176px] rounded-[26px] p-[18px]"
+            className={`relative flex shrink-0 snap-start cursor-pointer flex-col overflow-hidden bg-surface shadow-float transition-all ${on ? "ring-2 ring-neon" : ""} ${
+              on ? "min-h-[252px] w-[236px] rounded-[18px] p-5" : "h-[214px] w-[176px] rounded-[18px] p-[18px]"
             }`}
           >
-            {on && (
-              <>
-                <span className="absolute -right-[50px] -top-[60px] size-[190px] rounded-full bg-green" aria-hidden />
-                <span className="absolute -right-2.5 -top-[90px] size-[150px] rounded-full bg-lime" aria-hidden />
-              </>
-            )}
             <ProLogo name={p.name} logoUrl={p.logo_url} color={props.colors[p.id]} size={on ? 56 : 48} />
             <span className={`relative font-bold leading-[1.15] ${on ? "mt-[18px] text-xl" : "mt-3.5 text-lg"}`}>{p.name}</span>
             {on && when && <span className="relative mt-0.5 text-[13px] font-medium text-muted">Latest: {when}</span>}
@@ -89,9 +83,9 @@ export default function ProCards(props: {
 
 export function ProCardsSkeleton() {
   return (
-    <div className="flex items-end gap-3.5 overflow-hidden px-5 pb-7 pt-4" aria-label="Loading pros">
-      <div className="h-[252px] w-[236px] shrink-0 animate-pulse rounded-[28px] bg-surface shadow-float" />
-      <div className="h-[214px] w-[176px] shrink-0 animate-pulse rounded-[26px] bg-surface shadow-float" />
+    <div className="flex items-end gap-3 overflow-hidden px-5 pb-4 pt-4" aria-label="Loading pros">
+      <div className="h-[252px] w-[236px] shrink-0 animate-pulse rounded-[18px] bg-surface shadow-float" />
+      <div className="h-[214px] w-[176px] shrink-0 animate-pulse rounded-[18px] bg-surface shadow-float" />
     </div>
   );
 }

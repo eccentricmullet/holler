@@ -54,17 +54,12 @@ export default async function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6 pb-[calc(var(--tabbar)+24px)]">
       <div className="flex items-center gap-3">
-        <span className="flex size-12 items-center justify-center rounded-full bg-ink text-lg font-bold text-white shadow-[0_0_0_3px_#7ED957]">
+        <span className="flex size-12 items-center justify-center rounded-full bg-green-tint text-lg font-bold text-green-deep">
           {profile.first_name.charAt(0).toUpperCase()}
         </span>
         <span className="text-xl font-bold">Hi, {profile.first_name}!</span>
-        <Link href="/" aria-label="Close" className="ml-auto flex size-[46px] items-center justify-center rounded-2xl bg-field text-ink">
-          <svg {...iconProps}>
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        </Link>
       </div>
 
       <div className="mt-11 grid grid-cols-3 gap-3">
@@ -73,15 +68,14 @@ export default async function ProfilePage() {
         <Tile emoji="🏡" value={helped} label="Neighbors helped" />
       </div>
 
-      <InviteButton className="relative mt-6 flex h-[76px] items-center gap-3.5 overflow-hidden rounded-[22px] bg-dark-card px-5 text-left text-white">
+      <InviteButton className="relative mt-6 flex h-[76px] items-center gap-3.5 overflow-hidden rounded-[18px] bg-surface px-5 text-left text-ink shadow-card">
         <span className="text-[32px]" aria-hidden>
           📣
         </span>
         <span className="flex flex-col gap-0.5">
           <span className="text-lg font-bold">Invite your neighbors</span>
-          <span className="text-[13px] text-white/70">More neighbors, a better map for everyone</span>
+          <span className="text-[13px] text-muted">More neighbors, a better map for everyone</span>
         </span>
-        <span className="absolute right-[18px] top-3.5 size-1.5 rounded-full bg-lime" aria-hidden />
       </InviteButton>
 
       <InstallCard className="mt-4" />
@@ -134,8 +128,8 @@ export default async function ProfilePage() {
 
 function Tile({ emoji, value, label }: { emoji: string; value: number; label: string }) {
   return (
-    <div className="relative flex flex-col items-center rounded-[20px] border-2 border-lime px-2 pb-3 pt-7">
-      <span className="absolute -top-[22px] size-11 rounded-[15px] bg-green text-center text-[21px] leading-[44px]" aria-hidden>
+    <div className="relative flex flex-col items-center rounded-[18px] bg-surface shadow-card px-2 pb-3 pt-7">
+      <span className="absolute -top-[22px] size-11 rounded-[15px] bg-neon text-center text-[21px] leading-[44px]" aria-hidden>
         {emoji}
       </span>
       <span className="text-[30px] font-bold leading-none">{value}</span>

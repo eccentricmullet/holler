@@ -25,8 +25,8 @@ export default function ProList(props: {
             key={p.id}
             onMouseEnter={() => props.onHover(p.id)}
             onClick={() => props.onSelect(p.id)}
-            className={`flex cursor-pointer items-center gap-3 rounded-[20px] border-2 p-3 transition-colors ${
-              on ? "border-green bg-green-wash" : "border-transparent hover:bg-field"
+            className={`flex cursor-pointer items-center gap-3 rounded-[18px] border p-3 transition-colors ${
+              on ? "border-neon bg-green-wash" : "border-transparent hover:bg-field"
             }`}
           >
             <ProLogo name={p.name} logoUrl={p.logo_url} color={props.colors[p.id]} size={44} />

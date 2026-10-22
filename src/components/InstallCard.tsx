@@ -60,11 +60,11 @@ export default function InstallCard({ dark = false, className = "" }: { dark?: b
     if (outcome === "accepted") setMode("hidden");
   }
 
-  const box = dark ? "bg-white/15 text-white" : "bg-green-tint text-ink";
-  const sub = dark ? "text-white/80" : "text-muted";
+  const box = dark ? "bg-surface text-ink" : "bg-surface text-ink shadow-card";
+  const sub = "text-muted";
 
   return (
-    <div className={`rounded-[20px] p-4 ${box} ${className}`}>
+    <div className={`rounded-[18px] p-4 ${box} ${className}`}>
       <div className="flex items-center gap-3">
         <span className="text-2xl" aria-hidden>
           📲
@@ -85,7 +85,7 @@ export default function InstallCard({ dark = false, className = "" }: { dark?: b
         </ol>
       ) : (
         <div className="mt-3 flex gap-2">
-          <button type="button" onClick={install} className="h-10 flex-1 rounded-xl bg-green-deep text-sm font-semibold text-white">
+          <button type="button" onClick={install} className="h-10 flex-1 rounded-xl bg-neon text-sm font-semibold text-on-neon">
             {mode === "ios" ? "Show me how" : "Add to home screen"}
           </button>
           <button type="button" onClick={dismiss} className={`h-10 rounded-xl px-3 text-sm font-semibold ${sub}`}>

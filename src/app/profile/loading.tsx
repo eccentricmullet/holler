@@ -8,10 +8,10 @@ export default function LoadingProfile() {
       </div>
       <div className="mt-11 grid grid-cols-3 gap-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-24 animate-pulse rounded-[20px] bg-field" />
+          <div key={i} className="h-24 animate-pulse rounded-[18px] bg-field" />
         ))}
       </div>
-      <div className="mt-6 h-[76px] animate-pulse rounded-[22px] bg-field" />
+      <div className="mt-6 h-[76px] animate-pulse rounded-[18px] bg-field" />
     </main>
   );
 }

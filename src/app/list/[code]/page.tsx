@@ -38,7 +38,7 @@ export default async function SharedListPage({ params }: Params) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
       <span className="mt-6 text-sm font-semibold text-green-deep">{SITE.wordmark}</span>
-      <h1 className="mt-3 text-[34px] font-extrabold leading-[1.1] tracking-[-0.02em]">
+      <h1 className="mt-3 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">
         {data.who}&apos;s {SITE.launchTownShort} pros
       </h1>
       <p className="mt-2 text-base text-muted">The local pros {data.who === "A neighbor" ? "they use" : data.who.split(" ")[0] + " uses"} and trusts.</p>
@@ -49,7 +49,7 @@ export default async function SharedListPage({ params }: Params) {
           <Link
             key={p.id}
             href={`/pro/${p.id}`}
-            className="flex items-center gap-3.5 rounded-[20px] bg-surface p-3.5 shadow-[0_6px_18px_rgba(26,29,36,0.08)]"
+            className="flex items-center gap-3.5 rounded-[18px] bg-surface p-3.5 shadow-card"
           >
             <ProLogo name={p.name} logoUrl={p.logoUrl} size={48} />
             <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
@@ -65,7 +65,7 @@ export default async function SharedListPage({ params }: Params) {
         ))}
       </div>
 
-      <Link href="/" className="mt-auto flex h-[58px] items-center justify-center rounded-[20px] bg-green-deep text-[17px] font-semibold text-white">
+      <Link href="/" className="mt-auto flex h-[54px] items-center justify-center rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon">
         See who else your neighbors use
       </Link>
     </main>
