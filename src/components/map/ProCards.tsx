@@ -5,7 +5,8 @@ import Link from "next/link";
 import ProLogo from "./ProLogo";
 import { whenLabel } from "@/lib/recency";
 import ContactButton from "@/components/pro/ContactButton";
-import type { NearbyPro } from "./types";
+import type { Category, NearbyPro } from "./types";
+import { formatTags } from "@/lib/pro-tags";
 
 const ChevronIcon = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -20,6 +21,7 @@ export default function ProCards(props: {
   latest: Record<string, string>; // pro id -> most recent reaction date
   colors: Record<string, string>; // pro id -> their own pin color
   selectedId: string | null;
+  categories?: Category[]; // for showing each pro's tags
   onSelect: (id: string) => void;
 }) {
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -49,6 +51,9 @@ export default function ProCards(props: {
           >
             <ProLogo name={p.name} logoUrl={p.logo_url} color={props.colors[p.id]} size={on ? 56 : 48} />
             <span className={`relative font-bold leading-[1.15] ${on ? "mt-[18px] text-xl" : "mt-3.5 text-lg"}`}>{p.name}</span>
+            {props.categories && p.tags?.length ? (
+              <span className="relative mt-0.5 line-clamp-2 text-[13px] text-muted">{formatTags(p.tags, props.categories)}</span>
+            ) : null}
             {on && when && <span className="relative mt-0.5 text-[13px] font-medium text-muted">Latest: {when}</span>}
             <span className="relative mt-2 flex items-center gap-3 text-base font-semibold">
               <span>👍 {thumbs}</span>

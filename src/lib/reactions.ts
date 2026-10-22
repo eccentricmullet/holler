@@ -5,6 +5,7 @@ import { assignProColor } from "@/lib/pro-colors";
 import { getBusinessDetails } from "@/lib/places";
 import { cleanSocialUrl } from "@/lib/social";
 import { MAX_CATEGORIES_PER_REACTION } from "@/lib/limits";
+import { addProTags, loadTagInfo, tagNames } from "@/lib/pro-tags";
 
 // Trust rules for reacting. The server action passes in the signed-in user; tests pass in test users.
 export const MAX_REACTIONS_PER_DAY = 15;
@@ -150,33 +151,33 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
   const own = toE164(actor.phone);
   if (own && toE164(pro.phone) === own) return { ok: false, error: SELF_REACT };
 
-  // One reaction per household per pro per category: reacting again switches it (doesn't count as new).
+  // One reaction per home per pro: reacting again switches it (doesn't count as new).
   const { data: existing } = await db
     .from("vouches")
-    .select("category_id")
+    .select("id")
     .eq("household_id", profile.household_id)
     .eq("pro_id", pro.id)
-    .in("category_id", categories.map((c) => c.id));
-  const fresh = categories.filter((c) => !existing?.some((e) => e.category_id === c.id)).length;
+    .maybeSingle();
 
-  if (fresh > 0) {
+  if (!existing) {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count } = await db
       .from("vouches")
       .select("id", { count: "exact", head: true })
       .eq("profile_id", profile.id)
       .gte("created_at", since);
-    if ((count ?? 0) + fresh > MAX_REACTIONS_PER_DAY) {
+    if ((count ?? 0) >= MAX_REACTIONS_PER_DAY) {
       return { ok: false, error: `That's ${MAX_REACTIONS_PER_DAY} reactions today. Come back tomorrow to add more.` };
     }
   }
 
   const { error } = await db.from("vouches").upsert(
-    categories.map((c) => ({
+    {
       household_id: profile.household_id,
       profile_id: profile.id,
       pro_id: pro.id,
-      category_id: c.id,
+      // What this home mainly uses them for; the pro's full list lives in pros.tags
+      category_id: categories[0].id,
       reaction: input.reaction,
       note: note || null,
       tags: cleanTags(input.tags),
@@ -184,29 +185,31 @@ export async function saveReaction(db: SupabaseClient, actor: Actor, input: Reac
       status: "visible",
       // Reactions that came through the pro's own invite link are labeled internally
       ...(actor.inviteProId && actor.inviteProId === pro.id ? { via_invite: true } : {}),
-    })),
-    { onConflict: "household_id,pro_id,category_id" }
+    },
+    { onConflict: "household_id,pro_id" }
   );
   if (error) return { ok: false, error: "Something went wrong saving that. Try again." };
 
-  // New pros get their own pin color once we know their category (11j)
+  // Neighbors can add what else a pro does (never remove)
+  const cats = await loadTagInfo(db);
+  const proTags = (await addProTags(db, pro.id, categories.map((c) => c.slug), cats)) ?? categories.map((c) => c.slug);
+
+  // New pros get their own pin color once we know their tags (11j)
   await assignProColor(db, pro.id);
 
-  // Neighbors are homes: one home that picked lawn + gutters still counts once
-  const { data: homes } = await db
+  const { count: homes } = await db
     .from("vouches")
-    .select("household_id")
+    .select("id", { count: "exact", head: true })
     .eq("pro_id", pro.id)
-    .eq("status", "visible")
-    .limit(5000);
+    .eq("status", "visible");
 
   return {
     ok: true,
     proId: pro.id,
     proName: pro.name,
     categoryName: categories[0].name,
-    categoryNames: categories.map((c) => c.name),
+    categoryNames: tagNames(proTags, cats),
     reaction: input.reaction,
-    neighbors: new Set((homes ?? []).map((h) => h.household_id)).size || 1,
+    neighbors: homes ?? 1,
   };
 }

@@ -297,9 +297,9 @@ function SearchBox({ tab, q, placeholder }: { tab: string; q: string; placeholde
         name="q"
         defaultValue={q}
         placeholder={placeholder}
-        className="h-12 min-w-0 flex-1 rounded-2xl bg-field px-4 text-base outline-none placeholder:text-muted"
+        className="h-12 min-w-0 flex-1 rounded-xl bg-field px-4 text-base outline-none placeholder:text-muted"
       />
-      <button type="submit" className="h-12 rounded-2xl bg-neon px-4 text-sm font-semibold text-on-neon">
+      <button type="submit" className="h-12 rounded-xl bg-neon px-4 text-sm font-semibold text-on-neon">
         Search
       </button>
     </form>

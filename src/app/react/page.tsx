@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { SITE } from "@/config/site";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { suggestCategory } from "./actions";
+import { startingTags } from "./actions";
 import { askForAnswer } from "@/lib/asks";
 import ReactFlow from "./ReactFlow";
 
@@ -42,7 +42,7 @@ export default async function ReactPage({ searchParams }: { searchParams: Promis
       .eq("id", proParam)
       .maybeSingle();
     if (pro && pro.status === "active") {
-      const category = await suggestCategory({ kind: "holler", proId: pro.id }, pro.name);
+      const category = (await startingTags({ kind: "holler", proId: pro.id }, pro.name)).tags[0] ?? null;
       start = { proId: pro.id, name: pro.name, logoUrl: pro.logo_url, category };
     }
   }

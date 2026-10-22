@@ -73,14 +73,16 @@ afterAll(async () => {
   for (const id of userIds) await db.auth.admin.deleteUser(id);
 });
 
-describe("one reaction per household per pro per category", () => {
-  it("the database itself refuses a second reaction from the same home", async () => {
+describe("one reaction per home per pro", () => {
+  it("the database itself refuses a second reaction from the same home, even for another service", async () => {
     const [pro] = await makePros(1, 100);
     const { data: profile } = await db.from("profiles").select("household_id").eq("id", alice.userId).single();
-    const { data: cat } = await db.from("categories").select("id").eq("slug", "lawn").single();
-    const row = { household_id: profile!.household_id, profile_id: alice.userId, pro_id: pro, category_id: cat!.id, reaction: "thumbs_up" };
+    const { data: cats } = await db.from("categories").select("id, slug").in("slug", ["lawn", "pool"]);
+    const lawn = cats!.find((c) => c.slug === "lawn")!.id;
+    const pool = cats!.find((c) => c.slug === "pool")!.id;
+    const row = { household_id: profile!.household_id, profile_id: alice.userId, pro_id: pro, category_id: lawn, reaction: "thumbs_up" };
     expect((await db.from("vouches").insert(row)).error).toBeNull();
-    const dup = await db.from("vouches").insert({ ...row, reaction: "love" });
+    const dup = await db.from("vouches").insert({ ...row, category_id: pool, reaction: "love" });
     expect(dup.error?.code).toBe("23505");
   });
 
@@ -93,7 +95,7 @@ describe("one reaction per household per pro per category", () => {
     expect(data).toEqual([{ reaction: "love" }]);
   });
 
-  it("one reaction can put a pro in several categories, still counted as one neighbor", async () => {
+  it("one reaction tags a pro with several services, still one reaction and one neighbor", async () => {
     const [pro] = await makePros(1, 120);
     const r = await saveReaction(db, alice, {
       pro: { kind: "holler", proId: pro },
@@ -102,10 +104,22 @@ describe("one reaction per household per pro per category", () => {
       reaction: "love",
       note: "",
     });
-    expect(r).toMatchObject({ ok: true, categoryNames: ["Lawn", "Gutter cleaning", "Landscaping"], neighbors: 1 });
-    const { data } = await db.from("vouches").select("categories(slug)").eq("pro_id", pro);
-    const slugs = (data ?? []).map((v) => (v.categories as unknown as { slug: string }).slug).sort();
-    expect(slugs).toEqual(["gutter-cleaning", "landscaping", "lawn"]);
+    expect(r).toMatchObject({ ok: true, categoryNames: ["Lawn", "Gutters", "Landscaping"], neighbors: 1 });
+    const { data: vouches } = await db.from("vouches").select("id").eq("pro_id", pro);
+    expect(vouches).toHaveLength(1);
+    const { data: p } = await db.from("pros").select("tags").eq("id", pro).single();
+    expect(p!.tags).toEqual(["lawn", "gutter-cleaning", "landscaping"]);
+  });
+
+  it("neighbors can add tags but never remove them, and unknown tags are refused", async () => {
+    const [pro] = await makePros(1, 130);
+    await db.from("pros").update({ tags: ["pool", "pest"] }).eq("id", pro);
+    const r = await saveReaction(db, alice, { pro: { kind: "holler", proId: pro }, category: "lawn", reaction: "thumbs_up", note: "" });
+    expect(r.ok).toBe(true);
+    const { data: p } = await db.from("pros").select("tags").eq("id", pro).single();
+    expect(p!.tags).toEqual(["pool", "pest", "lawn"]);
+    const bad = await db.from("pros").update({ tags: ["pool", "not-a-service"] }).eq("id", pro);
+    expect(bad.error).not.toBeNull();
   });
 });
 

@@ -40,7 +40,7 @@ export default function CategorySheet(props: {
         <div className="px-5 pt-3">
           <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-line lg:hidden" aria-hidden />
           <h2 className="mb-3 px-1 text-xl font-bold">What do you need?</h2>
-          <div className="flex h-12 items-center gap-2.5 rounded-2xl bg-field px-4">
+          <div className="flex h-12 items-center gap-2.5 rounded-xl bg-field px-4">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-muted" aria-hidden>
               <circle cx="11" cy="11" r="7" />
               <path d="M20 20l-3.5-3.5" />

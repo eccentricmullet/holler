@@ -13,7 +13,7 @@ import { track } from "@/components/Track";
 import { SITE } from "@/config/site";
 import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
-import { previewBusiness, submitReaction, suggestCategory, type ProChoice, type ReactResult } from "./actions";
+import { previewBusiness, startingTags, submitReaction, type ProChoice, type ReactResult } from "./actions";
 import type { BusinessPreview } from "@/lib/places";
 import { answerAskAction } from "@/app/asks/actions";
 import { cleanSocialUrl, socialKind, SOCIAL_LABEL } from "@/lib/social";
@@ -71,17 +71,31 @@ export default function ReactFlow({
   const [picked, setPicked] = useState<Picked | null>(
     start ? { choice: { kind: "holler", proId: start.proId }, name: start.name, logoUrl: start.logoUrl } : null
   );
-  // Everything they do for you (lawn + gutters + landscaping); the first pick leads
+  // The pro's service tags (lawn + gutters + landscaping); the first one leads.
+  // Tags a pro already has are locked: neighbors can add more, not remove.
   const [cats, setCats] = useState<string[]>(() => {
     const first = start?.category ?? presetCategory;
     return first ? [first] : [];
   });
+  const [locked, setLocked] = useState<string[]>([]);
   const category = cats[0] ?? null;
   const setCategory = (slug: string | null) => setCats(slug ? [slug] : []);
   const toggleCategory = (slug: string) =>
     setCats((cur) =>
-      cur.includes(slug) ? cur.filter((x) => x !== slug) : [...cur, slug].slice(0, MAX_CATEGORIES_PER_REACTION)
+      locked.includes(slug)
+        ? cur
+        : cur.includes(slug)
+          ? cur.filter((x) => x !== slug)
+          : [...cur, slug].slice(0, MAX_CATEGORIES_PER_REACTION)
     );
+  // Coming straight to a pro on Holler (from its page): load its tags
+  useEffect(() => {
+    if (!start) return;
+    startingTags({ kind: "holler", proId: start.proId }, start.name).then((t) => {
+      setLocked(t.locked);
+      if (t.tags.length) setCats((cur) => [...new Set([...t.tags, ...cur])]);
+    });
+  }, [start]);
   const [reaction, setReaction] = useState<"thumbs_up" | "love">("thumbs_up");
   const [note, setNote] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -139,6 +153,7 @@ export default function ReactFlow({
     setTags([]);
     setPrice(null);
     setCategory(null);
+    setLocked([]);
     setPreview(null);
     setStep("confirm");
     if (p.choice.kind === "google") {
@@ -149,13 +164,15 @@ export default function ReactFlow({
       setPreview(r.preview);
       setCategory(presetCategory ?? r.suggestedCategory);
     } else {
-      setCategory(presetCategory ?? (await suggestCategory(p.choice, p.name)));
+      const t = await startingTags(p.choice, p.name);
+      setLocked(t.locked);
+      setCats([...new Set([...t.tags, ...(presetCategory ? [presetCategory] : [])])]);
     }
   }
 
   async function submit() {
     if (!picked) return;
-    if (!category) return setError("Pick what they do for you.");
+    if (!category) return setError("Pick at least one thing they do.");
     setBusy(true);
     setError(null);
     const input = { pro: picked.choice, category, reaction, note, tags, price };
@@ -415,18 +432,20 @@ export default function ReactFlow({
         ) : (
         <div className="mt-5">
           <span className="text-[15px] font-semibold">
-            They do my <span className="font-normal text-muted">pick all that apply</span>
+            {locked.length ? "What they do" : "What do they do?"}{" "}
+            <span className="font-normal text-muted">{locked.length ? "tap to add more" : "pick all that apply"}</span>
           </span>
           <div className="no-scrollbar -mx-6 mt-2 flex gap-2 overflow-x-auto px-6">
-            {categories.map((c) => (
+            {[...categories].sort((a, b) => Number(locked.includes(b.slug)) - Number(locked.includes(a.slug))).map((c) => (
               <button
                 key={c.slug}
                 data-cat={c.slug}
                 type="button"
                 aria-pressed={cats.includes(c.slug)}
+                aria-disabled={locked.includes(c.slug) || undefined}
                 onClick={() => toggleCategory(c.slug)}
                 className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold ${
-                  cats.includes(c.slug) ? "border-neon bg-green-wash" : "border-line bg-surface"
+                  cats.includes(c.slug) ? "border-neon bg-neon text-on-neon" : "border-line bg-surface"
                 }`}
               >
                 <span aria-hidden>{c.icon}</span>
@@ -714,7 +733,7 @@ export default function ReactFlow({
               <span className="truncate text-[17px] font-bold">{r.name}</span>
               <span className="truncate text-sm text-muted">
                 {r.kind === "holler"
-                  ? [r.thumbs && `👍 ${r.thumbs}`, r.love && `❤️ ${r.love}`].filter(Boolean).join(" · ") || `On ${SITE.name}`
+                  ? [r.tagLine, r.thumbs && `👍 ${r.thumbs}`, r.love && `❤️ ${r.love}`].filter(Boolean).join(" · ") || `On ${SITE.name}`
                   : [`New to ${SITE.name}`, r.area].filter(Boolean).join(" · ")}
               </span>
             </span>

@@ -21,20 +21,16 @@ export async function submitReaction(input: ReactInput): Promise<ReactResult> {
   return saveReaction(db, { userId: user.id, phone: user.phone, inviteProId: invitedBy }, input);
 }
 
-// Category to preselect for a pro: their most common one, else a guess from the name.
-export async function suggestCategory(choice: ProChoice, name: string): Promise<string | null> {
+// Tags to start with: a pro already on Holler keeps its tags (neighbors can add, not remove);
+// a new pro gets a guess from its name.
+export async function startingTags(choice: ProChoice, name: string): Promise<{ tags: string[]; locked: string[] }> {
   if (choice.kind === "holler") {
-    const db = createAdminClient();
-    const { data } = await db.from("vouches").select("categories(slug)").eq("pro_id", choice.proId).limit(200);
-    const tally = new Map<string, number>();
-    for (const v of data ?? []) {
-      const slug = (v.categories as unknown as { slug: string } | null)?.slug;
-      if (slug) tally.set(slug, (tally.get(slug) ?? 0) + 1);
-    }
-    const top = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-    if (top) return top;
+    const { data } = await createAdminClient().from("pros").select("tags").eq("id", choice.proId).maybeSingle();
+    const tags = (data?.tags ?? []) as string[];
+    if (tags.length) return { tags, locked: tags };
   }
-  return guessCategory(name);
+  const guess = guessCategory(name);
+  return { tags: guess ? [guess] : [], locked: [] };
 }
 
 export type PreviewResult =

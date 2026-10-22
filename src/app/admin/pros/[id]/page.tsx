@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: `Edit pro · ${SITE.name}`, robots: {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const card = "rounded-[18px] bg-surface p-4 shadow-card";
-const input = "h-12 rounded-2xl border border-line bg-surface px-4 text-base outline-none";
+const input = "h-12 rounded-xl border border-line bg-surface px-4 text-base outline-none";
 
 export default async function AdminProPage({
   params,
@@ -27,7 +27,7 @@ export default async function AdminProPage({
 
   const { data: pro } = await db
     .from("pros")
-    .select("id, name, phone, website, social_url, status, merged_into_id, google_place_id, vouches(reaction, status, via_invite), flags(status)")
+    .select("id, name, phone, website, social_url, tags, status, merged_into_id, google_place_id, vouches(reaction, status, via_invite), flags(status)")
     .eq("id", id)
     .maybeSingle();
   if (!pro) notFound();
@@ -35,6 +35,7 @@ export default async function AdminProPage({
   const viaInvite = vouches.filter((v) => v.via_invite).length;
   const { data: invite } = await db.from("invites").select("code, uses").eq("pro_id", id).limit(1).maybeSingle();
   const openFlags = ((pro.flags ?? []) as { status: string }[]).filter((f) => f.status === "open").length;
+  const { data: cats } = await db.from("categories").select("slug, name, icon").order("sort_order");
 
   const { data: candidates } = mq
     ? await db
@@ -71,7 +72,7 @@ export default async function AdminProPage({
       )}
       {error && (
         <p className="rounded-xl bg-love-tint p-3 text-sm font-semibold text-love">
-          {error === "check" ? "Check the name, phone number and Instagram or Facebook link." : error}
+          {error === "check" ? "Check the name, phone number and Instagram or Facebook link." : error === "tags" ? "Pick at least one thing they do." : error}
         </p>
       )}
       {pro.merged_into_id && (
@@ -102,7 +103,24 @@ export default async function AdminProPage({
           Instagram or Facebook
         </label>
         <input id="social" name="social" placeholder="@name or facebook.com/page" defaultValue={pro.social_url ?? ""} className={input} />
-        <button type="submit" className="mt-3 h-12 rounded-2xl bg-neon text-[15px] font-semibold text-on-neon">
+        <fieldset className="mt-2">
+          <legend className="text-sm font-semibold">
+            What they do <span className="font-normal text-muted">first one is their main service</span>
+          </legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(cats ?? []).map((c) => (
+              <label
+                key={c.slug}
+                className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-sm font-semibold has-checked:border-neon has-checked:bg-neon has-checked:text-on-neon"
+              >
+                <input type="checkbox" name="tags" value={c.slug} defaultChecked={((pro.tags ?? []) as string[]).includes(c.slug)} className="sr-only" />
+                <span aria-hidden>{c.icon}</span>
+                {c.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <button type="submit" className="mt-3 h-12 rounded-xl bg-neon text-[15px] font-semibold text-on-neon">
           Save
         </button>
       </form>
@@ -154,7 +172,7 @@ export default async function AdminProPage({
           </p>
           <form className="mt-3 flex gap-2" action={`/admin/pros/${pro.id}`}>
             <input name="mq" defaultValue={mq} placeholder="Search the pro to keep" className={`${input} min-w-0 flex-1`} />
-            <button type="submit" className="h-12 rounded-2xl bg-field px-4 text-sm font-semibold">
+            <button type="submit" className="h-12 rounded-xl bg-field px-4 text-sm font-semibold">
               Search
             </button>
           </form>

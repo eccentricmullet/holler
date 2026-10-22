@@ -4,7 +4,8 @@ import Link from "next/link";
 import ProLogo from "./ProLogo";
 import { whenLabel } from "@/lib/recency";
 import ContactButton from "@/components/pro/ContactButton";
-import type { NearbyPro } from "./types";
+import type { Category, NearbyPro } from "./types";
+import { formatTags } from "@/lib/pro-tags";
 
 // Laptop sidebar list. Hovering a pro highlights their logos on the map.
 export default function ProList(props: {
@@ -13,6 +14,7 @@ export default function ProList(props: {
   latest: Record<string, string>; // pro id -> most recent reaction date
   colors: Record<string, string>; // pro id -> their own pin color
   selectedId: string | null;
+  categories?: Category[]; // for showing each pro's tags
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
 }) {
@@ -32,6 +34,7 @@ export default function ProList(props: {
             <ProLogo name={p.name} logoUrl={p.logo_url} color={props.colors[p.id]} size={44} />
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-base font-bold">{p.name}</span>
+              {props.categories && p.tags?.length ? <span className="truncate text-[13px] text-muted">{formatTags(p.tags, props.categories)}</span> : null}
               <span className="flex items-center gap-2.5 text-sm font-semibold">
                 <span>👍 {p.thumbs_total}</span>
                 <span>❤️ {p.love_total}</span>

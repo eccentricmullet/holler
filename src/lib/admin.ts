@@ -10,7 +10,7 @@ export async function mergePros(db: SupabaseClient, sourceId: string, targetId: 
   if (sourceId === targetId) return { ok: false, error: "Pick two different pros." };
   const { data: pros } = await db
     .from("pros")
-    .select("id, name, phone, website, social_url, logo_url, google_place_id, merged_into_id")
+    .select("id, name, phone, website, social_url, logo_url, google_place_id, merged_into_id, tags")
     .in("id", [sourceId, targetId]);
   const source = pros?.find((p) => p.id === sourceId);
   const target = pros?.find((p) => p.id === targetId);
@@ -18,12 +18,13 @@ export async function mergePros(db: SupabaseClient, sourceId: string, targetId: 
   if (target.merged_into_id) return { ok: false, error: "The pro to keep was already merged into another one." };
 
   const [{ data: sourceVouches }, { data: targetVouches }] = await Promise.all([
-    db.from("vouches").select("id, household_id, category_id").eq("pro_id", sourceId),
-    db.from("vouches").select("household_id, category_id").eq("pro_id", targetId),
+    db.from("vouches").select("id, household_id").eq("pro_id", sourceId),
+    db.from("vouches").select("household_id").eq("pro_id", targetId),
   ]);
-  const taken = new Set((targetVouches ?? []).map((v) => `${v.household_id}:${v.category_id}`));
-  const clash = (sourceVouches ?? []).filter((v) => taken.has(`${v.household_id}:${v.category_id}`)).map((v) => v.id);
-  const move = (sourceVouches ?? []).filter((v) => !taken.has(`${v.household_id}:${v.category_id}`)).map((v) => v.id);
+  // One reaction per home per pro: if a home reacted to both, the kept pro's reaction wins
+  const taken = new Set((targetVouches ?? []).map((v) => v.household_id));
+  const clash = (sourceVouches ?? []).filter((v) => taken.has(v.household_id)).map((v) => v.id);
+  const move = (sourceVouches ?? []).filter((v) => !taken.has(v.household_id)).map((v) => v.id);
 
   if (clash.length) await db.from("vouches").delete().in("id", clash);
   if (move.length) {
@@ -35,7 +36,9 @@ export async function mergePros(db: SupabaseClient, sourceId: string, targetId: 
   await db.from("pros").update({ merged_into_id: targetId }).eq("merged_into_id", sourceId);
 
   // Keep the best details: fill gaps on the kept pro from the duplicate
-  const fill: Record<string, string> = {};
+  const fill: Record<string, string | string[]> = {};
+  const tags = [...new Set([...((target.tags ?? []) as string[]), ...((source.tags ?? []) as string[])])];
+  if (tags.length !== (target.tags ?? []).length) fill.tags = tags;
   if (!target.phone && source.phone) fill.phone = source.phone;
   if (!target.website && source.website) fill.website = source.website;
   if (!target.social_url && source.social_url) fill.social_url = source.social_url;

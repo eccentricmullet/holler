@@ -16,24 +16,17 @@ export const PRO_COLORS = [
   "#8D5524", // brown
 ] as const;
 
-// Picks a color no other pro in the same categories is using (or the least-used one).
+// Picks a color no other pro sharing a tag is using (or the least-used one).
 export async function assignProColor(db: SupabaseClient, proId: string): Promise<string | null> {
-  const { data: pro } = await db.from("pros").select("id, color").eq("id", proId).maybeSingle();
+  const { data: pro } = await db.from("pros").select("id, color, tags").eq("id", proId).maybeSingle();
   if (!pro) return null;
   if (pro.color) return pro.color;
 
-  const { data: mine } = await db.from("vouches").select("category_id").eq("pro_id", proId);
-  const categories = [...new Set((mine ?? []).map((v) => v.category_id))];
-
-  // Pros sharing any of those categories, and the colors they already have
-  let rivals: string[] = [];
-  if (categories.length) {
-    const { data } = await db.from("vouches").select("pro_id").in("category_id", categories).neq("pro_id", proId).limit(5000);
-    rivals = [...new Set((data ?? []).map((v) => v.pro_id))];
-  }
+  // Pros sharing any of this pro's tags, and the colors they already have
   const used = new Map<string, number>();
-  if (rivals.length) {
-    const { data } = await db.from("pros").select("color").in("id", rivals).not("color", "is", null);
+  const tags = (pro.tags ?? []) as string[];
+  if (tags.length) {
+    const { data } = await db.from("pros").select("color").overlaps("tags", tags).neq("id", proId).not("color", "is", null).limit(5000);
     for (const r of data ?? []) used.set(r.color, (used.get(r.color) ?? 0) + 1);
   }
 

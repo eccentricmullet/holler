@@ -2,9 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { autocompleteBusiness } from "@/lib/places";
+import { formatTags, loadTagInfo } from "@/lib/pro-tags";
 
 export type SearchResult =
-  | { kind: "holler"; proId: string; name: string; thumbs: number; love: number; logoUrl: string | null }
+  | { kind: "holler"; proId: string; name: string; thumbs: number; love: number; logoUrl: string | null; tagLine?: string }
   | { kind: "google"; placeId: string; name: string; area: string };
 
 // Find a business to react to: pros already on Holler first, then new ones from Google.
@@ -22,27 +23,31 @@ export async function GET(request: NextRequest) {
 
   const db = createAdminClient();
   const pattern = `%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`;
-  const [{ data: pros }, google] = await Promise.all([
-    db
-      .from("pros")
-      .select("id, name, logo_url, google_place_id, vouches(reaction, status)")
-      .eq("status", "active")
-      .is("merged_into_id", null)
-      .ilike("name", pattern)
-      .limit(5),
+  // "gutters" also finds pros tagged Gutters (a pro matches on any of its tags)
+  const cats = await loadTagInfo(db);
+  const typed = q.toLowerCase();
+  const tagHits = cats.filter((c) => c.name.toLowerCase().includes(typed)).map((c) => c.slug);
+  const fields = "id, name, logo_url, google_place_id, tags, vouches(reaction, status)";
+  const [{ data: byName }, { data: byTag }, google] = await Promise.all([
+    db.from("pros").select(fields).eq("status", "active").is("merged_into_id", null).ilike("name", pattern).limit(5),
+    tagHits.length
+      ? db.from("pros").select(fields).eq("status", "active").is("merged_into_id", null).overlaps("tags", tagHits).limit(5)
+      : Promise.resolve({ data: [] as never[] }),
     autocompleteBusiness(q, session).catch((e) => {
       console.error(e instanceof Error ? e.message : "Places business error");
       return [];
     }),
   ]);
+  const pros = [...(byName ?? []), ...(byTag ?? []).filter((t) => !byName?.some((n) => n.id === t.id))];
 
-  const holler: SearchResult[] = (pros ?? []).map((p) => {
+  const holler: SearchResult[] = pros.map((p) => {
     const visible = ((p.vouches ?? []) as { reaction: string; status: string }[]).filter((v) => v.status === "visible");
     return {
       kind: "holler",
       proId: p.id,
       name: p.name,
       logoUrl: p.logo_url,
+      tagLine: formatTags(p.tags, cats),
       thumbs: visible.filter((v) => v.reaction === "thumbs_up").length,
       love: visible.filter((v) => v.reaction === "love").length,
     };

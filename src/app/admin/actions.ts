@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { hideUserReactions, mergePros, setBanned } from "@/lib/admin";
 import { toE164 } from "@/lib/reactions";
 import { cleanSocialUrl } from "@/lib/social";
+import { loadTagInfo, mergeTags } from "@/lib/pro-tags";
 import { getOrCreateInvite } from "@/lib/invites";
 
 // Every admin action checks, on the server, that the signed-in user is an admin.
@@ -45,10 +46,16 @@ export async function updatePro(form: FormData) {
   const phone = phoneRaw ? toE164(phoneRaw) : null;
   const socialRaw = str(form, "social");
   const social = socialRaw ? cleanSocialUrl(socialRaw) : null;
+  // Service tags: keep the current order for ones still checked, new ones on the end
+  const picked = form.getAll("tags").map(String);
+  const { data: before } = await db.from("pros").select("tags").eq("id", id).maybeSingle();
+  const current = ((before?.tags ?? []) as string[]).filter((t) => picked.includes(t));
+  const tags = mergeTags(current, picked, await loadTagInfo(db));
   if (name.length < 2 || (phoneRaw && !phone) || (socialRaw && !social)) redirect(`/admin/pros/${id}?error=check`);
+  if (!tags.length) redirect(`/admin/pros/${id}?error=tags`);
   await db
     .from("pros")
-    .update({ name, phone, website: website || null, social_url: social })
+    .update({ name, phone, website: website || null, social_url: social, tags })
     .eq("id", id);
   revalidatePath(`/admin/pros/${id}`);
   redirect(`/admin/pros/${id}?saved=1`);

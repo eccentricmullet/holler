@@ -5,6 +5,7 @@ import type { createClient } from "@/lib/supabase/server";
 import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
 import { TAGS } from "@/lib/tags";
 import { whenLabel } from "@/lib/recency";
+import { formatTags, loadTagInfo, type TagInfo } from "@/lib/pro-tags";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -25,7 +26,8 @@ export type ProPage = {
   logoUrl: string | null;
   color: string | null; // own pin color (11j)
   categoryName: string | null;
-  categoryNames: string[]; // everything neighbors use them for, most-used first
+  categoryNames: string[]; // the pro's service tags, main one first
+  tagLine: string; // "🌿 Lawn · 🌳 Landscaping · 🪜 Gutters"
   categorySlug: string | null;
   thumbs: number;
   love: number;
@@ -58,7 +60,7 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
 
   const { data: pro } = await db
     .from("pros")
-    .select("id, name, phone, website, social_url, logo_url, color, status, merged_into_id")
+    .select("id, name, phone, website, social_url, logo_url, color, status, merged_into_id, tags")
     .eq("id", id)
     .maybeSingle();
   if (!pro) return { kind: "missing" };
@@ -76,16 +78,10 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
     .limit(2000);
   const rows = ((data ?? []) as unknown as VouchRow[]).filter((r) => r.profiles && !r.profiles.banned);
 
-  // The category most neighbors use this pro for
-  const tally = new Map<string, { slug: string; name: string; n: number }>();
-  for (const r of rows) {
-    if (!r.categories) continue;
-    const t = tally.get(r.categories.slug) ?? { ...r.categories, n: 0 };
-    t.n++;
-    tally.set(t.slug, t);
-  }
-  const ranked = [...tally.values()].sort((a, b) => b.n - a.n);
-  const top = ranked[0] ?? null;
+  // The pro's own service tags, main one first (redesign phase 2)
+  const cats = await loadTagInfo(db);
+  const proTags = ((pro.tags ?? []) as string[]).map((t) => cats.find((c) => c.slug === t)).filter((c): c is TagInfo => !!c);
+  const top = proTags[0] ?? null;
 
   // A home that picked lawn + gutters + landscaping is one neighbor: keep its newest reaction
   const seen = new Set<string>();
@@ -134,7 +130,8 @@ export const getProPage = cache(async (id: string, near: { lat: number; lng: num
       logoUrl: pro.logo_url,
       color: pro.color ?? null,
       categoryName: top?.name ?? null,
-      categoryNames: ranked.map((c) => c.name),
+      categoryNames: proTags.map((c) => c.name),
+      tagLine: formatTags(pro.tags, cats, 6),
       categorySlug: top?.slug ?? null,
       thumbs: people.filter((r) => r.reaction === "thumbs_up").length,
       love: people.filter((r) => r.reaction === "love").length,

@@ -40,7 +40,7 @@ export default function ProView({
           </span>
         </div>
         <h1 className="mt-3 text-[28px] font-bold leading-tight tracking-[-0.02em]">{pro.name}</h1>
-        <span className="mt-1 text-[15px] text-muted">{[...pro.categoryNames.slice(0, 3), SITE.launchTownShort].filter(Boolean).join(" · ")}</span>
+        <span className="mt-1 text-[15px] text-muted">{pro.tagLine || SITE.launchTownShort}</span>
 
         <div className="mt-[30px] grid grid-cols-3 gap-3">
           <Tile emoji="👍" tint="bg-green-tint" value={pro.thumbs} label="Thumbs up" />

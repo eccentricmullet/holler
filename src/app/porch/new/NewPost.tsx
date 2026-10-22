@@ -188,7 +188,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
                 onChange={(e) => setProQuery(e.target.value)}
                 placeholder="Tag the pro (optional)"
                 aria-label="Tag the pro"
-                className="h-12 w-full rounded-2xl bg-field px-4 text-base outline-none placeholder:text-muted"
+                className="h-12 w-full rounded-xl bg-field px-4 text-base outline-none placeholder:text-muted"
               />
               {proResults.slice(0, 4).map((r) => (
                 <button
@@ -242,7 +242,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="mt-3 flex h-12 items-center justify-center gap-2 rounded-2xl border border-dashed border-line bg-surface text-[15px] font-semibold text-green-deep"
+          className="mt-3 flex h-12 items-center justify-center gap-2 rounded-xl border border-dashed border-line bg-surface text-[15px] font-semibold text-green-deep"
         >
           📷 Add a photo <span className="font-normal text-muted">optional</span>
         </button>

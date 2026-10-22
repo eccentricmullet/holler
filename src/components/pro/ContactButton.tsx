@@ -46,7 +46,7 @@ export default function ContactButton({
 
   const sizes = {
     lg: "h-14 gap-2 rounded-[18px] text-[17px]",
-    md: "h-12 gap-1.5 rounded-2xl text-[15px]",
+    md: "h-11 gap-1.5 rounded-xl text-[15px]",
     icon: "size-10 rounded-xl",
   };
   const shortName = proName.split(" ")[0];
@@ -105,7 +105,7 @@ export default function ContactButton({
               track("tapped_call", { pro_id: proId, from });
               setOpen(false);
             }}
-            className="flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
+            className="flex h-12 items-center gap-3 rounded-xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
           >
             <span className="flex size-8 items-center justify-center rounded-xl bg-green-tint text-green-deep">
               <PhoneIcon />
@@ -119,7 +119,7 @@ export default function ContactButton({
               track("tapped_text", { pro_id: proId, from });
               setOpen(false);
             }}
-            className="flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
+            className="flex h-12 items-center gap-3 rounded-xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
           >
             <span className="flex size-8 items-center justify-center rounded-xl bg-green-tint text-green-deep">
               <TextIcon />
@@ -136,7 +136,7 @@ export default function ContactButton({
                 track("tapped_social", { pro_id: proId, from, network: kind });
                 setOpen(false);
               }}
-              className="flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
+              className="flex h-12 items-center gap-3 rounded-xl px-3.5 text-[16px] font-semibold text-ink hover:bg-field"
             >
               <span className="flex size-8 items-center justify-center rounded-xl bg-green-tint text-green-deep">
                 <SocialIcon kind={kind} />
@@ -147,7 +147,7 @@ export default function ContactButton({
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="mt-1 h-12 rounded-2xl bg-field text-[15px] font-semibold text-ink"
+            className="mt-1 h-12 rounded-xl bg-field text-[15px] font-semibold text-ink"
           >
             Cancel
           </button>

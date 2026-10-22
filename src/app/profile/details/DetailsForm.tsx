@@ -111,7 +111,7 @@ export default function DetailsForm({ initial }: { initial: Details }) {
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           autoComplete="off"
-          className="h-12 w-full rounded-2xl bg-field px-4 text-base outline-none"
+          className="h-12 w-full rounded-xl bg-field px-4 text-base outline-none"
         />
         {deleteError && (
           <p role="alert" className="mt-3 text-sm font-medium text-love">
@@ -128,7 +128,7 @@ export default function DetailsForm({ initial }: { initial: Details }) {
               if (r?.error) setDeleteError(r.error);
             });
           }}
-          className="mt-4 h-12 w-full rounded-2xl bg-love text-[15px] font-semibold text-white disabled:opacity-40"
+          className="mt-4 h-12 w-full rounded-xl bg-love text-[15px] font-semibold text-white disabled:opacity-40"
         >
           Delete my account and reactions
         </button>

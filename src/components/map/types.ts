@@ -8,6 +8,7 @@ export type NearbyPro = {
   social_url?: string | null; // Instagram/Facebook when there is no phone
   logo_url: string | null;
   category_slug: string;
+  tags?: string[]; // the pro's service tags, main one first
   thumbs_near: number;
   love_near: number;
   customers_near: number;

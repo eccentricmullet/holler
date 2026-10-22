@@ -11,7 +11,7 @@ const TABS = [
   { href: "/porch", label: "Porch", icon: <path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6" /> },
   { href: "/curb", label: "Curb", icon: <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01" /> },
   null, // the + button
-  { href: "/", label: "Map", icon: <path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" /> },
+  { href: "/", label: "Map", icon: <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" /> },
   { href: "/profile", label: "Me", icon: <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-6 8-6s8 2 8 6" /> },
 ] as const;
 
@@ -48,7 +48,7 @@ export default function TabBar() {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:inset-x-auto lg:bottom-5 lg:left-1/2 lg:w-[440px] lg:-translate-x-1/2 lg:rounded-[22px] lg:border lg:pb-0 lg:shadow-float"
       >
-        <ul className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
+        <ul className="mx-auto flex h-16 max-w-md items-start justify-around px-2 pt-2">
           {TABS.map((t) =>
             t === null ? (
               <li key="plus">
@@ -57,7 +57,7 @@ export default function TabBar() {
                   aria-label="Create"
                   aria-expanded={open}
                   onClick={() => setOpen(true)}
-                  className="-mt-5 flex size-14 items-center justify-center rounded-full bg-neon text-on-neon shadow-control ring-4 ring-surface"
+                  className="-mt-4 flex size-[54px] items-center justify-center rounded-full bg-neon text-on-neon shadow-[0_4px_14px_rgba(53,224,123,0.45)]"
                 >
                   <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
                     <path d="M12 5v14M5 12h14" />
@@ -69,12 +69,12 @@ export default function TabBar() {
                 <Link
                   href={t.href === "/profile" && !signedIn ? "/signup?next=/profile" : t.href}
                   aria-current={pathname === t.href ? "page" : undefined}
-                  className="flex min-h-11 w-16 flex-col items-center gap-0.5"
+                  className="flex min-h-11 w-16 flex-col items-center gap-[3px]"
                 >
                   <span
-                    className={`relative flex h-8 w-14 items-center justify-center rounded-full ${pathname === t.href ? "bg-neon text-on-neon" : "text-muted"}`}
+                    className={`relative flex h-[30px] w-[52px] items-center justify-center rounded-full ${pathname === t.href ? "bg-neon text-on-neon" : "text-muted"}`}
                   >
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth={pathname === t.href ? 2 : 1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       {t.icon}
                     </svg>
                     {t.href === "/porch" && porchCount > 0 && pathname !== "/porch" && (
@@ -83,7 +83,7 @@ export default function TabBar() {
                       </span>
                     )}
                   </span>
-                  <span className={`text-[12px] leading-none ${pathname === t.href ? "font-bold text-ink" : "font-medium text-muted"}`}>{t.label}</span>
+                  <span className={`text-[11px] leading-none ${pathname === t.href ? "font-bold text-ink" : "font-medium text-muted"}`}>{t.label}</span>
                 </Link>
               </li>
             )

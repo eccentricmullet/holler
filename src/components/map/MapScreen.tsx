@@ -142,12 +142,12 @@ export default function MapScreen(props: Props) {
       </p>
       {!error && (
         <div className="mt-4 flex gap-2">
-          <Link href={reactHref} className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-neon text-[15px] font-semibold text-on-neon">
+          <Link href={reactHref} className="flex h-11 flex-1 items-center justify-center rounded-xl bg-neon text-[15px] font-semibold text-on-neon">
             Know a good one?
           </Link>
           <Link
             href={signedIn ? `/asks/new?category=${category}` : `/signup?next=${encodeURIComponent(`/asks/new?category=${category}`)}`}
-            className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-green-tint text-[15px] font-semibold text-green-deep"
+            className="flex h-11 flex-1 items-center justify-center rounded-xl bg-green-tint text-[15px] font-semibold text-green-deep"
           >
             Ask your neighbors
           </Link>
@@ -238,7 +238,7 @@ export default function MapScreen(props: Props) {
           ) : pros.length === 0 ? (
             <div className="px-1">{emptyState}</div>
           ) : (
-            <ProList pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
+            <ProList categories={categories} pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} onHover={setHoverId} />
           )}
         </div>
         {unlockCard && <div className="p-3">{unlockCard}</div>}
@@ -287,7 +287,7 @@ export default function MapScreen(props: Props) {
         ) : pros.length === 0 ? (
           <div className="mx-5 mb-4">{emptyState}</div>
         ) : (
-          <ProCards pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} />
+          <ProCards categories={categories} pros={pros} pinCounts={pinCounts} latest={latest} colors={colors} selectedId={selectedId} onSelect={setSelectedId} />
         )}
       </div>
 
