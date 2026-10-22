@@ -33,7 +33,7 @@
 
 :root {
   /* Height of the bottom tab bar on phones (screens leave this much room at the bottom) */
-  --tabbar: calc(64px + env(safe-area-inset-bottom));
+  --tabbar: calc(64px + max(16px, env(safe-area-inset-bottom)));
 }
 @media (min-width: 1024px) {
   :root {

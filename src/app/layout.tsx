@@ -29,6 +29,8 @@ export const viewport: Viewport = {
   themeColor: "#f6f7f4",
   width: "device-width",
   initialScale: 1,
+  // Lets the tab bar know how tall the iPhone home bar is, so it sits above it
+  viewportFit: "cover",
 };
 
 // `panel` shows a pro page beside the map when opened from inside the app.

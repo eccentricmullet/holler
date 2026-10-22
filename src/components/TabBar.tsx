@@ -46,7 +46,7 @@ export default function TabBar() {
     <>
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:inset-x-auto lg:bottom-5 lg:left-1/2 lg:w-[440px] lg:-translate-x-1/2 lg:rounded-[22px] lg:border lg:pb-0 lg:shadow-float"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[max(16px,env(safe-area-inset-bottom))] lg:inset-x-auto lg:bottom-5 lg:left-1/2 lg:w-[440px] lg:-translate-x-1/2 lg:rounded-[22px] lg:border lg:pb-0 lg:shadow-float"
       >
         <ul className="mx-auto flex h-16 max-w-md items-start justify-around px-2 pt-2">
           {TABS.map((t) =>
