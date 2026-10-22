@@ -1,6 +1,6 @@
 // Details the privacy policy and terms need.
 export const LEGAL = {
-  lastUpdated: "October 20, 2026",
+  lastUpdated: "October 22, 2026",
   // Where people write about privacy, deletion or the terms
   contactEmail: "hollerneighbors@gmail.com",
   // Who runs the app. Switch to the company name once it's approved.

@@ -25,6 +25,9 @@ export async function createPostAction(form: FormData): Promise<{ ok: true } | {
     topic: (form.get("topic") as string) || null,
     happensOn: (form.get("happensOn") as string) || null,
     proId: (form.get("proId") as string) || null,
+    startsAt: (form.get("startsAt") as string) || null,
+    endsAt: (form.get("endsAt") as string) || null,
+    address: (form.get("address") as string) || null,
     photo: file ? { bytes: await file.arrayBuffer(), type: file.type } : null,
   });
   revalidatePath("/porch");
@@ -70,7 +73,6 @@ export async function setReachAction(miles: number) {
   const uid = await userId();
   if (!uid || !isReach(miles)) return { ok: false };
   const { error } = await createAdminClient().from("profiles").update({ reach_miles: miles }).eq("id", uid);
-  revalidatePath("/porch");
-  revalidatePath("/asks");
+  revalidatePath("/profile/alerts");
   return { ok: !error };
 }

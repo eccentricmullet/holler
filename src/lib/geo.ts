@@ -26,3 +26,14 @@ export function metersBetween(a: { lat: number; lng: number }, b: { lat: number;
 }
 
 export const ONE_MILE_M = 1609;
+
+// "<1 mi", "3 mi" (from fuzzed block locations, so never exact)
+export function milesLabel(meters: number) {
+  const miles = meters / 1609.34;
+  return miles < 1 ? "<1 mi" : `${Math.round(miles)} mi`;
+}
+
+// Where a neighbor is from: their neighborhood if Google knows it, else their city
+export function hoodLabel(home: { neighborhood?: string | null; city?: string | null } | null | undefined) {
+  return home?.neighborhood || home?.city || null;
+}

@@ -7,7 +7,7 @@ import { answerRecipients, newAskRecipients } from "@/lib/alerts";
 import { sendAlert } from "@/lib/push";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { answerAsk, closeAsk, createAsk } from "@/lib/asks";
+import { answerAsk, closeAsk, closeAskWithPro, createAsk, type NewAskInput } from "@/lib/asks";
 import { INVITE_COOKIE, inviteProId } from "@/lib/invites";
 import type { ProChoice } from "@/lib/reactions";
 
@@ -19,12 +19,13 @@ async function me() {
   return user;
 }
 
-export async function createAskAction(categorySlug: string) {
+export async function createAskAction(input: NewAskInput) {
   const user = await me();
   if (!user) return { ok: false as const, error: "Please sign in first." };
   const db = createAdminClient();
-  const r = await createAsk(db, user.id, categorySlug);
+  const r = await createAsk(db, user.id, input);
   revalidatePath("/asks");
+  revalidatePath("/porch");
   // Opt-in alert to neighbors whose reach covers the asker (after the screen has answered)
   if (r.ok) {
     const askId = r.askId;
@@ -56,9 +57,20 @@ export async function answerAskAction(
   return r;
 }
 
+// "Found someone": after reacting to the pro they went with, close the request with that pro
+export async function foundSomeoneAction(askId: string, proId: string | null) {
+  const user = await me();
+  if (!user) return { ok: false as const };
+  const r = await closeAskWithPro(createAdminClient(), user.id, askId, proId);
+  revalidatePath("/porch");
+  revalidatePath("/asks");
+  return r;
+}
+
 export async function closeAskAction(askId: string) {
   const user = await me();
   if (!user) return;
   await closeAsk(createAdminClient(), user.id, askId);
   revalidatePath("/asks");
+  revalidatePath("/porch");
 }

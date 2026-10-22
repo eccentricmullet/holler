@@ -14,7 +14,7 @@ function urlB64ToUint8Array(b64: string) {
 type Support = "checking" | "ok" | "ios-needs-home-screen" | "unsupported" | "blocked";
 
 // Three opt-in alerts, all off until turned on. Turning one on asks the phone for permission.
-export default function AlertSettings({ initial, publicKey }: { initial: AlertPrefs; publicKey: string }) {
+export default function AlertSettings({ initial, publicKey, children }: { initial: AlertPrefs; publicKey: string; children?: React.ReactNode }) {
   const [prefs, setPrefs] = useState(initial);
   const [support, setSupport] = useState<Support>("checking");
   const [msg, setMsg] = useState<string | null>(null);
@@ -133,6 +133,7 @@ export default function AlertSettings({ initial, publicKey }: { initial: AlertPr
         })}
       </div>
       {msg && <p className="mt-4 text-[15px] font-medium text-green-deep">{msg}</p>}
+      {children}
     </main>
   );
 }

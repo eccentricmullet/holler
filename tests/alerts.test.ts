@@ -41,7 +41,7 @@ beforeAll(async () => {
   asker = await person(1, 35.2, { answers: true });
   nearOn = await person(2, 35.205, { asks: true, porch: true }); // ~550 m, opted in
   nearOff = await person(3, 35.206, {}); // nearby, never opted in
-  farOn = await person(4, 35.3, { asks: true, porch: true }); // ~11 km
+  farOn = await person(4, 35.6, { asks: true, porch: true }); // ~44 km, past the 20-mile Porch
 });
 
 afterAll(async () => {

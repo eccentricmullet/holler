@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { REACH_OPTIONS } from "@/lib/reach";
 import { setReachAction } from "./actions";
 
-// 📍 1 mi · 🏘️ 3 mi · 🗺️ 5 mi: how far The Porch (and ask alerts) reach.
+// 📍 1 mi · 🏘️ 3 mi · 🗺️ 5 mi: how close a new request must be to send this person an alert.
 export default function ReachPicker({ miles }: { miles: number }) {
   const router = useRouter();
   const [current, setCurrent] = useState(miles);
@@ -31,7 +31,7 @@ export default function ReachPicker({ miles }: { miles: number }) {
                 router.refresh();
               });
             }}
-            className={`flex h-9 items-center gap-1 rounded-full border px-3 text-sm font-semibold transition-colors ${
+            className={`flex h-11 items-center gap-1 rounded-full border px-3.5 text-sm font-semibold transition-colors ${
               on ? "border-neon bg-neon text-on-neon" : "border-line text-ink"
             }`}
           >

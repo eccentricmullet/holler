@@ -40,7 +40,7 @@ export default async function ProPageRoute({ params }: Params) {
           pro={result.pro}
           saved={await isSaved(supabase, result.pro.id)}
           backButton={
-            <Link href="/" aria-label="Back to map" className="flex size-[46px] items-center justify-center rounded-2xl bg-surface text-ink">
+            <Link href="/map" aria-label="Back to map" className="flex size-11 items-center justify-center rounded-full bg-surface text-ink shadow-card">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M15 6l-6 6 6 6" />
               </svg>

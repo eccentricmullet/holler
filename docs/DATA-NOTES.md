@@ -6,7 +6,7 @@ Plain-English summary for a quick legal review before launch. Written October 19
 
 - Neighbors' exact addresses and locations are stored privately and never shown. The map shows a blurred spot about 150 m (one block) wide.
 - Phone numbers are used only for login codes and to stop people reacting to their own business. They're never shown.
-- Public: first name + last initial, city, which pros someone reacted to (👍/❤️), short notes, and Porch posts. People can choose "Keep me hidden" and show as "a neighbor."
+- Public: first name + last initial, neighborhood (or city if unknown), approximate distance on Porch posts, which pros someone reacted to (👍/❤️), short notes, and Porch posts. People can choose "Keep me hidden" and show as "a neighbor."
 - Deleting an account removes reactions, notes, Porch posts and photos, reports, profile, login, and the home (if no one else in the household uses it), right away.
 
 ## What we store, by source
@@ -16,7 +16,7 @@ Plain-English summary for a quick legal review before launch. Written October 19
 | Phone number | The neighbor (verified by text code via Twilio) | Until account deletion | No |
 | First name, last initial | The neighbor | Until deletion | Yes (unless "hidden") |
 | Home address, exact location | The neighbor, looked up with Google | Until deletion | No |
-| Blurred block location, city | Calculated from the address / Google | Until deletion | Block spot on the map; city in bylines |
+| Blurred block location, neighborhood, city | Calculated from the address / Google | Until deletion | Block spot on the map; neighborhood (or city) and rough distance in bylines. Changed from city-only on 2026-10-22 at the owner's request: flag for the lawyer review. |
 | Reactions, tags, price hint, notes | The neighbor | Until they remove it or delete their account | Yes |
 | Porch posts and photos | The neighbor | Hidden when the post expires (1–14 days); deleted for good, photos included, a week after that | Yes, to signed-in neighbors within their chosen distance |
 | Private reports and flags | The neighbor | Until resolved / account deletion | No (admin only) |

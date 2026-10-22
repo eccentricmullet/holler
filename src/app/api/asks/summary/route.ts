@@ -14,7 +14,7 @@ export async function GET() {
   const [near, mine] = await Promise.all([asksNear(db, user.id), myAsks(db, user.id)]);
   return NextResponse.json(
     {
-      near: near.filter((a) => !a.answeredByMe).length,
+      near: near.filter((a) => !a.mine && a.open && !a.answeredByMe).length,
       answers: mine.filter((a) => a.open).reduce((n, a) => n + a.suggestions.reduce((m, s) => m + s.count, 0), 0),
     },
     { headers: { "Cache-Control": "private, no-store" } }

@@ -1,9 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkNote } from "@/lib/note-filter";
-import { metersBetween, parsePoint } from "@/lib/geo";
+import { hoodLabel, metersBetween, milesLabel, parsePoint } from "@/lib/geo";
 import { whenLabel } from "@/lib/recency";
-import { asksNear } from "@/lib/asks";
-import { reachMeters } from "@/lib/reach";
+import { asksNear, type NearbyAsk } from "@/lib/asks";
+import { PORCH_RADIUS_M } from "@/lib/reach";
 import { HEADS_UP_TOPICS, KINDS, isKind, type PorchKind, type PorchTab } from "@/lib/porch-kinds";
 
 // The Porch (11k): a neighborhood board that runs itself. Everything goes through the server.
@@ -12,10 +12,10 @@ export const REPORTS_TO_HIDE = 3; // from different homes
 export const POST_MAX = 280;
 export const PORCH_BUCKET = "porch";
 
-type Me = { id: string; household_id: string | null; banned: boolean; first_name: string; last_initial: string; privacy: string; reach_miles: number | null };
+type Me = { id: string; household_id: string | null; banned: boolean; first_name: string; last_initial: string; privacy: string };
 
 async function me(db: SupabaseClient, userId: string) {
-  const { data } = await db.from("profiles").select("id, household_id, banned, first_name, last_initial, privacy, reach_miles").eq("id", userId).maybeSingle();
+  const { data } = await db.from("profiles").select("id, household_id, banned, first_name, last_initial, privacy").eq("id", userId).maybeSingle();
   return data as Me | null;
 }
 
@@ -40,8 +40,13 @@ export type NewPost = {
   topic?: string | null;
   happensOn?: string | null; // YYYY-MM-DD
   proId?: string | null;
+  startsAt?: string | null; // "07:00" (garage sales)
+  endsAt?: string | null; // "13:00"
+  address?: string | null; // where the sale is, for "Get directions"
   photo?: { bytes: ArrayBuffer; type: string } | null;
 };
+
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export async function createPost(db: SupabaseClient, userId: string, input: NewPost): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const person = await me(db, userId);
@@ -71,6 +76,18 @@ export async function createPost(db: SupabaseClient, userId: string, input: NewP
     happensOn = input.happensOn;
   }
 
+  let startsAt: string | null = null;
+  let endsAt: string | null = null;
+  let address: string | null = null;
+  if (info.hasTimes) {
+    if (!input.startsAt || !input.endsAt || !TIME.test(input.startsAt) || !TIME.test(input.endsAt)) return { ok: false, error: "Add the start and end time." };
+    if (input.endsAt <= input.startsAt) return { ok: false, error: "The end time needs to be after the start time." };
+    startsAt = input.startsAt;
+    endsAt = input.endsAt;
+    address = (input.address ?? "").trim().replace(/\s+/g, " ").slice(0, 120) || null;
+    if (!address) return { ok: false, error: "Add the address so neighbors can find it." };
+  }
+
   let proId: string | null = null;
   if (kind === "just_hired" && input.proId) {
     const { data: pro } = await db.from("pros").select("id, status").eq("id", input.proId).maybeSingle();
@@ -96,6 +113,9 @@ export async function createPost(db: SupabaseClient, userId: string, input: NewP
       body,
       pro_id: proId,
       happens_on: happensOn,
+      starts_at: startsAt,
+      ends_at: endsAt,
+      address,
       expires_at: expiryFor(kind, happensOn),
     })
     .select("id")
@@ -118,6 +138,9 @@ export type FeedItem =
       kind: PorchKind;
       who: string;
       initial: string;
+      initials: string; // "DH"
+      hood: string | null; // neighborhood (or city)
+      distance: string | null; // "3 mi"
       mine: boolean;
       when: string;
       body: string;
@@ -125,6 +148,9 @@ export type FeedItem =
       photoUrl: string | null;
       pro: { id: string; name: string; color: string | null; logoUrl: string | null } | null;
       happensOn: string | null;
+      startsAt: string | null;
+      endsAt: string | null;
+      address: string | null;
       done: boolean;
       thumbs: number;
       love: number;
@@ -133,7 +159,7 @@ export type FeedItem =
       myAction: boolean;
       createdAt: string;
     }
-  | { type: "ask"; id: string; who: string; categoryName: string; icon: string; when: string; answers: number; createdAt: string };
+  | ({ type: "ask" } & NearbyAsk);
 
 type PostRow = {
   id: string;
@@ -143,77 +169,94 @@ type PostRow = {
   body: string;
   photo_path: string | null;
   happens_on: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  address: string | null;
   done: boolean;
   created_at: string;
   profiles: { first_name: string; last_initial: string; privacy: string; banned: boolean } | null;
-  households: { display_location: unknown } | null;
+  households: { display_location: unknown; neighborhood: string | null; city: string | null } | null;
   pros: { id: string; name: string; color: string | null; logo_url: string | null; status: string } | null;
   porch_reactions: { profile_id: string; reaction: "thumbs_up" | "love" }[];
   porch_actions: { profile_id: string; action: string }[];
 };
 
-// What's on the porch near this person, newest first. Asks for a pro show in All and Pros.
-export async function porchFeed(db: SupabaseClient, userId: string, tab: PorchTab = "all"): Promise<FeedItem[]> {
+// What's on the Porch within 20 miles, newest first. Requests for a pro mix in with posts.
+export async function porchFeed(db: SupabaseClient, userId: string, tab: PorchTab = "all", search = ""): Promise<FeedItem[]> {
   const person = await me(db, userId);
   if (!person?.household_id) return [];
   const here = await homePoint(db, person.household_id);
   if (!here) return [];
-  const reach = reachMeters(person.reach_miles); // each person picks 1, 3 or 5 miles
 
-  const kinds = tab === "all" ? null : (Object.keys(KINDS) as PorchKind[]).filter((k) => KINDS[k].tab === tab);
-  let q = db
-    .from("porch_posts")
-    .select(
-      "id, profile_id, kind, topic, body, photo_path, happens_on, done, created_at, profiles!porch_posts_profile_id_fkey(first_name, last_initial, privacy, banned), households!porch_posts_household_id_fkey(display_location), pros(id, name, color, logo_url, status), porch_reactions(profile_id, reaction), porch_actions(profile_id, action)"
-    )
-    .eq("status", "visible")
-    .gt("expires_at", new Date().toISOString())
-    .order("created_at", { ascending: false })
-    .limit(300);
-  if (kinds) q = q.in("kind", kinds.length ? kinds : ["none"]);
-  const { data } = await q;
+  let posts: FeedItem[] = [];
+  if (tab === "all" || tab === "sales" || tab === "pets") {
+    const kinds = tab === "all" ? null : (Object.keys(KINDS) as PorchKind[]).filter((k) => KINDS[k].tab === tab);
+    let q = db
+      .from("porch_posts")
+      .select(
+        "id, profile_id, kind, topic, body, photo_path, happens_on, starts_at, ends_at, address, done, created_at, profiles!porch_posts_profile_id_fkey(first_name, last_initial, privacy, banned), households!porch_posts_household_id_fkey(display_location, neighborhood, city), pros(id, name, color, logo_url, status), porch_reactions(profile_id, reaction), porch_actions(profile_id, action)"
+      )
+      .eq("status", "visible")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(300);
+    if (kinds) q = q.in("kind", kinds.length ? kinds : ["none"]);
+    const { data } = await q;
 
-  const posts: FeedItem[] = ((data ?? []) as unknown as PostRow[])
-    .filter((p) => {
-      if (!p.profiles || p.profiles.banned) return false;
-      const at = parsePoint(p.households?.display_location);
-      return at && metersBetween(at, here) <= reach;
-    })
-    .map((p) => {
-      const hidden = p.profiles!.privacy === "hidden";
-      const info = KINDS[p.kind];
-      return {
-        type: "post" as const,
-        id: p.id,
-        kind: p.kind,
-        who: hidden ? "A neighbor" : `${p.profiles!.first_name} ${p.profiles!.last_initial}.`,
-        initial: hidden ? "🏡" : p.profiles!.first_name.charAt(0).toUpperCase(),
-        mine: p.profile_id === userId,
-        when: relative(p.created_at),
-        body: p.body,
-        topic: p.topic,
-        photoUrl: p.photo_path ? db.storage.from(PORCH_BUCKET).getPublicUrl(p.photo_path).data.publicUrl : null,
-        pro: p.pros && p.pros.status === "active" ? { id: p.pros.id, name: p.pros.name, color: p.pros.color, logoUrl: p.pros.logo_url } : null,
-        happensOn: p.happens_on,
-        done: p.done,
-        thumbs: p.porch_reactions.filter((r) => r.reaction === "thumbs_up").length,
-        love: p.porch_reactions.filter((r) => r.reaction === "love").length,
-        myReaction: p.porch_reactions.find((r) => r.profile_id === userId)?.reaction ?? null,
-        actionCount: info.action ? p.porch_actions.filter((a) => a.action === info.action!.id).length : 0,
-        myAction: info.action ? p.porch_actions.some((a) => a.action === info.action!.id && a.profile_id === userId) : false,
-        createdAt: p.created_at,
-      };
-    });
+    posts = ((data ?? []) as unknown as PostRow[])
+      .map((p) => ({ p, at: parsePoint(p.households?.display_location) }))
+      .filter(({ p, at }) => p.profiles && !p.profiles.banned && at && metersBetween(at, here) <= PORCH_RADIUS_M)
+      .map(({ p, at }) => {
+        const hidden = p.profiles!.privacy === "hidden";
+        const info = KINDS[p.kind];
+        const mine = p.profile_id === userId;
+        return {
+          type: "post" as const,
+          id: p.id,
+          kind: p.kind,
+          who: hidden ? "A neighbor" : `${p.profiles!.first_name} ${p.profiles!.last_initial}.`,
+          initial: hidden ? "🏡" : p.profiles!.first_name.charAt(0).toUpperCase(),
+          initials: hidden ? "🏡" : `${p.profiles!.first_name.charAt(0)}${p.profiles!.last_initial}`.toUpperCase(),
+          hood: hidden ? null : hoodLabel(p.households),
+          distance: hidden || mine ? null : milesLabel(metersBetween(at!, here)),
+          mine,
+          when: relative(p.created_at),
+          body: p.body,
+          topic: p.topic,
+          photoUrl: p.photo_path ? db.storage.from(PORCH_BUCKET).getPublicUrl(p.photo_path).data.publicUrl : null,
+          pro: p.pros && p.pros.status === "active" ? { id: p.pros.id, name: p.pros.name, color: p.pros.color, logoUrl: p.pros.logo_url } : null,
+          happensOn: p.happens_on,
+          startsAt: p.starts_at?.slice(0, 5) ?? null,
+          endsAt: p.ends_at?.slice(0, 5) ?? null,
+          address: p.address,
+          done: p.done,
+          thumbs: p.porch_reactions.filter((r) => r.reaction === "thumbs_up").length,
+          love: p.porch_reactions.filter((r) => r.reaction === "love").length,
+          myReaction: p.porch_reactions.find((r) => r.profile_id === userId)?.reaction ?? null,
+          actionCount: info.action ? p.porch_actions.filter((a) => a.action === info.action!.id).length : 0,
+          myAction: info.action ? p.porch_actions.some((a) => a.action === info.action!.id && a.profile_id === userId) : false,
+          createdAt: p.created_at,
+        };
+      });
+  }
 
   let asks: FeedItem[] = [];
-  if (tab === "all" || tab === "pros") {
+  if (tab === "all" || tab === "pros" || tab === "answered") {
     const near = await asksNear(db, userId);
     asks = near
-      .filter((a) => !a.answeredByMe)
-      .map((a) => ({ type: "ask" as const, id: a.id, who: a.who, categoryName: a.categoryName, icon: a.icon, when: a.when, answers: a.answers, createdAt: "" }));
+      .filter((a) => (tab === "answered" ? a.answers > 0 || !!a.chosen : tab === "pros" ? a.open : a.open || !!a.chosen))
+      .map((a) => ({ type: "ask" as const, ...a, when: relative(a.createdAt) }));
   }
-  // Asks lead (they need an answer); posts follow newest first
-  return [...asks, ...posts];
+
+  const words = search.trim().toLowerCase();
+  const all = [...asks, ...posts].sort((x, y) => (x.createdAt < y.createdAt ? 1 : -1));
+  if (!words) return all;
+  return all.filter((i) =>
+    (i.type === "post"
+      ? [i.body, i.who, i.hood, KINDS[i.kind].label, i.pro?.name]
+      : [i.note, i.who, i.hood, i.categoryName, ...i.suggestions.map((x) => x.name)]
+    ).some((t) => t?.toLowerCase().includes(words))
+  );
 }
 
 // "just now", "2h ago", "yesterday", or the season label for older posts

@@ -15,7 +15,7 @@ import type { Category } from "@/components/map/types";
 import type { SearchResult } from "@/app/api/pros/search/route";
 import { previewBusiness, startingTags, submitReaction, type ProChoice, type ReactResult } from "./actions";
 import type { BusinessPreview } from "@/lib/places";
-import { answerAskAction } from "@/app/asks/actions";
+import { answerAskAction, foundSomeoneAction } from "@/app/asks/actions";
 import { cleanSocialUrl, socialKind, SOCIAL_LABEL } from "@/lib/social";
 
 type Picked = { choice: ProChoice; name: string; logoUrl: string | null; counts?: { thumbs: number; love: number } };
@@ -58,12 +58,14 @@ export default function ReactFlow({
   onboarding = false,
   presetCategory = null,
   answerTo = null,
+  foundFor = null,
 }: {
   categories: Category[];
   start: { proId: string; name: string; logoUrl: string | null; category: string | null } | null;
   onboarding?: boolean; // just signed up: "Add 3 pros you use" (11e)
   presetCategory?: string | null; // from the seasonal banner (11g)
   answerTo?: { id: string; who: string } | null; // answering a neighbor's ask (11h)
+  foundFor?: string | null; // "Found someone": the request this reaction closes
 }) {
   const [doneCount, setDoneCount] = useState(0);
   const router = useRouter();
@@ -181,6 +183,7 @@ export default function ReactFlow({
       : await submitReaction({ ...input, alsoCategories: cats.slice(1) });
     setBusy(false);
     if (!r.ok) return setError(r.error);
+    if (foundFor) await foundSomeoneAction(foundFor, r.proId);
     setResult(r);
     setDoneCount((n) => n + 1);
     track("reacted", { pro_id: r.proId, category, categories: answerTo ? 1 : cats.length, reaction, source: picked.choice.kind, with_note: note.trim().length > 0 });
@@ -239,6 +242,7 @@ export default function ReactFlow({
         </h1>
         <p className="relative mt-3 text-[15px] leading-[1.45] text-muted">
           {answerTo ? `Sent to ${answerTo.who} Thanks for helping a neighbor. ` : ""}
+          {foundFor ? "Your request is closed. " : ""}
           {result.neighbors > 1 ? `That makes ${result.neighbors} neighbors. ` : "You're the first neighbor to say so. "}
           The next person on your street looking for {orList(result.categoryNames.map(lowerName))} help will see it on the map.
         </p>
@@ -253,16 +257,16 @@ export default function ReactFlow({
         <InstallCard className="relative mt-6" />
 
         <div className="relative mt-auto flex flex-col gap-2.5 pt-6">
-          {answerTo ? (
+          {answerTo || foundFor ? (
             <Link
-              href="/asks"
+              href="/porch"
               className="flex h-[54px] items-center justify-center rounded-[16px] bg-neon text-[16px] font-bold text-on-neon"
             >
-              See more neighbors asking
+              Back to the Porch
             </Link>
           ) : onboarding && doneCount >= ONBOARD_GOAL ? (
             <Link
-              href="/"
+              href="/map"
               className="flex h-[54px] items-center justify-center rounded-[16px] bg-neon text-[16px] font-bold text-on-neon"
             >
               See your map

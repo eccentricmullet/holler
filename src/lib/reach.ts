@@ -10,3 +10,7 @@ export const DEFAULT_REACH: ReachMiles = 3;
 
 export const isReach = (m: unknown): m is ReachMiles => m === 1 || m === 3 || m === 5;
 export const reachMeters = (miles: number | null | undefined) => (isReach(miles) ? miles : DEFAULT_REACH) * 1609.34;
+
+// The Porch shows everything within 20 miles of home (phone alerts still use each person's reach above)
+export const PORCH_RADIUS_MILES = 20;
+export const PORCH_RADIUS_M = PORCH_RADIUS_MILES * 1609.34;

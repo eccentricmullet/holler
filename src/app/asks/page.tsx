@@ -22,12 +22,12 @@ export default async function AsksPage() {
   if (!user) redirect("/signup?next=/asks");
   const db = createAdminClient();
   const [near, mine] = await Promise.all([asksNear(db, user.id), myAsks(db, user.id)]);
-  const open = near.filter((a) => !a.answeredByMe);
-  const answered = near.filter((a) => a.answeredByMe);
+  const open = near.filter((a) => !a.mine && a.open && !a.answeredByMe);
+  const answered = near.filter((a) => !a.mine && a.answeredByMe);
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col p-6">
-      <Link href="/" aria-label="Back to map" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
+      <Link href="/porch" aria-label="Back to the Porch" className="flex size-11 items-center justify-center rounded-full bg-surface shadow-card text-ink">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M15 6l-6 6 6 6" />
         </svg>
@@ -60,11 +60,11 @@ export default async function AsksPage() {
         {answered.length > 0 && <p className="px-1 text-[13px] text-muted">You&apos;ve helped with {answered.length} more. Thanks!</p>}
       </div>
 
-      <h2 className="mt-9 text-xl font-bold">Your asks</h2>
+      <h2 className="mt-9 text-xl font-bold">Your requests</h2>
       <div className="mt-3 flex flex-col gap-2.5">
         {mine.length === 0 && (
           <p className="text-[15px] text-muted">
-            Need someone? Pick a category on the map and tap <span className="font-semibold">Ask your neighbors</span>.
+            Need someone? Tap <span className="font-semibold">＋</span> and then <span className="font-semibold">Ask for a pro</span>.
           </p>
         )}
         {mine.map((a) => (
@@ -75,7 +75,7 @@ export default async function AsksPage() {
               </span>
               <span className="text-[13px] text-muted">
                 {a.when}
-                {!a.open && " · closed"}
+                {!a.open && (a.chosen ? ` · went with ${a.chosen.name}` : " · closed")}
               </span>
             </div>
             {a.suggestions.length === 0 ? (
@@ -94,11 +94,16 @@ export default async function AsksPage() {
               </div>
             )}
             {a.open && (
-              <form action={closeAskAction.bind(null, a.id)} className="mt-3">
-                <button type="submit" className="text-sm font-semibold text-muted">
-                  Found someone, close this ask
-                </button>
-              </form>
+              <div className="mt-3 flex items-center gap-4">
+                <Link href={`/asks/${a.id}/found`} className="flex h-11 items-center rounded-xl bg-neon px-4 text-sm font-bold text-on-neon">
+                  Found someone
+                </Link>
+                <form action={closeAskAction.bind(null, a.id)}>
+                  <button type="submit" className="h-11 text-sm font-semibold text-muted">
+                    Close without picking
+                  </button>
+                </form>
+              </div>
             )}
           </div>
         ))}

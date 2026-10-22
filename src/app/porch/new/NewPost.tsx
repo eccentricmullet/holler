@@ -28,6 +28,10 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
   const [body, setBody] = useState("");
   const [topic, setTopic] = useState<string | null>(null);
   const [date, setDate] = useState(() => new Date().toLocaleDateString("en-CA")); // YYYY-MM-DD, local
+  // Garage sales: time window and where
+  const [startsAt, setStartsAt] = useState("07:00");
+  const [endsAt, setEndsAt] = useState("13:00");
+  const [address, setAddress] = useState("");
   const [photo, setPhoto] = useState<Blob | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [pro, setPro] = useState<{ id: string; name: string } | null>(null);
@@ -96,6 +100,11 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
       form.set("body", body);
       if (topic) form.set("topic", topic);
       if (info.needsDate) form.set("happensOn", date);
+      if (info.hasTimes) {
+        form.set("startsAt", startsAt);
+        form.set("endsAt", endsAt);
+        form.set("address", address);
+      }
       if (pro) form.set("proId", pro.id);
       if (photo) form.set("photo", new File([photo], "photo.jpg", { type: "image/jpeg" }));
       const r = await createPostAction(form);
@@ -145,8 +154,8 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
       )}
 
       {info.needsDate && (
-        <label className="mt-5 flex items-center justify-between rounded-[18px] bg-field px-4 py-3 text-[15px] font-semibold">
-          📅 When
+        <label className="mt-5 flex min-h-12 items-center justify-between rounded-[16px] border border-line bg-surface px-4 py-2 text-[15px] font-semibold">
+          📅 Date
           <input
             type="date"
             value={date}
@@ -155,6 +164,32 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
             className="bg-transparent text-base font-normal outline-none"
           />
         </label>
+      )}
+      {info.hasTimes && (
+        <>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <label className="flex min-h-12 items-center justify-between rounded-[16px] border border-line bg-surface px-4 py-2 text-[15px] font-semibold">
+              Starts
+              <input type="time" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} className="bg-transparent text-base font-normal outline-none" />
+            </label>
+            <label className="flex min-h-12 items-center justify-between rounded-[16px] border border-line bg-surface px-4 py-2 text-[15px] font-semibold">
+              Ends
+              <input type="time" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} className="bg-transparent text-base font-normal outline-none" />
+            </label>
+          </div>
+          <label htmlFor="sale-address" className="mb-1.5 mt-4 text-[15px] font-semibold">
+            Address <span className="font-normal text-muted">for &ldquo;Get directions.&rdquo; Only neighbors on the Porch see it.</span>
+          </label>
+          <input
+            id="sale-address"
+            value={address}
+            maxLength={120}
+            autoComplete="street-address"
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="123 Maple St"
+            className="h-12 rounded-[16px] border border-line bg-surface px-4 text-base outline-none placeholder:text-muted"
+          />
+        </>
       )}
 
       <textarea

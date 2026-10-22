@@ -65,7 +65,7 @@ export default async function SharedListPage({ params }: Params) {
         ))}
       </div>
 
-      <Link href="/" className="mt-auto flex h-[54px] items-center justify-center rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon">
+      <Link href="/map" className="mt-auto flex h-[54px] items-center justify-center rounded-[18px] bg-neon text-[17px] font-semibold text-on-neon">
         See who else your neighbors use
       </Link>
     </main>

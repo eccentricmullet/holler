@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       <List
         items={[
           "Your exact address, exact location and phone number are never shown to anyone.",
-          "Neighbors see your first name and last initial, your city, and the pros you react to, placed near your block. You can choose to stay hidden instead.",
+          "Neighbors see your first name and last initial, your neighborhood (or city), roughly how far away you are, and the pros you react to, placed near your block. You can choose to stay hidden instead.",
           "We don't sell your information, and we don't show ads.",
           "You can delete your account and everything in it from your profile at any time.",
         ]}
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
 
       <H>What neighbors can see</H>
       <p>
-        If you choose &ldquo;Near my block,&rdquo; neighbors see your first name and last initial, your city, the pros
+        If you choose &ldquo;Near my block,&rdquo; neighbors see your first name and last initial, your neighborhood (or city), the pros
         you react to, and your notes. Your pins sit at a block-level spot, not your house. If you choose &ldquo;Keep me
         hidden,&rdquo; your reactions still count toward a pro&apos;s totals, but you have no pin and show as &ldquo;a
         neighbor.&rdquo; You can switch anytime in your profile.

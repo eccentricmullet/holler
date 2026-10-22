@@ -13,6 +13,12 @@
   --color-green-wash: #f0fcf4;
   --color-love: #e5486a;
   --color-love-tint: #fff0f2;
+  /* Soft tag and avatar colors from the mockups (garage sales, pets; avatars) */
+  --color-warm-tint: #fff0de;
+  --color-warm-ink: #8a4a12;
+  --color-blue-tint: #e6e9f4;
+  --color-blue-ink: #2e3e78;
+  --color-ink-soft: #3e4541;
   --color-ink: #1f2421;
   --color-muted: #5b635e;
   --color-page: #f6f7f4;

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { joinHousehold } from "@/lib/households";
-import { answerAsk, asksNear, createAsk, myAsks, MAX_ASKS_PER_DAY } from "@/lib/asks";
+import { answerAsk, asksNear, closeAskWithPro, createAsk, myAsks, MAX_ASKS_PER_DAY } from "@/lib/asks";
 import type { Actor } from "@/lib/reactions";
 
 const env = Object.fromEntries(
@@ -37,7 +37,7 @@ let proId = "";
 beforeAll(async () => {
   asker = await person(1, 35.5, "Asha");
   near = await person(2, 35.505, "Nico"); // ~550 m away
-  far = await person(3, 35.55, "Faye"); // ~5.5 km away
+  far = await person(3, 35.9, "Faye"); // ~44 km (27 mi), past the 20-mile Porch
   const { data } = await db.from("pros").insert({ name: `Ask Plumber ${RUN}`, phone: "+16155550133", service_area_text: MARK }).select("id").single();
   proId = data!.id;
 });
@@ -62,7 +62,7 @@ describe("Ask the neighborhood", () => {
   it("neighbors within a mile see it; farther ones and the asker don't", async () => {
     expect((await asksNear(db, near.userId)).find((x) => x.id === askId)).toMatchObject({ who: "Asha T.", categoryName: "Plumbing", answers: 0 });
     expect((await asksNear(db, far.userId)).find((x) => x.id === askId)).toBeUndefined();
-    expect((await asksNear(db, asker.userId)).find((x) => x.id === askId)).toBeUndefined();
+    expect((await asksNear(db, asker.userId)).find((x) => x.id === askId)).toMatchObject({ mine: true });
   });
 
   it("answering with a pro records the answer AND adds a reaction in the ask's category", async () => {
@@ -75,12 +75,22 @@ describe("Ask the neighborhood", () => {
 
   it("the asker sees the suggested pro", async () => {
     const mine = (await myAsks(db, asker.userId)).find((x) => x.id === askId);
-    expect(mine?.suggestions).toEqual([{ proId, name: `Ask Plumber ${RUN}`, logoUrl: null, count: 1 }]);
+    expect(mine?.suggestions).toMatchObject([{ proId, name: `Ask Plumber ${RUN}`, logoUrl: null, count: 1 }]);
   });
 
   it("you can't answer your own ask", async () => {
     const r = await answerAsk(db, asker, askId, { pro: { kind: "holler", proId }, reaction: "love", note: "" });
     expect(r.ok).toBe(false);
+  });
+
+  it("Found someone closes the request with the pro, and it moves to Answered", async () => {
+    const closed = await closeAskWithPro(db, asker.userId, askId, proId);
+    expect(closed.ok).toBe(true);
+    const seen = (await asksNear(db, near.userId)).find((x) => x.id === askId);
+    expect(seen).toMatchObject({ open: false, chosen: { proId } });
+    expect((await closeAskWithPro(db, near.userId, askId, proId)).ok).toBe(false); // not theirs
+    const r = await answerAsk(db, far, askId, { pro: { kind: "holler", proId }, reaction: "love", note: "" });
+    expect(r.ok).toBe(false); // closed requests take no more answers
   });
 
   it(`limits new asks to ${MAX_ASKS_PER_DAY} a day`, async () => {

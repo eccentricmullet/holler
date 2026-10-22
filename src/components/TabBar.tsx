@@ -11,11 +11,13 @@ const TABS = [
   { href: "/porch", label: "Porch", icon: <path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6" /> },
   { href: "/curb", label: "Curb", icon: <path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01" /> },
   null, // the + button
-  { href: "/", label: "Map", icon: <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" /> },
+  { href: "/map", label: "Map", icon: <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" /> },
   { href: "/profile", label: "Me", icon: <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-6 8-6s8 2 8 6" /> },
 ] as const;
 
-const SHOW_ON = new Set(["/", "/porch", "/curb", "/profile"]);
+const SHOW_ON = new Set(["/", "/map", "/porch", "/curb", "/profile"]);
+// "/" is the public map for people who aren't signed in
+const activeHref = (path: string) => (path === "/" ? "/map" : path);
 
 const ACTIONS = [
   { emoji: "👍", label: "Recommend a pro you use", sub: "Put them on the map for neighbors", href: "/react" },
@@ -68,13 +70,13 @@ export default function TabBar() {
               <li key={t.href}>
                 <Link
                   href={t.href === "/profile" && !signedIn ? "/signup?next=/profile" : t.href}
-                  aria-current={pathname === t.href ? "page" : undefined}
+                  aria-current={activeHref(pathname) === t.href ? "page" : undefined}
                   className="flex min-h-11 w-16 flex-col items-center gap-[3px]"
                 >
                   <span
-                    className={`relative flex h-[30px] w-[52px] items-center justify-center rounded-full ${pathname === t.href ? "bg-neon text-on-neon" : "text-muted"}`}
+                    className={`relative flex h-[30px] w-[52px] items-center justify-center rounded-full ${activeHref(pathname) === t.href ? "bg-neon text-on-neon" : "text-muted"}`}
                   >
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth={pathname === t.href ? 2 : 1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth={activeHref(pathname) === t.href ? 2 : 1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       {t.icon}
                     </svg>
                     {t.href === "/porch" && porchCount > 0 && pathname !== "/porch" && (
@@ -83,7 +85,7 @@ export default function TabBar() {
                       </span>
                     )}
                   </span>
-                  <span className={`text-[11px] leading-none ${pathname === t.href ? "font-bold text-ink" : "font-medium text-muted"}`}>{t.label}</span>
+                  <span className={`text-[11px] leading-none ${activeHref(pathname) === t.href ? "font-bold text-ink" : "font-medium text-muted"}`}>{t.label}</span>
                 </Link>
               </li>
             )

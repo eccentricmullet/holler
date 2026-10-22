@@ -21,7 +21,7 @@ export default function UnlockForm({ threshold, launchTown }: { threshold: numbe
   return (
     <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-hidden bg-page">
       <div className="relative px-6 pb-10 pt-8 text-ink">
-        <Link href="/" className="relative text-sm font-semibold text-green-deep">
+        <Link href="/map" className="relative text-sm font-semibold text-green-deep">
           ‹ See the map
         </Link>
         <h1 className="relative mt-8 text-[28px] font-bold leading-[1.15] tracking-[-0.02em]">Bring {SITE.name} to your town</h1>

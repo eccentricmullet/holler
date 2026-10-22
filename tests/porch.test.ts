@@ -37,7 +37,7 @@ beforeAll(async () => {
   near1 = await person(2, 35.41, "Nia"); // ~1.1 km
   near2 = await person(3, 35.415, "Ned"); // ~1.7 km
   near3 = await person(4, 35.39, "Noa"); // ~1.1 km
-  far = await person(5, 35.5, "Fay"); // ~11 km
+  far = await person(5, 35.8, "Fay"); // ~44 km (27 mi), past the 20-mile Porch
 });
 
 afterAll(async () => {
@@ -50,11 +50,11 @@ const today = () => new Date().toISOString().slice(0, 10);
 describe("The Porch", () => {
   let curbId = "", petId = "";
 
-  it("posts a curb alert that neighbors within 2 miles see, and far-away ones don't", async () => {
+  it("posts a curb alert that neighbors within 20 miles see, and far-away ones don't", async () => {
     const r = await createPost(db, poster, { kind: "curb_alert", body: "Free couch on the curb, good shape!" });
     expect(r.ok).toBe(true);
     if (r.ok) curbId = r.id;
-    const seen = (await porchFeed(db, near1, "sales")).find((f) => f.id === curbId);
+    const seen = (await porchFeed(db, near1, "all")).find((f) => f.id === curbId);
     expect(seen).toMatchObject({ type: "post", who: "Pat T.", kind: "curb_alert", mine: false });
     expect((await porchFeed(db, far, "all")).find((f) => f.id === curbId)).toBeUndefined();
     expect((await porchFeed(db, near1, "pets")).find((f) => f.id === curbId)).toBeUndefined(); // wrong tab
@@ -64,8 +64,12 @@ describe("The Porch", () => {
     const { data: curb } = await db.from("porch_posts").select("expires_at, created_at").eq("id", curbId).single();
     const hours = (new Date(curb!.expires_at).getTime() - new Date(curb!.created_at).getTime()) / 36e5;
     expect(Math.round(hours)).toBe(48);
-    const sale = await createPost(db, poster, { kind: "garage_sale", body: "Big sale, toys and tools", happensOn: today() });
+    const sale = await createPost(db, poster, { kind: "garage_sale", body: "Big sale, toys and tools", happensOn: today(), startsAt: "07:00", endsAt: "13:00", address: "12 Test Ln" });
     expect(sale.ok).toBe(true);
+    const noAddress = await createPost(db, poster, { kind: "garage_sale", body: "Sale!", happensOn: today(), startsAt: "07:00", endsAt: "13:00" });
+    expect(noAddress).toMatchObject({ ok: false, error: expect.stringMatching(/address/i) });
+    const backwards = await createPost(db, poster, { kind: "garage_sale", body: "Sale!", happensOn: today(), startsAt: "13:00", endsAt: "07:00", address: "12 Test Ln" });
+    expect(backwards).toMatchObject({ ok: false, error: expect.stringMatching(/end time/i) });
     const missingDate = await createPost(db, poster, { kind: "garage_sale", body: "Sale!" });
     expect(missingDate).toMatchObject({ ok: false, error: expect.stringMatching(/date/i) });
   });
