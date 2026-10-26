@@ -87,22 +87,47 @@ export default async function ProfilePage() {
           <h2 className="text-[17px] font-bold">Services you suggested</h2>
           <ul className="mt-2 flex flex-col overflow-hidden rounded-[18px] bg-surface shadow-card">
             {requests.slice(0, 5).map((r) => (
-              <li key={r.id} className="flex min-h-14 items-center gap-3 border-b border-line px-4 py-2.5 last:border-b-0">
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-[15px] font-semibold">{r.name}</span>
-                  <span className="truncate text-[13px] text-muted">
-                    {r.status === "added" ? "Added for everyone" : r.status === "declined" ? r.declineReason || "Not added" : "We'll take a look"}
-                  </span>
-                </span>
-                {r.status === "added" && r.categorySlug ? (
-                  <Link href={`/react?category=${r.categorySlug}`} className="flex h-9 shrink-0 items-center rounded-full bg-neon px-3 text-[13px] font-bold text-on-neon">
-                    Recommend a pro
-                  </Link>
-                ) : (
-                  <span className="shrink-0 rounded-full bg-field px-3 py-1.5 text-[13px] font-medium text-ink-soft">
-                    {r.status === "declined" ? "Declined" : "Waiting"}
-                  </span>
-                )}
+              // Tap a row to open it and read the whole reply
+              <li key={r.id} className="border-b border-line last:border-b-0">
+                <details className="group">
+                  <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-2.5 [&::-webkit-details-marker]:hidden">
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-[15px] font-semibold">{r.name}</span>
+                      <span className="truncate text-[13px] text-muted group-open:hidden">
+                        {r.status === "added" ? "Added for everyone" : r.status === "declined" ? r.declineReason || "Not added" : "We'll take a look"}
+                      </span>
+                    </span>
+                    <span
+                      className={`shrink-0 rounded-full px-3 py-1.5 text-[13px] ${r.status === "added" ? "bg-green-tint font-semibold text-green-deep" : "bg-field font-medium text-ink-soft"}`}
+                    >
+                      {r.status === "added" ? "Added" : r.status === "declined" ? "Declined" : "Waiting"}
+                    </span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 text-muted transition-transform group-open:rotate-180" aria-hidden>
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </summary>
+                  <div className="flex flex-col gap-2.5 px-4 pb-4 text-[15px] leading-snug">
+                    {r.status === "waiting" && <p className="text-muted">We&apos;ll take a look and let you know here.</p>}
+                    {r.status === "declined" && (
+                      <p>
+                        <span className="block text-[13px] font-semibold text-muted">Reply from the {SITE.name} team</span>
+                        {r.declineReason || "We couldn't add this one right now."}
+                      </p>
+                    )}
+                    {r.status === "added" && <p>Added for everyone. Know someone good? Recommend them so neighbors can find them.</p>}
+                    {r.details && (
+                      <p>
+                        <span className="block text-[13px] font-semibold text-muted">Your note</span>
+                        {r.details}
+                      </p>
+                    )}
+                    {r.status === "added" && r.categorySlug && (
+                      <Link href={`/react?category=${r.categorySlug}`} className="flex h-11 items-center justify-center rounded-[14px] bg-neon text-[15px] font-bold text-on-neon">
+                        Recommend a pro
+                      </Link>
+                    )}
+                  </div>
+                </details>
               </li>
             ))}
           </ul>

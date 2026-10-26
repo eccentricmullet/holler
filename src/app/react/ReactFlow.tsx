@@ -456,10 +456,15 @@ export default function ReactFlow({
                 {c.name}
               </button>
             ))}
+            {/* Last chip: ask for a service that isn't listed */}
+            <Link
+              href="/request-service?back=/react"
+              className="flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-dashed border-line px-3.5 text-sm font-semibold text-green-deep"
+            >
+              <span aria-hidden>➕</span>
+              Suggest one
+            </Link>
           </div>
-          <Link href="/request-service?back=/react" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-green-deep">
-            Don&apos;t see it? Suggest a service
-          </Link>
         </div>
         )}
 

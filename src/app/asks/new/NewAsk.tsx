@@ -45,12 +45,12 @@ export default function NewAsk({ categories, preset }: { categories: Cat[]; pres
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
       </Link>
-      <h1 className="mt-6 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Who do you need?</h1>
+      <h1 className="mt-5 text-[28px] font-bold leading-[1.1] tracking-[-0.02em]">Who do you need?</h1>
       <p className="mt-2 text-[15px] leading-snug text-muted">
         Neighbors within 20 miles answer with pros they actually use. Only your first name and last initial show.
       </p>
 
-      <h2 className="mb-2 mt-6 text-[15px] font-semibold">Service</h2>
+      <h2 className="mb-2 mt-5 text-[15px] font-semibold">Service</h2>
       <div className="no-scrollbar -mx-6 flex gap-2 overflow-x-auto px-6" role="radiogroup" aria-label="Service">
         {ordered.map((c) => (
           <button
@@ -65,12 +65,14 @@ export default function NewAsk({ categories, preset }: { categories: Cat[]; pres
             {c.name}
           </button>
         ))}
+        {/* Last chip: ask for a service that isn't listed */}
+        <Link href="/request-service?back=/asks/new" className={`${chip} border border-dashed border-line font-semibold text-green-deep`}>
+          <span aria-hidden>➕</span>
+          Suggest one
+        </Link>
       </div>
-      <Link href="/request-service?back=/asks/new" className="mt-1 inline-flex min-h-11 items-center self-start text-sm font-semibold text-green-deep">
-        Don&apos;t see it? Suggest a service
-      </Link>
 
-      <h2 className="mb-2 mt-4 text-[15px] font-semibold">When?</h2>
+      <h2 className="mb-2 mt-5 text-[15px] font-semibold">When?</h2>
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="When">
         {TIMINGS.map((t) => (
           <button key={t.id} type="button" role="radio" aria-checked={timing === t.id} onClick={() => setTiming(t.id)} className={`${chip} ${timing === t.id ? on : off}`}>
@@ -89,14 +91,14 @@ export default function NewAsk({ categories, preset }: { categories: Cat[]; pres
         />
       )}
 
-      <label htmlFor="ask-note" className="mb-2 mt-6 text-[15px] font-semibold">
+      <label htmlFor="ask-note" className="mb-2 mt-5 text-[15px] font-semibold">
         Add a note <span className="font-normal text-muted">optional</span>
       </label>
       <textarea
         id="ask-note"
         value={note}
         maxLength={NOTE_MAX}
-        rows={3}
+        rows={2}
         onChange={(e) => setNote(e.target.value)}
         placeholder="2 bed / 2 bath. Who do you trust with a key?"
         className="resize-none rounded-[16px] border border-line bg-surface px-4 py-3 text-base outline-none placeholder:text-muted"
