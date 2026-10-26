@@ -11,7 +11,7 @@ import { loadTagInfo, mergeTags } from "@/lib/pro-tags";
 import { getOrCreateInvite } from "@/lib/invites";
 import { after } from "next/server";
 import { sendAlert } from "@/lib/push";
-import { addedAlert, addProFromRequest, declineVendorRequest } from "@/lib/vendor-requests";
+import { addCategoryFromRequest, addedAlert, declineCategoryRequest } from "@/lib/category-requests";
 
 // Every admin action checks, on the server, that the signed-in user is an admin.
 async function requireAdmin() {
@@ -102,37 +102,21 @@ export async function createInviteAction(form: FormData) {
   revalidatePath(`/admin/pros/${proId}`);
 }
 
-// Vendor requests ("Ask us to add a pro"): create the pro from a request, or decline it.
-async function requireAdminId() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+// Service requests ("Suggest a service"): add the new category from a request, or decline it.
+export async function addCategoryFromRequestAction(form: FormData) {
   const db = await requireAdmin();
-  return { db, adminId: user!.id };
-}
-
-export async function addProFromRequestAction(form: FormData) {
-  const { db, adminId } = await requireAdminId();
   const requestId = str(form, "requestId");
-  const name = str(form, "name");
-  const r = await addProFromRequest(db, adminId, requestId, {
-    name,
-    tags: form.getAll("tags").map(String),
-    phone: str(form, "phone"),
-    social: str(form, "social"),
-    website: str(form, "website"),
-  });
+  const r = await addCategoryFromRequest(db, requestId, { name: str(form, "name"), icon: str(form, "icon"), section: str(form, "section") });
   if (!r.ok) redirect(`/admin/requests/${requestId}?error=${encodeURIComponent(r.error)}`);
-  const { proId, requesterId } = r;
-  after(() => sendAlert(db, [requesterId], addedAlert(name, proId)));
-  revalidatePath("/admin");
+  const { slug, name, requesterId } = r;
+  after(() => sendAlert(db, [requesterId], addedAlert(name, slug)));
+  revalidatePath("/", "layout"); // the new service shows up everywhere
   redirect(`/admin?tab=requests&added=${encodeURIComponent(name)}`);
 }
 
-export async function declineVendorRequestAction(form: FormData) {
-  const { db } = await requireAdminId();
-  await declineVendorRequest(db, str(form, "requestId"), str(form, "reason"));
+export async function declineCategoryRequestAction(form: FormData) {
+  const db = await requireAdmin();
+  await declineCategoryRequest(db, str(form, "requestId"), str(form, "reason"));
   revalidatePath("/admin");
   redirect("/admin?tab=requests");
 }

@@ -56,7 +56,7 @@ export default function CategorySheet(props: {
         </div>
 
         <div className="mt-3 overflow-y-auto px-5 pb-6">
-          {groups.length === 0 && <p className="px-1 py-4 text-[15px] text-muted">No match. Try another word.</p>}
+          {groups.length === 0 && <p className="px-1 py-4 text-[15px] text-muted">No match. Try another word, or suggest it below.</p>}
           {groups.map((g) => (
             <section key={g.section} className="mb-4">
               <h3 className="mb-2 px-1 text-[13px] font-semibold uppercase tracking-wide text-muted">{g.section}</h3>
@@ -83,6 +83,12 @@ export default function CategorySheet(props: {
               </div>
             </section>
           ))}
+          <Link
+            href={`/request-service?back=/map${q.trim() ? `&name=${encodeURIComponent(q.trim())}` : ""}`}
+            className="mb-3 flex h-12 items-center justify-center rounded-[16px] border border-dashed border-line text-[15px] font-semibold"
+          >
+            Don&apos;t see it? Suggest a service
+          </Link>
           <Link href="/unlock" className="mt-1 block text-center text-sm font-semibold text-green-deep">
             Not in {SITE.launchTownShort}? Unlock your town →
           </Link>

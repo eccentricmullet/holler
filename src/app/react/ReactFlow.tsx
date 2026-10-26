@@ -457,6 +457,9 @@ export default function ReactFlow({
               </button>
             ))}
           </div>
+          <Link href="/request-service?back=/react" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-green-deep">
+            Don&apos;t see it? Suggest a service
+          </Link>
         </div>
         )}
 
@@ -771,13 +774,6 @@ export default function ReactFlow({
           <span className="text-sm text-muted">Add them with a phone number, Instagram or Facebook</span>
         </span>
       </button>
-      {/* Don't have their number either? The admin adds them (vendor requests) */}
-      <Link
-        href={`/request-pro${query.trim() ? `?name=${encodeURIComponent(query.trim())}` : ""}`}
-        className="mt-2 flex min-h-12 items-center justify-center text-[15px] font-semibold text-green-deep"
-      >
-        Don&apos;t have their info? Ask us to add them
-      </Link>
     </main>
   );
 }

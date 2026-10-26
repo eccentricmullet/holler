@@ -66,8 +66,11 @@ export default function NewAsk({ categories, preset }: { categories: Cat[]; pres
           </button>
         ))}
       </div>
+      <Link href="/request-service?back=/asks/new" className="mt-1 inline-flex min-h-11 items-center self-start text-sm font-semibold text-green-deep">
+        Don&apos;t see it? Suggest a service
+      </Link>
 
-      <h2 className="mb-2 mt-6 text-[15px] font-semibold">When?</h2>
+      <h2 className="mb-2 mt-4 text-[15px] font-semibold">When?</h2>
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="When">
         {TIMINGS.map((t) => (
           <button key={t.id} type="button" role="radio" aria-checked={timing === t.id} onClick={() => setTiming(t.id)} className={`${chip} ${timing === t.id ? on : off}`}>

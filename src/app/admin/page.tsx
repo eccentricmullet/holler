@@ -5,7 +5,7 @@ import { FLAG_ALERT_THRESHOLD, openFlags } from "@/lib/admin";
 import { adminPageGuard } from "./guard";
 import { resolveFlag, setUserBanned, setUserReactionsHidden } from "./actions";
 import ConfirmButton from "./ConfirmButton";
-import { adminVendorRequests, waitingVendorRequestCount } from "@/lib/vendor-requests";
+import { adminCategoryRequests, waitingCategoryRequestCount } from "@/lib/category-requests";
 
 export const metadata: Metadata = { title: `Admin · ${SITE.name}`, robots: { index: false } };
 
@@ -24,7 +24,7 @@ const card = "rounded-[18px] bg-surface p-4 shadow-card";
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string; q?: string; added?: string }> }) {
   const { tab: tabParam, q = "", added } = await searchParams;
   const db = await adminPageGuard(`/admin${tabParam ? `?tab=${tabParam}` : ""}`);
-  const waiting = await waitingVendorRequestCount(db);
+  const waiting = await waitingCategoryRequestCount(db);
   // Open on Requests when someone is waiting, otherwise Flags
   const tab: Tab = TABS.some((t) => t.id === tabParam) ? (tabParam as Tab) : waiting ? "requests" : "flags";
 
@@ -67,20 +67,19 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
 type Db = Awaited<ReturnType<typeof adminPageGuard>>;
 
-// "Ask us to add a pro" requests from neighbors
+// "Suggest a service" requests from neighbors
 async function RequestsTab({ db, added }: { db: Db; added?: string }) {
-  const { waiting, recent } = await adminVendorRequests(db);
+  const { waiting, recent } = await adminCategoryRequests(db);
   return (
     <>
-      {added && <p className="rounded-xl bg-green-tint p-3 text-sm font-semibold text-green-deep">Added {added} ✓ The neighbor was told.</p>}
+      {added && <p className="rounded-xl bg-green-tint p-3 text-sm font-semibold text-green-deep">Added {added} ✓ It&apos;s live for everyone, and the neighbor was told.</p>}
       {waiting.length === 0 && <p className="text-[15px] text-muted">No requests waiting. 🎉</p>}
       {waiting.map((r) => (
         <Link key={r.id} href={`/admin/requests/${r.id}`} className={`${card} flex flex-col gap-1`}>
           <span className="flex items-center justify-between gap-3">
-            <span className="text-base font-bold">{r.name}</span>
+            <span className="text-base font-bold">“{r.name}”</span>
             <span className="shrink-0 text-[13px] text-muted">{new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
           </span>
-          <span className="text-sm text-muted">{r.tagLine}</span>
           {r.details && <span className="whitespace-pre-line text-sm">{r.details}</span>}
           <span className="text-[13px] text-muted">From {r.who ?? "a neighbor"} · Tap to add or decline</span>
         </Link>
@@ -90,12 +89,10 @@ async function RequestsTab({ db, added }: { db: Db; added?: string }) {
         <div key={r.id} className={`${card} flex items-center justify-between gap-3`}>
           <span className="min-w-0">
             <span className="block truncate font-semibold">{r.name}</span>
-            <span className="block truncate text-[13px] text-muted">{r.tagLine}</span>
+            {r.status === "declined" && r.declineReason && <span className="block truncate text-[13px] text-muted">{r.declineReason}</span>}
           </span>
-          {r.status === "added" && r.proId ? (
-            <Link href={`/admin/pros/${r.proId}`} className="shrink-0 text-sm font-semibold text-green-deep">
-              Added ›
-            </Link>
+          {r.status === "added" ? (
+            <span className="shrink-0 text-sm font-semibold text-green-deep">Added ✓</span>
           ) : (
             <span className="shrink-0 text-sm text-muted">Declined</span>
           )}
