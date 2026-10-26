@@ -1,6 +1,14 @@
 // Best guess at a category from a business's name and Google types. The user always confirms it.
 // More specific rules come first ("pressure washing" before "cleaning", "gutter" before "roof").
 const RULES: [slug: string, pattern: RegExp][] = [
+  // Beauty and pets first, so "med spa" isn't a pool and "mobile grooming" isn't a salon
+  ["botox", /botox|filler|med ?spa|medspa|aesthetic|injector|inject/i],
+  ["lash-extensions", /lash/i],
+  ["nails", /\bnails?\b|manicure|pedicure/i],
+  ["mobile-dog-grooming", /mobile (dog |pet )?groom/i],
+  ["vet", /\bvets?\b|veterinar|animal hospital|animal clinic/i],
+  ["dog-boarding", /boarding|kennel|pet resort|dog resort|doggy day ?care/i],
+  ["hair-salon", /hair|salon|barber|stylist|blowout/i],
   ["pool", /\bpools?\b|\bspa\b/i],
   ["gutter-cleaning", /gutter/i],
   ["pressure-washing", /pressure|power wash|soft wash/i],

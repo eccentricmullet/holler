@@ -21,6 +21,14 @@ describe("category guess from a business name", () => {
     ["Joe's Plumbing", "plumbing"],
     ["Hardwood Floors Plus", "flooring"],
     ["Maid Right Cleaning", "cleaning"],
+    ["Glow Med Spa", "botox"],
+    ["Lash Lounge", "lash-extensions"],
+    ["Polished Nail Bar", "nails"],
+    ["Salon 615", "hair-salon"],
+    ["Spring Hill Animal Hospital", "vet"],
+    ["Happy Tails Pet Resort", "dog-boarding"],
+    ["Pampered Paws Mobile Grooming", "mobile-dog-grooming"],
+    ["Crystal Clear Pools", "pool"],
   ])("%s → %s", (name, slug) => {
     expect(guessCategory(name)).toBe(slug);
   });

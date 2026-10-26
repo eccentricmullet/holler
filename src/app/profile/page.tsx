@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { metersBetween, ONE_MILE_M, parsePoint } from "@/lib/geo";
 import InviteButton from "@/components/InviteButton";
 import InstallCard from "@/components/InstallCard";
+import { myVendorRequests } from "@/lib/vendor-requests";
 import { signOut } from "./actions";
 
 export const metadata: Metadata = { title: `Profile · ${SITE.name}` };
@@ -39,6 +40,7 @@ export default async function ProfilePage() {
   if (!profile) redirect("/signup?next=/profile");
 
   const { data: mine } = await db.from("vouches").select("reaction").eq("profile_id", user.id);
+  const requests = await myVendorRequests(db, user.id);
   const thumbs = (mine ?? []).filter((v) => v.reaction === "thumbs_up").length;
   const love = (mine ?? []).filter((v) => v.reaction === "love").length;
 
@@ -79,6 +81,33 @@ export default async function ProfilePage() {
       </InviteButton>
 
       <InstallCard className="mt-4" />
+
+      {requests.length > 0 && (
+        <section className="mt-6" aria-label="Pros you asked us to add">
+          <h2 className="text-[17px] font-bold">Pros you asked us to add</h2>
+          <ul className="mt-2 flex flex-col overflow-hidden rounded-[18px] bg-surface shadow-card">
+            {requests.slice(0, 5).map((r) => (
+              <li key={r.id} className="flex min-h-14 items-center gap-3 border-b border-line px-4 py-2.5 last:border-b-0">
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-[15px] font-semibold">{r.name}</span>
+                  <span className="truncate text-[13px] text-muted">
+                    {r.status === "declined" && r.declineReason ? r.declineReason : r.tagLine}
+                  </span>
+                </span>
+                {r.status === "added" && r.proId ? (
+                  <Link href={`/react?pro=${r.proId}`} className="flex h-9 shrink-0 items-center rounded-full bg-neon px-3 text-[13px] font-bold text-on-neon">
+                    Added · 👍 them
+                  </Link>
+                ) : (
+                  <span className="shrink-0 rounded-full bg-field px-3 py-1.5 text-[13px] font-medium text-ink-soft">
+                    {r.status === "declined" ? "Declined" : "Waiting"}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <nav aria-label="Profile menu" className="mt-[18px] flex flex-col">
         <MenuLink href="/profile/reactions" label="My reactions">

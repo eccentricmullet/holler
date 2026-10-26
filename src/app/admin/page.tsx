@@ -5,11 +5,13 @@ import { FLAG_ALERT_THRESHOLD, openFlags } from "@/lib/admin";
 import { adminPageGuard } from "./guard";
 import { resolveFlag, setUserBanned, setUserReactionsHidden } from "./actions";
 import ConfirmButton from "./ConfirmButton";
+import { adminVendorRequests, waitingVendorRequestCount } from "@/lib/vendor-requests";
 
 export const metadata: Metadata = { title: `Admin · ${SITE.name}`, robots: { index: false } };
 
-type Tab = "flags" | "pros" | "users" | "stats";
+type Tab = "requests" | "flags" | "pros" | "users" | "stats";
 const TABS: { id: Tab; label: string }[] = [
+  { id: "requests", label: "Requests" },
   { id: "flags", label: "Flags" },
   { id: "pros", label: "Pros" },
   { id: "users", label: "Users" },
@@ -19,10 +21,12 @@ const TABS: { id: Tab; label: string }[] = [
 const btn = "h-10 rounded-xl px-3.5 text-sm font-semibold";
 const card = "rounded-[18px] bg-surface p-4 shadow-card";
 
-export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string; q?: string }> }) {
-  const { tab: tabParam, q = "" } = await searchParams;
-  const tab: Tab = TABS.some((t) => t.id === tabParam) ? (tabParam as Tab) : "flags";
-  const db = await adminPageGuard(`/admin?tab=${tab}`);
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string; q?: string; added?: string }> }) {
+  const { tab: tabParam, q = "", added } = await searchParams;
+  const db = await adminPageGuard(`/admin${tabParam ? `?tab=${tabParam}` : ""}`);
+  const waiting = await waitingVendorRequestCount(db);
+  // Open on Requests when someone is waiting, otherwise Flags
+  const tab: Tab = TABS.some((t) => t.id === tabParam) ? (tabParam as Tab) : waiting ? "requests" : "flags";
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col p-5">
@@ -43,11 +47,15 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             }`}
           >
             {t.label}
+            {t.id === "requests" && waiting > 0 && (
+              <span className="ml-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-neon px-1.5 text-[11px] font-bold text-on-neon">{waiting}</span>
+            )}
           </Link>
         ))}
       </nav>
 
       <div className="mt-5 flex flex-col gap-3">
+        {tab === "requests" && <RequestsTab db={db} added={added} />}
         {tab === "flags" && <FlagsTab db={db} />}
         {tab === "pros" && <ProsTab db={db} q={q} />}
         {tab === "users" && <UsersTab db={db} q={q} />}
@@ -58,6 +66,44 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 }
 
 type Db = Awaited<ReturnType<typeof adminPageGuard>>;
+
+// "Ask us to add a pro" requests from neighbors
+async function RequestsTab({ db, added }: { db: Db; added?: string }) {
+  const { waiting, recent } = await adminVendorRequests(db);
+  return (
+    <>
+      {added && <p className="rounded-xl bg-green-tint p-3 text-sm font-semibold text-green-deep">Added {added} ✓ The neighbor was told.</p>}
+      {waiting.length === 0 && <p className="text-[15px] text-muted">No requests waiting. 🎉</p>}
+      {waiting.map((r) => (
+        <Link key={r.id} href={`/admin/requests/${r.id}`} className={`${card} flex flex-col gap-1`}>
+          <span className="flex items-center justify-between gap-3">
+            <span className="text-base font-bold">{r.name}</span>
+            <span className="shrink-0 text-[13px] text-muted">{new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+          </span>
+          <span className="text-sm text-muted">{r.tagLine}</span>
+          {r.details && <span className="whitespace-pre-line text-sm">{r.details}</span>}
+          <span className="text-[13px] text-muted">From {r.who ?? "a neighbor"} · Tap to add or decline</span>
+        </Link>
+      ))}
+      {recent.length > 0 && <h2 className="mt-4 text-sm font-semibold uppercase tracking-wide text-muted">Recently handled</h2>}
+      {recent.map((r) => (
+        <div key={r.id} className={`${card} flex items-center justify-between gap-3`}>
+          <span className="min-w-0">
+            <span className="block truncate font-semibold">{r.name}</span>
+            <span className="block truncate text-[13px] text-muted">{r.tagLine}</span>
+          </span>
+          {r.status === "added" && r.proId ? (
+            <Link href={`/admin/pros/${r.proId}`} className="shrink-0 text-sm font-semibold text-green-deep">
+              Added ›
+            </Link>
+          ) : (
+            <span className="shrink-0 text-sm text-muted">Declined</span>
+          )}
+        </div>
+      ))}
+    </>
+  );
+}
 
 async function FlagsTab({ db }: { db: Db }) {
   const flags = await openFlags(db);

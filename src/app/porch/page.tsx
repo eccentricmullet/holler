@@ -13,7 +13,7 @@ import { SeenPorch } from "@/components/PorchButton";
 export const metadata: Metadata = { title: `Porch · ${SITE.name}` };
 
 // Quick picks on the "Who do you need?" card
-const QUICK = ["electrical", "plumbing", "lawn", "hvac"];
+const QUICK = ["electrical", "plumbing", "lawn", "hair-salon", "vet"];
 
 const roundBtn = "flex size-11 items-center justify-center rounded-full bg-surface text-ink shadow-card";
 const chipBase = "flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px]";

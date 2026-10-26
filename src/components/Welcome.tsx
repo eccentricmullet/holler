@@ -3,7 +3,7 @@ import { SITE } from "@/config/site";
 // What Holler is, in one screen. Shown before signing up.
 export const WELCOME_POINTS = [
   { emoji: "👍", title: "See who neighbors hired", body: "Real reactions from homes near you, not anonymous reviews." },
-  { emoji: "📞", title: "Call or text in one tap", body: "Find a good plumber, lawn crew or cleaner in under a minute." },
+  { emoji: "📞", title: "Call or text in one tap", body: "Find a good plumber, hair stylist or vet in under a minute." },
   { emoji: "🏡", title: "The Porch", body: "Curb alerts, garage sales, lost pets and heads-ups nearby." },
 ];
 

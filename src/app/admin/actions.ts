@@ -9,6 +9,9 @@ import { toE164 } from "@/lib/reactions";
 import { cleanSocialUrl } from "@/lib/social";
 import { loadTagInfo, mergeTags } from "@/lib/pro-tags";
 import { getOrCreateInvite } from "@/lib/invites";
+import { after } from "next/server";
+import { sendAlert } from "@/lib/push";
+import { addedAlert, addProFromRequest, declineVendorRequest } from "@/lib/vendor-requests";
 
 // Every admin action checks, on the server, that the signed-in user is an admin.
 async function requireAdmin() {
@@ -97,4 +100,39 @@ export async function createInviteAction(form: FormData) {
   const proId = str(form, "proId");
   await getOrCreateInvite(db, proId);
   revalidatePath(`/admin/pros/${proId}`);
+}
+
+// Vendor requests ("Ask us to add a pro"): create the pro from a request, or decline it.
+async function requireAdminId() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const db = await requireAdmin();
+  return { db, adminId: user!.id };
+}
+
+export async function addProFromRequestAction(form: FormData) {
+  const { db, adminId } = await requireAdminId();
+  const requestId = str(form, "requestId");
+  const name = str(form, "name");
+  const r = await addProFromRequest(db, adminId, requestId, {
+    name,
+    tags: form.getAll("tags").map(String),
+    phone: str(form, "phone"),
+    social: str(form, "social"),
+    website: str(form, "website"),
+  });
+  if (!r.ok) redirect(`/admin/requests/${requestId}?error=${encodeURIComponent(r.error)}`);
+  const { proId, requesterId } = r;
+  after(() => sendAlert(db, [requesterId], addedAlert(name, proId)));
+  revalidatePath("/admin");
+  redirect(`/admin?tab=requests&added=${encodeURIComponent(name)}`);
+}
+
+export async function declineVendorRequestAction(form: FormData) {
+  const { db } = await requireAdminId();
+  await declineVendorRequest(db, str(form, "requestId"), str(form, "reason"));
+  revalidatePath("/admin");
+  redirect("/admin?tab=requests");
 }
