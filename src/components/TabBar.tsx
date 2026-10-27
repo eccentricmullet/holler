@@ -23,7 +23,7 @@ const ACTIONS = [
   { emoji: "👍", label: "Recommend a pro you use", sub: "Put them on the map for neighbors", href: "/react" },
   { emoji: "🔧", label: "Ask for a pro", sub: "Neighbors tell you who they use", href: "/asks/new" },
   { emoji: "📬", label: "Suggest a service", sub: "Don't see the kind of pro you need?", href: "/request-service" },
-  { emoji: "🛋️", label: "List on the Curb", sub: "Sell or give away something", href: "/curb" },
+  { emoji: "🛋️", label: "List on the Curb", sub: "Sell or give away something", href: "/curb/new" },
   { emoji: "🏷️", label: "Garage sale", sub: "Date, time and what's for sale", href: "/porch/new?kind=garage_sale" },
   { emoji: "🐾", label: "Pet post", sub: "Lost or found pet nearby", href: "/porch/new?tab=pets" },
 ];

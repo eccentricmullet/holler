@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    // Porch photos are shrunk on the phone first; this leaves room for a full-size one
-    serverActions: { bodySizeLimit: "6mb" },
+    // Photos are shrunk on the phone first; this leaves room for up to 4 Curb photos
+    serverActions: { bodySizeLimit: "12mb" },
   },
 };
 

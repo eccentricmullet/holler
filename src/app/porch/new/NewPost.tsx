@@ -8,19 +8,9 @@ import { track } from "@/components/Track";
 import { HEADS_UP_TOPICS, KINDS, type PorchKind } from "@/lib/porch-kinds";
 import type { SearchResult } from "@/app/api/pros/search/route";
 import { createPostAction } from "../actions";
+import { shrinkPhoto } from "@/lib/shrink-photo";
 
 const MAX = 280;
-
-// Shrinks a phone photo to at most 1600px wide/tall JPEG so posting stays fast.
-async function shrink(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("photo"))), "image/jpeg", 0.82));
-}
 
 export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset: PorchKind | null }) {
   const router = useRouter();
@@ -250,7 +240,7 @@ export default function NewPost({ kinds, preset }: { kinds: PorchKind[]; preset:
           const f = e.target.files?.[0];
           if (!f) return;
           try {
-            const small = await shrink(f);
+            const small = await shrinkPhoto(f);
             setPhoto(small);
             setPreview(URL.createObjectURL(small));
           } catch {

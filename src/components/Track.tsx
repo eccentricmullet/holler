@@ -16,7 +16,9 @@ export type TrackEvent =
   | "shared_pro"
   | "invited_neighbor"
   | "joined_waitlist"
-  | "porch_posted";
+  | "porch_posted"
+  | "curb_listed"
+  | "curb_interested";
 
 export function track(event: TrackEvent, props?: Record<string, string | number | boolean | null>) {
   try {

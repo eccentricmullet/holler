@@ -18,7 +18,8 @@ export default async function NewPostPage({ searchParams }: { searchParams: Prom
   if (!profile) redirect("/signup?next=/porch/new");
 
   // Coming from a tab narrows the choices to that tab's post types
-  const kinds = (Object.keys(KINDS) as PorchKind[]).filter((k) => !tab || tab === "all" || KINDS[k].tab === tab);
+  // Curb alerts moved to the Curb (phase 4), so the Porch no longer offers them
+  const kinds = (Object.keys(KINDS) as PorchKind[]).filter((k) => k !== "curb_alert" && (!tab || tab === "all" || KINDS[k].tab === tab));
   const preset = kind && kind in KINDS ? (kind as PorchKind) : kinds.length === 1 ? kinds[0] : null;
   return <NewPost kinds={kinds.length ? kinds : (Object.keys(KINDS) as PorchKind[])} preset={preset} />;
 }
