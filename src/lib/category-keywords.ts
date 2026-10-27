@@ -24,5 +24,6 @@ export const CATEGORY_KEYWORDS: Record<string, string> = {
   "dog-walking": "dog walker pet sitter pet sitting",
   "pet-grooming": "groomer dog grooming cat",
   "car-care": "mechanic auto car detailing oil change tires",
+  "mobile-car-detailing": "car detailing detailer wash wax comes to you",
   florist: "flowers flower bouquet",
 };

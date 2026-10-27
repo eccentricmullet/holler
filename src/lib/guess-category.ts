@@ -29,6 +29,7 @@ const RULES: [slug: string, pattern: RegExp][] = [
   ["movers", /\bmov(ers?|ing)\b|relocat/i],
   ["dog-walking", /dog walk|pet sit|walker/i],
   ["pet-grooming", /groom|pet spa|\bpaws?\b/i],
+  ["mobile-car-detailing", /mobile.*detail|detail.*mobile/i],
   ["car-care", /auto|car wash|detail|mechanic|tire/i],
   ["florist", /flor(ist|al)|flowers?|bouquet/i],
   ["painting", /paint/i],
